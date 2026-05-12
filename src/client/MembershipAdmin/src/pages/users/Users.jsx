@@ -259,7 +259,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
     } catch (err) {
       const status = err?.response?.status
       if (status === 409) {
-        setServerErrors([t('users:error.createFailed')])
+        setServerErrors([t('users:error.emailTaken')])
       } else if (status === 400) {
         setServerErrors(extractErrorMessages(err))
       } else {
@@ -327,7 +327,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
             id="create-orgUnitId"
             {...register('orgUnitId', {
               validate: (v) =>
-                !orgUnitRequired || (v !== '' && v != null) || t('users:form.selectOrgUnit'),
+                !orgUnitRequired || (v !== '' && v != null) || t('users:validation.orgUnitRequired'),
             })}
             className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
           >
@@ -438,7 +438,7 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
             id="edit-orgUnitId"
             {...register('orgUnitId', {
               validate: (v) =>
-                !orgUnitRequired || (v !== '' && v != null) || t('users:form.selectOrgUnit'),
+                !orgUnitRequired || (v !== '' && v != null) || t('users:validation.orgUnitRequired'),
             })}
             className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
           >

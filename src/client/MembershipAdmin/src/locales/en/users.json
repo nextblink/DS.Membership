@@ -24,14 +24,16 @@
   "error": {
     "saveFailed": "Failed to save user.",
     "deleteFailed": "Failed to delete user.",
-    "createFailed": "Failed to create user."
+    "createFailed": "Failed to create user.",
+    "emailTaken": "A user with this email already exists."
   },
   "validation": {
     "emailRequired": "Email is required",
     "passwordRequired": "Password is required",
     "roleRequired": "Role is required",
     "emailInvalid": "Enter a valid email address",
-    "passwordMinLength": "Password must be at least 6 characters"
+    "passwordMinLength": "Password must be at least 6 characters",
+    "orgUnitRequired": "Org Unit is required for this role"
   },
   "confirm": {
     "delete": "Delete this user?"

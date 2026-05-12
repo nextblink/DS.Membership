@@ -62,7 +62,11 @@ test.describe('UC-ORG org units', () => {
     await expect(page.getByText('DeleteMeLeaf')).not.toBeVisible({ timeout: 5000 });
   });
 
-  test('ORG-06 Delete unit with children → 409 friendly message', async ({ page, loginAsUI }) => {
+  test('ORG-06 Delete unit with children → 409 friendly message', async ({ page, loginAsUI, superAdminApi }) => {
+    // Seed a child under Belgrade so its delete is blocked by 409.
+    await superAdminApi.post('/api/orgunits', {
+      data: { name: 'ChildOfBelgrade', type: 'Municipal', voterCount: 0, parentId: 1 },
+    });
     await loginAsUI(page, 'superAdmin');
     await page.goto('/org-units');
     await waitForTree(page);
