@@ -317,7 +317,7 @@ export default function MemberForm({
             </button>
           </div>
           {phones.fields.length === 0 && (
-            <p className="text-xs text-body">{t('members:form.noPhones')}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{t('members:form.noPhones')}</p>
           )}
           {phones.fields.map((f, idx) => (
             <div key={f.id} className="flex gap-2 mb-2 items-start">
@@ -398,7 +398,7 @@ export default function MemberForm({
             </button>
           </div>
           {fns.fields.length === 0 && (
-            <p className="text-xs text-body">{t('members:form.noFunctions')}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{t('members:form.noFunctions')}</p>
           )}
           {fns.fields.map((f, idx) => (
             <div key={f.id} className="flex gap-2 mb-2 items-start">

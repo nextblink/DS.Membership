@@ -209,7 +209,7 @@ export default function Profile() {
           )}
 
           {pwNotImplemented && (
-            <div data-testid="pw-not-implemented" className="mb-4 rounded-lg border border-warning bg-warning/10 px-4 py-2 text-theme-sm text-warning">
+            <div data-testid="pw-not-implemented" className="mb-4 rounded-lg border border-warning-300 dark:border-warning-700 bg-warning-50 dark:bg-warning-900/20 px-4 py-2 text-theme-sm text-warning-600 dark:text-warning-400">
               {t('changePassword.notSupported')}
             </div>
           )}
