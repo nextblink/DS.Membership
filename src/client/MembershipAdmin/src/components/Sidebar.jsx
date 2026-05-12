@@ -31,7 +31,7 @@ export default function Sidebar({ open, onClose }) {
       </div>
 
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear">
-        <nav className="mt-2 px-4 py-4 lg:px-6">
+        <nav className="mt-2 px-4 py-4 lg:px-6" data-testid="sidebar-nav">
           <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-bodydark2">
             Menu
           </h3>
