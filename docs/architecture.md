@@ -13,7 +13,7 @@ src/backend/
   Marsipan.Membership.sln
 ```
 
-The React client lives under `src/client/` and is scaffolded independently (Vite + React + TypeScript + Tailwind + Axios + React Router v6).
+The React client lives under `src/client/MembershipAdmin/` and is scaffolded independently (Vite + React 19 + JavaScript `.jsx` + Tailwind v3 + TailAdmin shell + Axios + React Router v7).
 
 ## Dependency Direction
 
@@ -27,7 +27,7 @@ The Web project references the Middleware project. The Middleware project must n
 
 | Concern | Project | Folder |
 |---|---|---|
-| Entities (`Member`, `Form`, `OrgUnit`, `Function`, `Phone`, `MemberFunction`, `FormImage`, `ApplicationUser`) | Middleware | `Models/` |
+| Entities (`BaseEntity`, `Member`, `Form`, `OrgUnit`, `Function`, `Phone`, `MemberFunction`, `FormImage`, `ApplicationUser`) | Middleware | `Entities/` |
 | Enums (`Gender`, `MaritalStatus`, `EducationLevel`, `PhoneType`, `OrgUnitType`, `FormStatus`) | Middleware | `Enums/` |
 | `AppDbContext` and EF Core configuration | Middleware | `Data/` |
 | EF Core migrations | Middleware | `Migrations/` |
@@ -50,7 +50,7 @@ The Web project references the Middleware project. The Middleware project must n
 
 ## Base Entity / Audit
 
-A `BaseEntity` (in `Middleware/Models/`) provides audit fields:
+A `BaseEntity` (in `Middleware/Entities/`) provides audit fields:
 
 - `Id` (int PK)
 - `CreatedDate`, `LastModifiedDate` (UTC `DateTime`)
@@ -59,7 +59,7 @@ A `BaseEntity` (in `Middleware/Models/`) provides audit fields:
 
 Entities that need auditing inherit from `BaseEntity`. Soft-deletes are enforced via an EF query filter so deleted rows are invisible to normal queries.
 
-> Note: the original spec (`membership-app-instructions.md` §Key Implementation Notes #5) says hard delete is fine. We are adopting a `BaseEntity` with soft-delete because the broader NextBlink standard requires it and the issue brief for this scaffold calls it out explicitly. See "Decisions and deviations" below.
+> Note: the original spec (`membership-app-instructions.md` §Key Implementation Notes #5) says hard delete is fine. The implementation uses `BaseEntity` with soft-delete because the broader NextBlink standard requires it. See "Decisions and Deviations" below.
 
 ## File Storage
 
@@ -89,15 +89,17 @@ Filters are passed as query-string parameters per `membership-app-instructions.m
 - Backend HTTPS: **7226**
 - Frontend Vite dev server: **5180**
 
-## Decisions and Deviations
+## Decisions and Deviations (landed)
+
+These deviations from the spec are implemented and merged via issues #1–#23. See the root `CLAUDE.md` for the full alignment table.
 
 | Topic | Decision |
 |---|---|
-| .NET version | **.NET 10** (SDK 10.0.203 is available on the dev machine). The spec mentions .NET 9; we are scaffolding on .NET 10 since it is installed and supported. |
-| Backend layout | **Two-project Middleware + Web** (per the NextBlink standard and the issue #1 brief), not the single-`Api` layout sketched in `membership-app-instructions.md`. |
-| Frontend language | **JavaScript** on the client per scaffold direction (the spec allows either; React Router v6 + Axios + Tailwind are required). |
-| JWT storage on client | **`localStorage`** (per spec and project `CLAUDE.md`). |
+| .NET version | **.NET 10** (spec said .NET 9). |
+| Backend layout | **Two-project Middleware + Web** (NextBlink standard), not the single-`Api` layout in `membership-app-instructions.md`. |
+| Frontend language | **JavaScript `.jsx`** (no TypeScript). |
+| Tailwind version | **Pinned to v3** (`^3.4.x`) — do not upgrade to v4 without a config migration. |
+| JWT storage on client | **`localStorage`** (per spec). |
 | Soft delete | Adopted via `BaseEntity` with `IsDeleted`. **Form soft-delete cascades to on-disk image files** (files physically removed; DB rows soft-deleted). |
-| Admin UI shell | **TailAdmin** adopted as the admin-panel template/base, customized with Tailwind utility classes per the NextBlink standard. |
-
-These deviations should be revisited if/when the spec is updated.
+| Admin UI shell | **TailAdmin** adopted. |
+| Change-password endpoint | **Not implemented server-side.** Client posts to `/api/auth/change-password` and handles 404 gracefully. |
