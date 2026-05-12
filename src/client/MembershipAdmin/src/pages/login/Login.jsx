@@ -35,7 +35,7 @@ export default function Login() {
         <h1 className="mb-2 text-2xl font-semibold text-black">Sign in</h1>
         <p className="mb-6 text-sm text-body">Membership admin panel</p>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate data-testid="login-form">
           <div className="mb-4">
             <label htmlFor="email" className="mb-2.5 block text-sm font-medium text-black">
               Email
@@ -74,7 +74,10 @@ export default function Login() {
           </div>
 
           {submitError && (
-            <div className="mb-4 rounded-sm border border-danger bg-danger/10 px-4 py-2 text-sm text-danger">
+            <div
+              data-testid="login-error"
+              className="mb-4 rounded-sm border border-danger bg-danger/10 px-4 py-2 text-sm text-danger"
+            >
               {submitError}
             </div>
           )}
@@ -82,6 +85,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isSubmitting}
+            data-testid="login-submit"
             className="w-full cursor-pointer rounded-sm border border-primary bg-primary py-3 px-6 text-white transition hover:bg-opacity-90 disabled:opacity-60"
           >
             {isSubmitting ? 'Signing in…' : 'Sign in'}
