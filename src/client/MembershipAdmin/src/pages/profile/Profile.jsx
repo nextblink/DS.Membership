@@ -105,15 +105,15 @@ export default function Profile() {
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <dt className="text-xs uppercase tracking-wide text-body">Email</dt>
-              <dd className="mt-1 text-sm text-black">{user.email ?? '—'}</dd>
+              <dd data-testid="profile-email" className="mt-1 text-sm text-black">{user.email ?? '—'}</dd>
             </div>
             <div>
               <dt className="text-xs uppercase tracking-wide text-body">Role</dt>
-              <dd className="mt-1 text-sm text-black">{user.role ?? '—'}</dd>
+              <dd data-testid="profile-role" className="mt-1 text-sm text-black">{user.role ?? '—'}</dd>
             </div>
             <div>
               <dt className="text-xs uppercase tracking-wide text-body">Org Unit</dt>
-              <dd className="mt-1 text-sm text-black">{orgUnitName ?? '—'}</dd>
+              <dd data-testid="profile-org-unit" className="mt-1 text-sm text-black">{orgUnitName ?? '—'}</dd>
             </div>
             {user.id && (
               <div>
@@ -207,7 +207,7 @@ export default function Profile() {
           )}
 
           {pwNotImplemented && (
-            <div className="mb-4 rounded-sm border border-warning bg-warning/10 px-4 py-2 text-sm text-warning">
+            <div data-testid="pw-not-implemented" className="mb-4 rounded-sm border border-warning bg-warning/10 px-4 py-2 text-sm text-warning">
               Change password is not yet supported by the server.
             </div>
           )}

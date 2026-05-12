@@ -46,7 +46,7 @@ export default function Login() {
               autoComplete="email"
               {...register('email', {
                 required: 'Email is required',
-                pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email address' },
+                pattern: { value: /^\S+@\S+$/, message: 'Enter a valid email address' },
               })}
               className="w-full rounded-sm border border-stroke bg-transparent py-3 px-4 text-black outline-none focus:border-primary focus-visible:shadow-none"
               placeholder="you@example.com"
