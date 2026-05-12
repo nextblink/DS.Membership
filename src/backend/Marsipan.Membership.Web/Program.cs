@@ -49,6 +49,10 @@ builder.Services.Configure<FileStorageOptions>(
 builder.Services.AddScoped<IFormImageStorage, FormImageStorage>();
 // --- end file storage ---
 
+// --- Functions (issue #10) ---
+builder.Services.AddScoped<IFunctionsService, FunctionsService>();
+// --- end Functions ---
+
 // --- JWT auth (issue #6) ---
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<IAuthService, AuthService>();
