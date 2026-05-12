@@ -143,7 +143,8 @@ export const test = base.extend<Fixtures>({
       await page.locator(selectors.login.email).fill(creds.email);
       await page.locator(selectors.login.password).fill(creds.password);
       await page.locator(selectors.login.submit).click();
-      await page.waitForURL('**/dashboard');
+      // Wait for any protected route — role-specific redirects may land on /members or /forms
+      await page.waitForURL(/\/(dashboard|members|forms|profile|org-units|functions|users)/, { timeout: 15_000 });
     };
     await use(helper);
   },

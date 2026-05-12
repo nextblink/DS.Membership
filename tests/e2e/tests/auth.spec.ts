@@ -62,7 +62,8 @@ test.describe('UC-AUTH — Authentication', () => {
       localStorage.setItem(k, 'tampered.jwt.token');
     }, TOKEN_KEY);
 
-    await page.goto('/members');
+    // Use 'commit' so ERR_ABORTED on immediate redirect doesn't throw.
+    await page.goto('/members', { waitUntil: 'commit' }).catch(() => {});
     // 401 interceptor in api.js clears auth and forces /login.
     await page.waitForURL('**/login', { timeout: 10_000 });
     await expect(page).toHaveURL(/\/login$/);
