@@ -61,6 +61,10 @@ builder.Services.AddScoped<IFunctionsService, FunctionsService>();
 builder.Services.AddScoped<IMembersService, MembersService>();
 // --- end Members ---
 
+// --- Forms (issue #12) ---
+builder.Services.AddScoped<IFormsService, FormsService>();
+// --- end Forms ---
+
 // --- JWT auth (issue #6) ---
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<IAuthService, AuthService>();
