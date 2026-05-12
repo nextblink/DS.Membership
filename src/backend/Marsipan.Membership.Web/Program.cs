@@ -125,7 +125,7 @@ builder.Services.AddCors(opts =>
 
     opts.AddPolicy("PublicUpload", policy =>
         policy.AllowAnyOrigin()
-              .AllowAnyMethod()
+              .WithMethods("POST", "OPTIONS")
               .AllowAnyHeader());
 });
 // --- end JWT auth ---

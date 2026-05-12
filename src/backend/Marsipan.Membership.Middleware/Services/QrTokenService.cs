@@ -14,6 +14,9 @@ public class QrTokenService : IQrTokenService
     public QrTokenService(IOptions<QrUploadOptions> options)
     {
         _options = options.Value;
+        if (string.IsNullOrWhiteSpace(_options.Secret) || _options.Secret.Length < 32)
+            throw new InvalidOperationException(
+                "QrUpload:Secret must be configured and at least 32 characters long.");
     }
 
     public string GenerateToken(string userId, DateTimeOffset expiresAt)
@@ -47,6 +50,7 @@ public class QrTokenService : IQrTokenService
             var json = Encoding.UTF8.GetString(Base64UrlDecode(parts[0]));
             var payload = JsonSerializer.Deserialize<QrTokenPayload>(json);
             if (payload is null) return (false, null);
+            if (string.IsNullOrWhiteSpace(payload.UserId)) return (false, null);
             if (DateTimeOffset.FromUnixTimeSeconds(payload.Exp) <= DateTimeOffset.UtcNow)
                 return (false, null);
             return (true, payload.UserId);
