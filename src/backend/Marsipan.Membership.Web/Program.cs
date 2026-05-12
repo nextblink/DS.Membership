@@ -74,7 +74,17 @@ var jwtOptions = jwtSection.Get<JwtOptions>() ?? new JwtOptions();
 var jwtKeyBytes = Encoding.UTF8.GetBytes(jwtOptions.SecretKey ?? string.Empty);
 
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddAuthentication(o =>
+    {
+        // AddIdentity (above) registers Identity.Application (cookies) as the
+        // default scheme. For an API we want JWT Bearer to be the default for
+        // Authenticate / Challenge / Forbid so [Authorize] without a scheme
+        // hits the bearer handler.
+        o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        o.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(opts =>
     {
         opts.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
@@ -156,5 +166,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGet("/health", () => Results.Ok("ok"));
 
 app.Run();
