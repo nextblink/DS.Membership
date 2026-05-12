@@ -49,6 +49,10 @@ builder.Services.Configure<FileStorageOptions>(
 builder.Services.AddScoped<IFormImageStorage, FormImageStorage>();
 // --- end file storage ---
 
+// --- OrgUnits (issue #9) ---
+builder.Services.AddScoped<IOrgUnitsService, OrgUnitsService>();
+// --- end OrgUnits ---
+
 // --- Functions (issue #10) ---
 builder.Services.AddScoped<IFunctionsService, FunctionsService>();
 // --- end Functions ---
