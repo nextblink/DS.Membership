@@ -118,7 +118,7 @@ export default function Functions() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div data-testid="functions-error" className="mb-4 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
@@ -136,10 +136,11 @@ export default function Functions() {
             </thead>
             <tbody>
               {/* Inline add row */}
-              <tr className="border-t border-stroke bg-gray-50">
+              <tr data-testid="functions-add-row" className="border-t border-stroke bg-gray-50">
                 <td className="px-4 py-3">
                   <form onSubmit={handleAdd}>
                     <input
+                      data-testid="functions-add-input"
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
@@ -151,6 +152,7 @@ export default function Functions() {
                 </td>
                 <td className="px-4 py-3 text-right">
                   <button
+                    data-testid="functions-add-btn"
                     type="button"
                     onClick={handleAdd}
                     disabled={adding || !newName.trim()}
@@ -183,10 +185,11 @@ export default function Functions() {
                   const isSaving = savingId === item.id
                   const isDeleting = deletingId === item.id
                   return (
-                    <tr key={item.id} className="border-t border-stroke">
+                    <tr key={item.id} data-testid={`functions-row-${item.id}`} className="border-t border-stroke">
                       <td className="px-4 py-3 text-sm text-black">
                         {isEditing ? (
                           <input
+                            data-testid={`functions-edit-input-${item.id}`}
                             type="text"
                             value={editName}
                             onChange={(e) => setEditName(e.target.value)}
@@ -202,6 +205,7 @@ export default function Functions() {
                         {isEditing ? (
                           <div className="flex justify-end gap-2">
                             <button
+                              data-testid={`functions-save-btn-${item.id}`}
                               type="button"
                               onClick={() => saveEdit(item.id)}
                               disabled={isSaving || !editName.trim()}
@@ -210,6 +214,7 @@ export default function Functions() {
                               {isSaving ? 'Saving…' : 'Save'}
                             </button>
                             <button
+                              data-testid={`functions-cancel-btn-${item.id}`}
                               type="button"
                               onClick={cancelEdit}
                               disabled={isSaving}
@@ -221,6 +226,7 @@ export default function Functions() {
                         ) : (
                           <div className="flex justify-end gap-2">
                             <button
+                              data-testid={`functions-edit-btn-${item.id}`}
                               type="button"
                               onClick={() => startEdit(item)}
                               disabled={isDeleting}
@@ -229,6 +235,7 @@ export default function Functions() {
                               Edit
                             </button>
                             <button
+                              data-testid={`functions-delete-btn-${item.id}`}
                               type="button"
                               onClick={() => handleDelete(item.id)}
                               disabled={isDeleting}
