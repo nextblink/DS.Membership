@@ -1,5 +1,7 @@
 using Marsipan.Membership.Middleware.Data;
 using Marsipan.Membership.Middleware.Entities;
+using Marsipan.Membership.Middleware.Services;
+using Marsipan.Membership.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +32,12 @@ builder.Services
     })
     .AddEntityFrameworkStores<ApplicationContext>()
     .AddDefaultTokenProviders();
+
+// --- Scope/current-user (issue #7) ---
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<ICurrentUserContext>(sp => sp.GetRequiredService<ICurrentUser>());
+// --- end scope ---
 
 var app = builder.Build();
 
