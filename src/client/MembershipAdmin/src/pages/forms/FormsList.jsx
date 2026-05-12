@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { QRCodeSVG } from 'qrcode.react'
-import api from '../../framework/api'
+import auth from '../../framework/auth'
 
 const STATUSES = ['Pending', 'Verified', 'Rejected']
 const PAGE_SIZE = 20
@@ -54,25 +54,10 @@ export default function FormsList() {
 
   const [qrOpen, setQrOpen] = useState(false)
   const [qrToken, setQrToken] = useState(null)
-  const [qrExpiry, setQrExpiry] = useState(null)
-  const [qrError, setQrError] = useState(null)
-  const [qrLoading, setQrLoading] = useState(false)
 
-  const openQr = async () => {
-    setQrToken(null)
-    setQrError(null)
-    setQrExpiry(null)
-    setQrLoading(true)
+  const openQr = () => {
+    setQrToken(auth.getToken())
     setQrOpen(true)
-    try {
-      const res = await api.post('/api/forms/qr-token')
-      setQrToken(res.data.token)
-      setQrExpiry(res.data.expiresAt)
-    } catch {
-      setQrError('Could not generate upload link. Please try again.')
-    } finally {
-      setQrLoading(false)
-    }
   }
 
   useEffect(() => {
@@ -395,27 +380,16 @@ export default function FormsList() {
               </svg>
             </button>
             <h3 className="mb-4 text-lg font-semibold text-black">Upload from Phone</h3>
-            {qrLoading && (
-              <div className="flex justify-center py-8">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-              </div>
-            )}
-            {qrError && <p className="text-sm text-danger">{qrError}</p>}
-            {qrToken && !qrLoading && (
+            {qrToken && (
               <>
                 <div className="flex justify-center mb-4">
                   <QRCodeSVG
-                    value={`${window.location.origin}/m/upload?token=${encodeURIComponent(qrToken)}`}
+                    value={`${window.location.origin}/m/upload?jwt=${encodeURIComponent(qrToken)}`}
                     size={220}
                     level="M"
                   />
                 </div>
                 <p className="text-center text-xs text-body">Scan with your phone to upload photos.</p>
-                {qrExpiry && (
-                  <p className="mt-1 text-center text-xs text-bodydark2">
-                    Valid until {new Date(qrExpiry).toLocaleTimeString()}
-                  </p>
-                )}
               </>
             )}
           </div>

@@ -5,14 +5,14 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7226'
 
 export default function MobileUpload() {
   const [searchParams] = useSearchParams()
-  const token = searchParams.get('token')
+  const jwt = searchParams.get('jwt')
 
   const [files, setFiles] = useState([])
   const [status, setStatus] = useState('idle') // idle | uploading | success | error
   const [errorMsg, setErrorMsg] = useState(null)
   const inputRef = useRef(null)
 
-  if (!token) {
+  if (!jwt) {
     return (
       <Shell>
         <p className="text-sm text-danger text-center">Invalid upload link.</p>
@@ -33,12 +33,14 @@ export default function MobileUpload() {
 
     const fd = new FormData()
     files.forEach((f) => fd.append('files', f))
+    fd.append('scanDate', new Date().toISOString().slice(0, 10)) // YYYY-MM-DD
 
     try {
-      const res = await fetch(
-        `${API_BASE}/api/public/forms/upload?token=${encodeURIComponent(token)}`,
-        { method: 'POST', body: fd }
-      )
+      const res = await fetch(`${API_BASE}/api/forms`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${jwt}` },
+        body: fd,
+      })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
         setErrorMsg(data.message || 'Upload failed. Please try again.')
@@ -96,7 +98,6 @@ export default function MobileUpload() {
           ref={inputRef}
           type="file"
           accept="image/*"
-          capture="environment"
           multiple
           className="hidden"
           onChange={handleFiles}

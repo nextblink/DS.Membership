@@ -1,10 +1,7 @@
 using Marsipan.Membership.Middleware.DTOs;
-using Marsipan.Membership.Middleware.Options;
 using Marsipan.Membership.Middleware.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System.Security.Claims;
 
 namespace Marsipan.Membership.Web.Controllers.Admin;
 
@@ -20,14 +17,10 @@ namespace Marsipan.Membership.Web.Controllers.Admin;
 public class FormsController : ControllerBase
 {
     private readonly IFormsService _forms;
-    private readonly IQrTokenService _qrTokenService;
-    private readonly JwtOptions _jwtOptions;
 
-    public FormsController(IFormsService forms, IQrTokenService qrTokenService, IOptions<JwtOptions> jwtOptions)
+    public FormsController(IFormsService forms)
     {
         _forms = forms;
-        _qrTokenService = qrTokenService;
-        _jwtOptions = jwtOptions.Value;
     }
 
     [HttpGet]
@@ -142,25 +135,4 @@ public class FormsController : ControllerBase
         return ok ? NoContent() : NotFound();
     }
 
-    /// <summary>
-    /// Issues a short-lived upload token the operator can embed in a QR code.
-    /// Expiry matches the configured JWT lifetime so the QR stops working when
-    /// the operator's session would have expired anyway.
-    /// </summary>
-    [HttpPost("qr-token")]
-    public IActionResult GenerateQrToken()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-            return Unauthorized();
-
-        var expiresAt = DateTimeOffset.UtcNow.AddMinutes(_jwtOptions.ExpiresMinutes);
-        var token = _qrTokenService.GenerateToken(userId, expiresAt);
-
-        return Ok(new
-        {
-            token,
-            expiresAt = expiresAt.ToString("O") // ISO 8601
-        });
-    }
 }
