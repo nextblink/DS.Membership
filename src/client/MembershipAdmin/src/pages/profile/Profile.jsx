@@ -89,16 +89,16 @@ export default function Profile() {
 
   return (
     <div className="p-6">
-      <h1 className="mb-6 text-2xl font-semibold text-black">{t('title')}</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
 
       {/* Current user info card */}
-      <div className="mb-6 rounded-sm border border-stroke bg-white p-6 shadow-default">
-        <h2 className="mb-4 text-lg font-semibold text-black">{t('account')}</h2>
+      <div className="mb-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">{t('account')}</h2>
 
-        {loading && <p className="text-sm text-body">{t('state.loading')}</p>}
+        {loading && <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('state.loading')}</p>}
 
         {!loading && loadError && (
-          <div className="rounded-sm border border-danger bg-danger/10 px-4 py-2 text-sm text-danger">
+          <div className="rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-2 text-theme-sm text-error-500">
             {loadError}
           </div>
         )}
@@ -106,21 +106,21 @@ export default function Profile() {
         {!loading && !loadError && user && (
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <dt className="text-xs uppercase tracking-wide text-body">{t('fields.email')}</dt>
-              <dd data-testid="profile-email" className="mt-1 text-sm text-black">{user.email ?? '—'}</dd>
+              <dt className="text-theme-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('fields.email')}</dt>
+              <dd data-testid="profile-email" className="mt-1 text-theme-sm text-gray-900 dark:text-white">{user.email ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-xs uppercase tracking-wide text-body">{t('fields.role')}</dt>
-              <dd data-testid="profile-role" className="mt-1 text-sm text-black">{user.role ?? '—'}</dd>
+              <dt className="text-theme-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('fields.role')}</dt>
+              <dd data-testid="profile-role" className="mt-1 text-theme-sm text-gray-900 dark:text-white">{user.role ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-xs uppercase tracking-wide text-body">{t('fields.orgUnit')}</dt>
-              <dd data-testid="profile-org-unit" className="mt-1 text-sm text-black">{orgUnitName ?? '—'}</dd>
+              <dt className="text-theme-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('fields.orgUnit')}</dt>
+              <dd data-testid="profile-org-unit" className="mt-1 text-theme-sm text-gray-900 dark:text-white">{orgUnitName ?? '—'}</dd>
             </div>
             {user.id && (
               <div>
-                <dt className="text-xs uppercase tracking-wide text-body">{t('fields.userId')}</dt>
-                <dd className="mt-1 break-all text-sm text-black">{user.id}</dd>
+                <dt className="text-theme-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('fields.userId')}</dt>
+                <dd className="mt-1 break-all text-theme-sm text-gray-900 dark:text-white">{user.id}</dd>
               </div>
             )}
           </dl>
@@ -128,14 +128,14 @@ export default function Profile() {
       </div>
 
       {/* Change password card */}
-      <div className="rounded-sm border border-stroke bg-white p-6 shadow-default">
-        <h2 className="mb-4 text-lg font-semibold text-black">{t('changePassword.title')}</h2>
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">{t('changePassword.title')}</h2>
 
         <form onSubmit={handleSubmit(onChangePassword)} noValidate className="max-w-md">
           <div className="mb-4">
             <label
               htmlFor="currentPassword"
-              className="mb-2.5 block text-sm font-medium text-black"
+              className="mb-2.5 block text-theme-sm font-medium text-gray-700 dark:text-gray-300"
             >
               {t('changePassword.current')}
             </label>
@@ -144,17 +144,17 @@ export default function Profile() {
               type="password"
               autoComplete="current-password"
               {...register('currentPassword', { required: t('validation.currentRequired') })}
-              className="w-full rounded-sm border border-stroke bg-transparent py-3 px-4 text-black outline-none focus:border-primary focus-visible:shadow-none"
+              className="w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent py-3 px-4 text-gray-900 dark:text-white outline-none focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus-visible:shadow-none"
             />
             {errors.currentPassword && (
-              <p className="mt-1 text-sm text-danger">{errors.currentPassword.message}</p>
+              <p className="mt-1 text-theme-sm text-error-500">{errors.currentPassword.message}</p>
             )}
           </div>
 
           <div className="mb-4">
             <label
               htmlFor="newPassword"
-              className="mb-2.5 block text-sm font-medium text-black"
+              className="mb-2.5 block text-theme-sm font-medium text-gray-700 dark:text-gray-300"
             >
               {t('changePassword.new')}
             </label>
@@ -166,17 +166,17 @@ export default function Profile() {
                 required: t('validation.newRequired'),
                 minLength: { value: 6, message: t('validation.newMinLength') },
               })}
-              className="w-full rounded-sm border border-stroke bg-transparent py-3 px-4 text-black outline-none focus:border-primary focus-visible:shadow-none"
+              className="w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent py-3 px-4 text-gray-900 dark:text-white outline-none focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus-visible:shadow-none"
             />
             {errors.newPassword && (
-              <p className="mt-1 text-sm text-danger">{errors.newPassword.message}</p>
+              <p className="mt-1 text-theme-sm text-error-500">{errors.newPassword.message}</p>
             )}
           </div>
 
           <div className="mb-6">
             <label
               htmlFor="confirmNewPassword"
-              className="mb-2.5 block text-sm font-medium text-black"
+              className="mb-2.5 block text-theme-sm font-medium text-gray-700 dark:text-gray-300"
             >
               {t('changePassword.confirm')}
             </label>
@@ -189,27 +189,27 @@ export default function Profile() {
                 validate: (value) =>
                   value === newPassword || t('validation.confirmMismatch'),
               })}
-              className="w-full rounded-sm border border-stroke bg-transparent py-3 px-4 text-black outline-none focus:border-primary focus-visible:shadow-none"
+              className="w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent py-3 px-4 text-gray-900 dark:text-white outline-none focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 focus-visible:shadow-none"
             />
             {errors.confirmNewPassword && (
-              <p className="mt-1 text-sm text-danger">{errors.confirmNewPassword.message}</p>
+              <p className="mt-1 text-theme-sm text-error-500">{errors.confirmNewPassword.message}</p>
             )}
           </div>
 
           {pwSuccess && (
-            <div className="mb-4 rounded-sm border border-success bg-success/10 px-4 py-2 text-sm text-success">
+            <div className="mb-4 rounded-lg border border-success-200 dark:border-success-700 bg-success-50 dark:bg-success-500/10 px-4 py-2 text-theme-sm text-success-600 dark:text-success-400">
               {pwSuccess}
             </div>
           )}
 
           {pwError && (
-            <div className="mb-4 rounded-sm border border-danger bg-danger/10 px-4 py-2 text-sm text-danger">
+            <div className="mb-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-2 text-theme-sm text-error-500">
               {pwError}
             </div>
           )}
 
           {pwNotImplemented && (
-            <div data-testid="pw-not-implemented" className="mb-4 rounded-sm border border-warning bg-warning/10 px-4 py-2 text-sm text-warning">
+            <div data-testid="pw-not-implemented" className="mb-4 rounded-lg border border-warning bg-warning/10 px-4 py-2 text-theme-sm text-warning">
               {t('changePassword.notSupported')}
             </div>
           )}
@@ -217,7 +217,7 @@ export default function Profile() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="cursor-pointer rounded-sm border border-primary bg-primary py-3 px-6 text-white transition hover:bg-opacity-90 disabled:opacity-60"
+            className="cursor-pointer rounded-lg border border-brand-500 bg-brand-500 py-3 px-6 text-white transition hover:bg-brand-600 disabled:opacity-60"
           >
             {isSubmitting ? t('changePassword.submitting') : t('changePassword.submit')}
           </button>
