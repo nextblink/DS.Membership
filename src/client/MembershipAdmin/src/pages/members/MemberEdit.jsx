@@ -71,21 +71,21 @@ export default function MemberEdit() {
   if (loading) {
     return (
       <div className="p-6">
-        <p className="text-sm text-body">{t('common:state.loading')}</p>
+        <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('common:state.loading')}</p>
       </div>
     )
   }
   if (loadError) {
     return (
       <div className="p-6">
-        <p className="text-sm text-red-600">{loadError}</p>
+        <p className="text-theme-sm text-error-500">{loadError}</p>
       </div>
     )
   }
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold text-black mb-4">
+      <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
         {t('members:editMember')}
         {member?.firstName ? ` — ${member.firstName} ${member.lastName ?? ''}` : ''}
       </h1>

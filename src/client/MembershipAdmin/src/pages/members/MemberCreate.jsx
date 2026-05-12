@@ -32,7 +32,7 @@ export default function MemberCreate() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold text-black mb-4">{t('members:newMember')}</h1>
+      <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">{t('members:newMember')}</h1>
       <MemberForm
         mode="create"
         onSubmit={onSubmit}

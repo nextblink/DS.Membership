@@ -3,10 +3,10 @@ import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 
-const labelClass = 'text-xs uppercase text-body'
-const valueClass = 'text-sm text-black'
-const sectionClass = 'rounded border border-stroke bg-white p-5 shadow-sm mb-6'
-const sectionTitleClass = 'text-lg font-semibold text-black mb-4 border-b border-stroke pb-2'
+const labelClass = 'text-theme-xs uppercase font-medium text-gray-500 dark:text-gray-400'
+const valueClass = 'text-theme-sm text-gray-900 dark:text-white mt-0.5'
+const sectionClass = 'rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm mb-6'
+const sectionTitleClass = 'text-base font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-800 pb-3'
 const gridClass = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
 
 function Field({ label, children }) {
@@ -90,7 +90,7 @@ export default function MemberDetails() {
   if (loading) {
     return (
       <div className="p-6">
-        <p className="text-sm text-body">{t('common:state.loading')}</p>
+        <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('common:state.loading')}</p>
       </div>
     )
   }
@@ -100,7 +100,7 @@ export default function MemberDetails() {
         <p className="text-sm text-red-600">{error || t('members:error.notFound')}</p>
         <button
           onClick={() => navigate('/members')}
-          className="mt-3 rounded border border-stroke px-4 py-2 text-sm text-black hover:bg-gray-50"
+          className="mt-3 rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
         >
           {t('members:detail.backToMembers')}
         </button>
@@ -117,26 +117,26 @@ export default function MemberDetails() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div>
-          <h1 className="text-2xl font-semibold text-black">{fullName}</h1>
-          <p className="text-sm text-body">JMBG {member.jmbg}</p>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{fullName}</h1>
+          <p className="text-theme-sm text-gray-500 dark:text-gray-400">JMBG {member.jmbg}</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => navigate('/members')}
-            className="rounded border border-stroke px-4 py-2 text-sm text-black hover:bg-gray-50"
+            className="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             {t('members:detail.back')}
           </button>
           <button
             onClick={() => navigate(`/members/${id}/edit`)}
-            className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+            className="rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
           >
             {t('members:detail.edit')}
           </button>
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-50"
+            className="rounded-lg bg-error-500 hover:bg-error-600 px-4 py-2.5 text-theme-sm font-medium text-white disabled:opacity-50"
           >
             {deleting ? t('members:detail.deleting') : t('members:detail.delete')}
           </button>
@@ -170,7 +170,7 @@ export default function MemberDetails() {
         <div className="mt-4">
           <div className={labelClass}>{t('members:form.phones')}</div>
           {phones.length === 0 ? (
-            <p className="text-sm text-body">—</p>
+            <p className="text-theme-sm text-gray-500 dark:text-gray-400">—</p>
           ) : (
             <ul className="mt-1 text-sm text-black list-disc pl-5">
               {phones.map((p) => (
@@ -193,7 +193,7 @@ export default function MemberDetails() {
         <div className="mt-4">
           <div className={labelClass}>{t('members:form.functions')}</div>
           {fns.length === 0 ? (
-            <p className="text-sm text-body">—</p>
+            <p className="text-theme-sm text-gray-500 dark:text-gray-400">—</p>
           ) : (
             <ul className="mt-1 text-sm text-black list-disc pl-5">
               {fns.map((f) => (
@@ -230,14 +230,14 @@ export default function MemberDetails() {
       <section className={sectionClass}>
         <h2 className={sectionTitleClass}>{t('members:form.linkedForms')}</h2>
         {!formsLoaded ? (
-          <p className="text-sm text-body">{t('common:state.loading')}</p>
+          <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('common:state.loading')}</p>
         ) : forms.length === 0 ? (
-          <p className="text-sm text-body">{t('members:detail.noLinkedForms')}</p>
+          <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('members:detail.noLinkedForms')}</p>
         ) : (
           <ul className="text-sm text-black list-disc pl-5">
             {forms.map((f) => (
               <li key={f.id}>
-                <Link to={`/forms/${f.id}`} className="text-primary hover:underline">
+                <Link to={`/forms/${f.id}`} className="text-brand-500 hover:underline">
                   {f.formNumber || `Form #${f.id}`}
                 </Link>
                 {f.status ? ` — ${t(`enums:formStatus.${f.status.toLowerCase()}`)}` : ''}
