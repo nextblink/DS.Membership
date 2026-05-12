@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/fixtures';
+﻿import { test, expect } from '../fixtures/fixtures';
 
 /**
  * Generate a unique 13-character JMBG string.
@@ -43,9 +43,9 @@ async function apiCreateMember(
   return res.json() as Promise<{ id: number; [key: string]: unknown }>;
 }
 
-test.describe('UC-MEM — Members', () => {
+test.describe('UC-MEM â€” Members', () => {
   // -----------------------------------------------------------------------
-  // MEM-01 — List + pagination
+  // MEM-01 â€” List + pagination
   // -----------------------------------------------------------------------
   test('MEM-01 list shows totalCount and pagination works', async ({
     page,
@@ -65,7 +65,7 @@ test.describe('UC-MEM — Members', () => {
     await page.goto('/members');
     await page.waitForLoadState('networkidle');
 
-    // Pagination footer: "{totalCount} total · page N of N"
+    // Pagination footer: "{totalCount} total Â· page N of N"
     const paginationText = page.locator('text=/\\d+ total/');
     await expect(paginationText.first()).toBeVisible({ timeout: 10_000 });
     const text = await paginationText.first().textContent();
@@ -84,10 +84,10 @@ test.describe('UC-MEM — Members', () => {
   });
 
   // -----------------------------------------------------------------------
-  // MEM-02 — Filter by firstName
+  // MEM-02 â€” Filter by firstName
   //
   // PRODUCT BUG: MemberListItemDto returns a combined `fullName` property but
-  // MembersList.jsx accesses `m.firstName` / `m.lastName` separately — those
+  // MembersList.jsx accesses `m.firstName` / `m.lastName` separately â€” those
   // keys are absent in the list response so the "Full Name" table column is
   // always blank.  Filter query itself works; the display does not.
   // -----------------------------------------------------------------------
@@ -96,11 +96,6 @@ test.describe('UC-MEM — Members', () => {
     loginAsUI,
     superAdminApi,
   }) => {
-    test.fixme(
-      true,
-      'Product bug: MemberListItemDto exposes fullName but the list UI reads m.firstName/m.lastName — Full Name column is always blank',
-    );
-
     await apiCreateMember(superAdminApi, {
       jmbg: jmbg(1),
       firstName: 'Milos',
@@ -121,18 +116,13 @@ test.describe('UC-MEM — Members', () => {
   });
 
   // -----------------------------------------------------------------------
-  // MEM-03 — Create member via UI
+  // MEM-03 â€” Create member via UI
   //
   // PRODUCT BUG: MemberForm sends enum values as strings ('Male', 'Single',
   // 'Secondary') but ASP.NET Core's default System.Text.Json serialiser expects
   // integers (0, 0, 1).  The POST returns 400 validation failure.
   // -----------------------------------------------------------------------
   test('MEM-03 create member via UI succeeds', async ({ page, loginAsUI }) => {
-    test.fixme(
-      true,
-      'Product bug: MemberForm sends enum values as strings but backend expects integer enums (no JsonStringEnumConverter configured)',
-    );
-
     await loginAsUI(page, 'superAdmin');
     await page.goto('/members/new');
     await page.waitForLoadState('networkidle');
@@ -161,7 +151,7 @@ test.describe('UC-MEM — Members', () => {
   });
 
   // -----------------------------------------------------------------------
-  // MEM-04 — Duplicate JMBG → 409
+  // MEM-04 â€” Duplicate JMBG â†’ 409
   //
   // PRODUCT BUG: same enum serialisation issue as MEM-03; form submission
   // fails with 400 before reaching the duplicate-check that would yield 409.
@@ -171,11 +161,6 @@ test.describe('UC-MEM — Members', () => {
     loginAsUI,
     superAdminApi,
   }) => {
-    test.fixme(
-      true,
-      'Product bug: MemberForm sends enum values as strings but backend expects integer enums — POST returns 400 not 409',
-    );
-
     const dupJmbg = jmbg(42);
     await apiCreateMember(superAdminApi, { jmbg: dupJmbg });
 
@@ -202,16 +187,11 @@ test.describe('UC-MEM — Members', () => {
   });
 
   // -----------------------------------------------------------------------
-  // MEM-05 — Create with phones + function
+  // MEM-05 â€” Create with phones + function
   //
   // PRODUCT BUG: same enum serialisation issue as MEM-03.
   // -----------------------------------------------------------------------
   test('MEM-05 create member with phone and function', async ({ page, loginAsUI }) => {
-    test.fixme(
-      true,
-      'Product bug: MemberForm sends enum values as strings but backend expects integer enums',
-    );
-
     await loginAsUI(page, 'superAdmin');
     await page.goto('/members/new');
     await page.waitForLoadState('networkidle');
@@ -251,18 +231,13 @@ test.describe('UC-MEM — Members', () => {
   });
 
   // -----------------------------------------------------------------------
-  // MEM-06 — Edit scalar fields
+  // MEM-06 â€” Edit scalar fields
   //
   // PRODUCT BUG: MemberEdit calls PUT /api/members/{id} with UpdateMemberDto
   // which also has enum fields (gender, maritalStatus, educationLevel).
-  // The frontend sends strings; backend expects integers → 400.
+  // The frontend sends strings; backend expects integers â†’ 400.
   // -----------------------------------------------------------------------
   test('MEM-06 edit scalar fields', async ({ page, loginAsUI, superAdminApi }) => {
-    test.fixme(
-      true,
-      'Product bug: MemberForm sends enum values as strings but backend PUT expects integer enums',
-    );
-
     const member = await apiCreateMember(superAdminApi, {
       jmbg: jmbg(60),
       firstName: 'OldFirst',
@@ -281,21 +256,16 @@ test.describe('UC-MEM — Members', () => {
     await page.getByRole('button', { name: 'Save Changes' }).click();
 
     await page.waitForURL(`**/members/${member.id}`, { timeout: 15_000 });
-    await expect(page.getByText('NewLastName')).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText('NewLastName').first()).toBeVisible({ timeout: 8_000 });
   });
 
   // -----------------------------------------------------------------------
-  // MEM-07 — Add phone via nested UI (edit page)
+  // MEM-07 â€” Add phone via nested UI (edit page)
   //
-  // PRODUCT BUG: same enum issue on PUT — the scalar save fails before the
+  // PRODUCT BUG: same enum issue on PUT â€” the scalar save fails before the
   // nested phone add can be attempted.
   // -----------------------------------------------------------------------
   test('MEM-07 add phone via edit page', async ({ page, loginAsUI, superAdminApi }) => {
-    test.fixme(
-      true,
-      'Product bug: MemberEdit PUT fails due to string enum values; phone is never added',
-    );
-
     const member = await apiCreateMember(superAdminApi, { jmbg: jmbg(70) });
 
     await loginAsUI(page, 'superAdmin');
@@ -315,7 +285,7 @@ test.describe('UC-MEM — Members', () => {
   });
 
   // -----------------------------------------------------------------------
-  // MEM-08 — Remove phone
+  // MEM-08 â€” Remove phone
   //
   // PRODUCT BUG: same enum issue on PUT.
   // -----------------------------------------------------------------------
@@ -324,11 +294,6 @@ test.describe('UC-MEM — Members', () => {
     loginAsUI,
     superAdminApi,
   }) => {
-    test.fixme(
-      true,
-      'Product bug: MemberEdit PUT fails due to string enum values; phone removal never executes',
-    );
-
     const member = await apiCreateMember(superAdminApi, { jmbg: jmbg(80) });
     const phoneRes = await superAdminApi.post(`/api/members/${member.id}/phones`, {
       data: { number: '0629999999', type: 0 }, // PhoneType.Mobile = 0
@@ -350,16 +315,11 @@ test.describe('UC-MEM — Members', () => {
   });
 
   // -----------------------------------------------------------------------
-  // MEM-09 — Add + remove function
+  // MEM-09 â€” Add + remove function
   //
   // PRODUCT BUG: same enum issue on PUT.
   // -----------------------------------------------------------------------
   test('MEM-09 add and remove function', async ({ page, loginAsUI, superAdminApi }) => {
-    test.fixme(
-      true,
-      'Product bug: MemberEdit PUT fails due to string enum values; function mutations never execute',
-    );
-
     const member = await apiCreateMember(superAdminApi, { jmbg: jmbg(90) });
 
     await loginAsUI(page, 'superAdmin');
@@ -396,12 +356,12 @@ test.describe('UC-MEM — Members', () => {
     await page.getByRole('button', { name: 'Save Changes' }).click();
     await page.waitForURL(`**/members/${member.id}`, { timeout: 15_000 });
 
-    const memSection = page.locator('section').filter({ hasText: 'Membership' });
-    await expect(memSection.locator('text=—')).toBeVisible({ timeout: 8_000 });
+    // Verify the function was removed — function list on details should be empty
+    await expect(page.getByText('President')).not.toBeVisible({ timeout: 5_000 });
   });
 
   // -----------------------------------------------------------------------
-  // MEM-10 — Delete member
+  // MEM-10 â€” Delete member
   // -----------------------------------------------------------------------
   test('MEM-10 delete member', async ({ page, loginAsUI, superAdminApi }) => {
     const member = await apiCreateMember(superAdminApi, {
@@ -437,7 +397,7 @@ test.describe('UC-MEM — Members', () => {
   });
 
   // -----------------------------------------------------------------------
-  // MEM-11 — LocalAdmin scope
+  // MEM-11 â€” LocalAdmin scope
   //
   // PRODUCT BUG: test user email "localadmin1@test" does not match the
   // frontend login form's email validation regex (/^\S+@\S+\.\S+$/) which
@@ -449,11 +409,6 @@ test.describe('UC-MEM — Members', () => {
     loginAsUI,
     superAdminApi,
   }) => {
-    test.fixme(
-      true,
-      'Product bug: test user "localadmin1@test" fails client-side email validation (no TLD); login is impossible via UI',
-    );
-
     await apiCreateMember(superAdminApi, {
       jmbg: jmbg(110),
       orgUnitId: 1,
@@ -493,7 +448,7 @@ test.describe('UC-MEM — Members', () => {
   });
 
   // -----------------------------------------------------------------------
-  // MEM-12 — LocalAdmin cross-unit 404
+  // MEM-12 â€” LocalAdmin cross-unit 404
   //
   // PRODUCT BUG: same email validation issue as MEM-11.
   // -----------------------------------------------------------------------
@@ -502,11 +457,6 @@ test.describe('UC-MEM — Members', () => {
     loginAsUI,
     superAdminApi,
   }) => {
-    test.fixme(
-      true,
-      'Product bug: test user "localadmin1@test" fails client-side email validation (no TLD); login is impossible via UI',
-    );
-
     const member = await apiCreateMember(superAdminApi, {
       jmbg: jmbg(120),
       orgUnitId: 3,
@@ -531,3 +481,4 @@ test.describe('UC-MEM — Members', () => {
     }
   });
 });
+

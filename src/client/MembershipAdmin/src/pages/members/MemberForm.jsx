@@ -169,9 +169,13 @@ export default function MemberForm({
   const [functionsList, setFunctionsList] = useState([])
   const [lookupsLoaded, setLookupsLoaded] = useState(false)
 
+  // Reset only after lookups load so select options exist when values like orgUnitId='1' are set.
+  // Without this guard, the select has no matching option and the browser clears the value to ''.
   useEffect(() => {
-    reset(toFormValues(initialMember))
-  }, [initialMember, reset])
+    if (lookupsLoaded) {
+      reset(toFormValues(initialMember))
+    }
+  }, [initialMember, lookupsLoaded, reset])
 
   useEffect(() => {
     let cancelled = false
