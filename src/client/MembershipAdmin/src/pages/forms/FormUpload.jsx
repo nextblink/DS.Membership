@@ -191,42 +191,42 @@ export default function FormUpload() {
 
   return (
     <div className="p-6">
-      <h1 className="mb-4 text-2xl font-semibold text-black">{t('forms:upload.title')}</h1>
+      <h1 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">{t('forms:upload.title')}</h1>
 
       <form onSubmit={submit} className="space-y-6">
-        <div className="rounded border border-stroke bg-white p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase text-body">{t('forms:upload.metadata')}</h2>
+        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm p-4">
+          <h2 className="mb-3 text-theme-sm font-semibold uppercase text-gray-500 dark:text-gray-400">{t('forms:upload.metadata')}</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-body">{t('forms:upload.formNumber')}</label>
+              <label className="mb-1 block text-theme-xs font-medium text-gray-600 dark:text-gray-400">{t('forms:upload.formNumber')}</label>
               <input
                 data-testid="upload-formNumber"
                 type="text"
                 value={meta.formNumber}
                 onChange={(e) => setMeta({ ...meta, formNumber: e.target.value })}
-                className="w-full rounded border border-stroke px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:border-brand-500"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-body">{t('forms:upload.formDate')}</label>
+              <label className="mb-1 block text-theme-xs font-medium text-gray-600 dark:text-gray-400">{t('forms:upload.formDate')}</label>
               <input
                 type="date"
                 value={meta.formDate}
                 onChange={(e) => setMeta({ ...meta, formDate: e.target.value })}
-                className="w-full rounded border border-stroke px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:border-brand-500"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-body">{t('forms:upload.municipalBoard')}</label>
+              <label className="mb-1 block text-theme-xs font-medium text-gray-600 dark:text-gray-400">{t('forms:upload.municipalBoard')}</label>
               <input
                 type="text"
                 value={meta.municipalBoard}
                 onChange={(e) => setMeta({ ...meta, municipalBoard: e.target.value })}
-                className="w-full rounded border border-stroke px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:border-brand-500"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-body">
+              <label className="mb-1 block text-theme-xs font-medium text-gray-600 dark:text-gray-400">
                 {t('forms:upload.scanDateRequired')}
               </label>
               <input
@@ -235,20 +235,20 @@ export default function FormUpload() {
                 required
                 value={meta.scanDate}
                 onChange={(e) => setMeta({ ...meta, scanDate: e.target.value })}
-                className="w-full rounded border border-stroke px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:border-brand-500"
               />
             </div>
             <div className="relative sm:col-span-2">
-              <label className="mb-1 block text-xs font-medium text-body">{t('forms:upload.member')}</label>
+              <label className="mb-1 block text-theme-xs font-medium text-gray-600 dark:text-gray-400">{t('forms:upload.member')}</label>
               {selectedMember ? (
-                <div className="flex items-center justify-between rounded border border-stroke bg-gray-50 px-3 py-2 text-sm">
+                <div className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 px-3 py-2.5 text-theme-sm">
                   <span>
                     <strong>
                       {selectedMember.firstName} {selectedMember.lastName}
                     </strong>{' '}
-                    <span className="text-body">— JMBG {selectedMember.jmbg}</span>
+                    <span className="text-gray-500 dark:text-gray-400">— JMBG {selectedMember.jmbg}</span>
                   </span>
-                  <button type="button" onClick={clearMember} className="text-xs text-primary hover:underline">
+                  <button type="button" onClick={clearMember} className="text-theme-xs text-brand-500 hover:underline">
                     {t('forms:upload.memberChange')}
                   </button>
                 </div>
@@ -264,10 +264,10 @@ export default function FormUpload() {
                     onFocus={() => setShowSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                     placeholder={t('forms:upload.memberSearch')}
-                    className="w-full rounded border border-stroke px-3 py-2 text-sm"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:border-brand-500"
                   />
                   {showSuggestions && memberSuggestions.length > 0 && (
-                    <ul className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded border border-stroke bg-white shadow">
+                    <ul className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm">
                       {memberSuggestions.map((m) => (
                         <li
                           key={m.id}
@@ -275,12 +275,12 @@ export default function FormUpload() {
                             e.preventDefault()
                             onMemberPick(m)
                           }}
-                          className="cursor-pointer px-3 py-2 text-sm hover:bg-gray-100"
+                          className="cursor-pointer px-3 py-2 text-theme-sm text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
                         >
                           <span className="font-medium">
                             {m.firstName} {m.lastName}
                           </span>{' '}
-                          <span className="text-xs text-body">— JMBG {m.jmbg}</span>
+                          <span className="text-theme-xs text-gray-500 dark:text-gray-400">— JMBG {m.jmbg}</span>
                         </li>
                       ))}
                     </ul>
@@ -291,8 +291,8 @@ export default function FormUpload() {
           </div>
         </div>
 
-        <div className="rounded border border-stroke bg-white p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase text-body">{t('forms:upload.images')}</h2>
+        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm p-4">
+          <h2 className="mb-3 text-theme-sm font-semibold uppercase text-gray-500 dark:text-gray-400">{t('forms:upload.images')}</h2>
 
           <div
             data-testid="upload-dropzone"
@@ -304,12 +304,12 @@ export default function FormUpload() {
             onDragLeave={onZoneDragLeave}
             onDrop={onZoneDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`flex cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed p-8 text-center ${
-              isDragOver ? 'border-primary bg-primary/5' : 'border-stroke bg-gray-50'
+            className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-center ${
+              isDragOver ? 'border-brand-500 bg-brand-500/5' : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50'
             }`}
           >
-            <p className="text-sm text-body">{t('forms:upload.dropzone')}</p>
-            <p className="mt-1 text-xs text-body">{t('forms:upload.dropzoneHint')}</p>
+            <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('forms:upload.dropzone')}</p>
+            <p className="mt-1 text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:upload.dropzoneHint')}</p>
             <input
               ref={fileInputRef}
               type="file"
@@ -322,7 +322,7 @@ export default function FormUpload() {
 
           {files.length > 0 && (
             <>
-              <p className="mt-3 text-xs text-body">
+              <p className="mt-3 text-theme-xs text-gray-500 dark:text-gray-400">
                 {t('forms:upload.filesSelected', { count: files.length })}
               </p>
               <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -333,24 +333,24 @@ export default function FormUpload() {
                     onDragStart={() => handleDragStart(idx)}
                     onDragOver={handleDragOver}
                     onDrop={() => handleDrop(idx)}
-                    className="relative cursor-move rounded border border-stroke bg-white p-2"
+                    className="relative cursor-move rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-2"
                   >
-                    <div className="aspect-square overflow-hidden rounded bg-gray-100">
+                    <div className="aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                       {f.previewUrl ? (
                         <img src={f.previewUrl} alt={f.name} className="h-full w-full object-cover" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs text-body">
+                        <div className="flex h-full w-full items-center justify-center text-theme-xs text-gray-500 dark:text-gray-400">
                           PDF
                         </div>
                       )}
                     </div>
-                    <div className="mt-1 truncate text-xs" title={f.name}>
+                    <div className="mt-1 truncate text-theme-xs text-gray-700 dark:text-gray-300" title={f.name}>
                       {idx + 1}. {f.name}
                     </div>
                     <button
                       type="button"
                       onClick={() => removeFile(f.id)}
-                      className="absolute right-1 top-1 rounded bg-red-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-red-700"
+                      className="absolute right-1 top-1 rounded-lg bg-error-500 hover:bg-error-600 px-2 py-0.5 text-theme-xs font-medium text-white"
                     >
                       ×
                     </button>
@@ -361,21 +361,21 @@ export default function FormUpload() {
           )}
         </div>
 
-        {error && <div className="rounded border border-red-300 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {error && <div className="rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 p-3 text-theme-sm text-error-700 dark:text-error-400">{error}</div>}
 
         <div className="flex gap-2">
           <button
             data-testid="upload-submit-btn"
             type="submit"
             disabled={submitting}
-            className="rounded bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-60"
+            className="rounded-lg bg-brand-500 hover:bg-brand-600 px-5 py-2.5 text-theme-sm font-medium text-white disabled:opacity-60"
           >
             {submitting ? t('forms:upload.uploading') : t('forms:upload.submit')}
           </button>
           <button
             type="button"
             onClick={() => navigate('/forms')}
-            className="rounded border border-stroke px-5 py-2 text-sm font-medium text-body hover:bg-gray-50"
+            className="rounded-lg border border-gray-300 dark:border-gray-700 px-5 py-2.5 text-theme-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             {t('common:button.cancel')}
           </button>

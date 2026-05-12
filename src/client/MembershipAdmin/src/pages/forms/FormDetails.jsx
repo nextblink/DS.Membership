@@ -24,9 +24,9 @@ function statusToInt(status) {
 }
 
 const STATUS_CLASS = {
-  Pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-  Verified: 'bg-green-100 text-green-800 border-green-300',
-  Rejected: 'bg-red-100 text-red-800 border-red-300',
+  Pending: 'bg-warning-50 dark:bg-warning-500/10 text-warning-700 dark:text-warning-400 border-warning-200 dark:border-warning-700',
+  Verified: 'bg-success-50 dark:bg-success-500/10 text-success-700 dark:text-success-400 border-success-200 dark:border-success-700',
+  Rejected: 'bg-error-50 dark:bg-error-500/10 text-error-700 dark:text-error-400 border-error-200 dark:border-error-700',
 }
 
 function StatusBadge({ status }) {
@@ -34,7 +34,7 @@ function StatusBadge({ status }) {
   const s = normaliseStatus(status)
   const cls = STATUS_CLASS[s] || 'bg-gray-100 text-gray-800 border-gray-300'
   return (
-    <span data-testid="status-badge" className={`inline-block rounded border px-3 py-1 text-sm font-medium ${cls}`}>{t(`formStatus.${s.toLowerCase()}`, { defaultValue: s })}</span>
+    <span data-testid="status-badge" className={`inline-block rounded-full border px-3 py-1 text-theme-sm font-medium ${cls}`}>{t(`formStatus.${s.toLowerCase()}`, { defaultValue: s })}</span>
   )
 }
 
@@ -150,13 +150,13 @@ export default function FormDetails() {
   }
 
   if (loading) {
-    return <div className="p-6 text-sm text-body">{t('common:state.loading')}</div>
+    return <div className="p-6 text-theme-sm text-gray-500 dark:text-gray-400">{t('common:state.loading')}</div>
   }
   if (error) {
-    return <div className="p-6 text-sm text-red-600">{error}</div>
+    return <div className="p-6 text-theme-sm text-error-500">{error}</div>
   }
   if (!form) {
-    return <div className="p-6 text-sm text-body">{t('forms:detail.notFound')}</div>
+    return <div className="p-6 text-theme-sm text-gray-500 dark:text-gray-400">{t('forms:detail.notFound')}</div>
   }
 
   const member = form.member || form.Member
@@ -166,7 +166,7 @@ export default function FormDetails() {
   return (
     <div className="p-6">
       <div className="mb-4 flex items-center justify-between">
-        <h1 data-testid="form-title" className="text-2xl font-semibold text-black">
+        <h1 data-testid="form-title" className="text-2xl font-semibold text-gray-900 dark:text-white">
           {t('forms:detail.formLabel')} {form.formNumber || `#${form.id}`}
         </h1>
         <div className="flex gap-2">
@@ -187,7 +187,7 @@ export default function FormDetails() {
                   setBusy(false)
                 }
               }}
-              className="rounded bg-red-600 px-3 py-1 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
+              className="rounded-lg bg-error-500 hover:bg-error-600 px-3 py-1.5 text-theme-sm font-medium text-white disabled:opacity-60"
             >
               {t('forms:detail.deleteForm')}
             </button>
@@ -195,7 +195,7 @@ export default function FormDetails() {
           <button
             type="button"
             onClick={() => navigate('/forms')}
-            className="rounded border border-stroke px-3 py-1 text-sm text-body hover:bg-gray-50"
+            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             {t('forms:detail.backToList')}
           </button>
@@ -204,35 +204,35 @@ export default function FormDetails() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
-          <section className="rounded border border-stroke bg-white p-4">
-            <h2 className="mb-3 text-sm font-semibold uppercase text-body">{t('forms:detail.metadata')}</h2>
+          <section className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm p-4">
+            <h2 className="mb-3 text-theme-sm font-semibold uppercase text-gray-500 dark:text-gray-400">{t('forms:detail.metadata')}</h2>
             <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <dt className="text-xs text-body">{t('forms:detail.formNumber')}</dt>
-                <dd className="text-sm">{form.formNumber || '—'}</dd>
+                <dt className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.formNumber')}</dt>
+                <dd className="text-theme-sm text-gray-900 dark:text-white">{form.formNumber || '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs text-body">{t('forms:detail.formDate')}</dt>
-                <dd className="text-sm">{form.formDate ? String(form.formDate).slice(0, 10) : '—'}</dd>
+                <dt className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.formDate')}</dt>
+                <dd className="text-theme-sm text-gray-900 dark:text-white">{form.formDate ? String(form.formDate).slice(0, 10) : '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs text-body">{t('forms:detail.municipalBoard')}</dt>
-                <dd className="text-sm">{form.municipalBoard || '—'}</dd>
+                <dt className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.municipalBoard')}</dt>
+                <dd className="text-theme-sm text-gray-900 dark:text-white">{form.municipalBoard || '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs text-body">{t('forms:detail.scanDate')}</dt>
-                <dd className="text-sm">{form.scanDate ? String(form.scanDate).slice(0, 10) : '—'}</dd>
+                <dt className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.scanDate')}</dt>
+                <dd className="text-theme-sm text-gray-900 dark:text-white">{form.scanDate ? String(form.scanDate).slice(0, 10) : '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs text-body">{t('forms:detail.orgUnit')}</dt>
-                <dd className="text-sm">{orgUnitName}</dd>
+                <dt className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.orgUnit')}</dt>
+                <dd className="text-theme-sm text-gray-900 dark:text-white">{orgUnitName}</dd>
               </div>
               <div>
-                <dt className="text-xs text-body">{t('forms:detail.uploadedBy')}</dt>
-                <dd className="text-sm">{uploadedBy}</dd>
+                <dt className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.uploadedBy')}</dt>
+                <dd className="text-theme-sm text-gray-900 dark:text-white">{uploadedBy}</dd>
               </div>
               <div className="sm:col-span-2">
-                <dt className="mb-1 text-xs text-body">{t('forms:detail.status')}</dt>
+                <dt className="mb-1 text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.status')}</dt>
                 <dd className="flex items-center gap-2">
                   <StatusBadge status={form.status} />
                   {isAdmin && normaliseStatus(form.status) !== 'Verified' && (
@@ -241,7 +241,7 @@ export default function FormDetails() {
                       type="button"
                       disabled={busy}
                       onClick={() => setStatus('Verified')}
-                      className="rounded bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-60"
+                      className="rounded-lg bg-success-500 hover:bg-success-600 px-3 py-1.5 text-theme-xs font-medium text-white disabled:opacity-60"
                     >
                       {t('forms:detail.verify')}
                     </button>
@@ -252,7 +252,7 @@ export default function FormDetails() {
                       type="button"
                       disabled={busy}
                       onClick={() => setStatus('Rejected')}
-                      className="rounded bg-red-600 px-3 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
+                      className="rounded-lg bg-error-500 hover:bg-error-600 px-3 py-1.5 text-theme-xs font-medium text-white disabled:opacity-60"
                     >
                       {t('forms:detail.reject')}
                     </button>
@@ -262,11 +262,11 @@ export default function FormDetails() {
             </dl>
           </section>
 
-          <section className="rounded border border-stroke bg-white p-4">
+          <section className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 data-testid="images-count-heading" className="text-sm font-semibold uppercase text-body">{t('forms:detail.images')} ({images.length})</h2>
+              <h2 data-testid="images-count-heading" className="text-theme-sm font-semibold uppercase text-gray-500 dark:text-gray-400">{t('forms:detail.images')} ({images.length})</h2>
               {isAdmin && (
-                <label className="cursor-pointer rounded border border-stroke px-3 py-1 text-xs font-medium text-body hover:bg-gray-50">
+                <label className="cursor-pointer rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800">
                   {t('forms:detail.addImages')}
                   <input
                     data-testid="add-images-input"
@@ -280,26 +280,26 @@ export default function FormDetails() {
               )}
             </div>
             {images.length === 0 ? (
-              <p className="text-sm text-body">{t('forms:detail.noImages')}</p>
+              <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('forms:detail.noImages')}</p>
             ) : (
               <ul data-testid="gallery-list" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {images.map((img, idx) => {
                   const src = imageUrl(img)
                   const isImage = !img.fileName || !/\.pdf$/i.test(img.fileName)
                   return (
-                    <li key={img.id} data-testid="gallery-item" className="relative rounded border border-stroke bg-white p-2">
+                    <li key={img.id} data-testid="gallery-item" className="relative rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-2">
                       <button
                         type="button"
                         onClick={() => setViewerIndex(idx)}
-                        className="block aspect-square w-full overflow-hidden rounded bg-gray-100"
+                        className="block aspect-square w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800"
                       >
                         {isImage ? (
                           <img src={src} alt={img.fileName || `image-${idx}`} className="h-full w-full object-cover" />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center text-xs text-body">PDF</div>
+                          <div className="flex h-full w-full items-center justify-center text-theme-xs text-gray-500 dark:text-gray-400">PDF</div>
                         )}
                       </button>
-                      <div className="mt-1 truncate text-xs" title={img.fileName}>
+                      <div className="mt-1 truncate text-theme-xs text-gray-700 dark:text-gray-300" title={img.fileName}>
                         {idx + 1}. {img.fileName || `Image ${idx + 1}`}
                       </div>
                       {isAdmin && (
@@ -307,7 +307,7 @@ export default function FormDetails() {
                           type="button"
                           onClick={() => onDeleteImage(img.id)}
                           disabled={busy}
-                          className="absolute right-1 top-1 rounded bg-red-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
+                          className="absolute right-1 top-1 rounded-lg bg-error-500 hover:bg-error-600 px-2 py-0.5 text-theme-xs font-medium text-white disabled:opacity-60"
                         >
                           ×
                         </button>
@@ -321,24 +321,24 @@ export default function FormDetails() {
         </div>
 
         <aside className="space-y-4">
-          <section className="rounded border border-stroke bg-white p-4">
-            <h2 className="mb-3 text-sm font-semibold uppercase text-body">{t('forms:detail.member')}</h2>
+          <section className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm p-4">
+            <h2 className="mb-3 text-theme-sm font-semibold uppercase text-gray-500 dark:text-gray-400">{t('forms:detail.member')}</h2>
             {member ? (
               <Link
                 data-testid="member-card"
                 to={`/members/${member.id}`}
-                className="block rounded border border-stroke p-3 hover:bg-gray-50"
+                className="block rounded-lg border border-gray-200 dark:border-gray-800 p-3 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
-                <div className="text-sm font-semibold text-primary">
+                <div className="text-theme-sm font-semibold text-brand-500">
                   {member.firstName} {member.lastName}
                 </div>
-                <div className="mt-1 text-xs text-body">JMBG: {member.jmbg}</div>
+                <div className="mt-1 text-theme-xs text-gray-500 dark:text-gray-400">JMBG: {member.jmbg}</div>
                 {member.orgUnit?.name && (
-                  <div className="text-xs text-body">{t('forms:detail.orgUnitLabel')}: {member.orgUnit.name}</div>
+                  <div className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.orgUnitLabel')}: {member.orgUnit.name}</div>
                 )}
               </Link>
             ) : (
-              <p className="text-sm text-body">{t('forms:detail.noMember')}</p>
+              <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('forms:detail.noMember')}</p>
             )}
           </section>
         </aside>
@@ -355,7 +355,7 @@ export default function FormDetails() {
               e.stopPropagation()
               closeViewer()
             }}
-            className="absolute right-4 top-4 rounded bg-white/10 px-3 py-1 text-sm text-white hover:bg-white/20"
+            className="absolute right-4 top-4 rounded-lg bg-white/10 px-3 py-1.5 text-theme-sm text-white hover:bg-white/20"
           >
             Close ✕
           </button>
@@ -395,7 +395,7 @@ export default function FormDetails() {
                   <iframe
                     src={src}
                     title={img.fileName || 'PDF'}
-                    className="h-[85vh] w-[85vw] rounded bg-white"
+                    className="h-[85vh] w-[85vw] rounded-lg bg-white"
                   />
                 )
               }
@@ -407,7 +407,7 @@ export default function FormDetails() {
                 />
               )
             })()}
-            <div className="mt-2 text-center text-xs text-white/70">
+            <div className="mt-2 text-center text-theme-xs text-white/70">
               {viewerIndex + 1} / {images.length} — {images[viewerIndex].fileName}
             </div>
           </div>
