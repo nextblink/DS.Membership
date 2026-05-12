@@ -67,6 +67,11 @@ builder.Services.AddScoped<IMembersService, MembersService>();
 builder.Services.AddScoped<IFormsService, FormsService>();
 // --- end Forms ---
 
+// --- QR Upload ---
+builder.Services.Configure<QrUploadOptions>(builder.Configuration.GetSection("QrUpload"));
+builder.Services.AddSingleton<IQrTokenService, QrTokenService>();
+// --- end QR Upload ---
+
 // --- JWT auth (issue #6) ---
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -111,13 +116,17 @@ builder.Services.AddAuthorization(opts =>
     opts.AddPolicy("ApiPolicy", p => p.RequireAuthenticatedUser());
 });
 
-const string ClientCorsPolicy = "ClientCors";
 builder.Services.AddCors(opts =>
 {
-    opts.AddPolicy(ClientCorsPolicy, policy => policy
-        .WithOrigins("http://localhost:5180")
-        .AllowAnyHeader()
-        .AllowAnyMethod());
+    opts.AddPolicy("AllowFrontend", policy =>
+        policy.WithOrigins("http://localhost:5180")
+              .AllowAnyMethod()
+              .AllowAnyHeader());
+
+    opts.AddPolicy("PublicUpload", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader());
 });
 // --- end JWT auth ---
 
@@ -162,7 +171,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 // --- end file storage ---
 
-app.UseCors(ClientCorsPolicy);
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
