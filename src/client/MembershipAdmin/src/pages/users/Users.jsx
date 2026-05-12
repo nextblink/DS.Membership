@@ -256,10 +256,11 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
 
   return (
     <ModalShell title="Create user" onClose={onClose}>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate data-testid="create-user-form">
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium text-black">Email</label>
+          <label htmlFor="create-email" className="mb-2 block text-sm font-medium text-black">Email</label>
           <input
+            id="create-email"
             type="email"
             autoComplete="off"
             {...register('email', {
@@ -272,8 +273,9 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
         </div>
 
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium text-black">Password</label>
+          <label htmlFor="create-password" className="mb-2 block text-sm font-medium text-black">Password</label>
           <input
+            id="create-password"
             type="password"
             autoComplete="new-password"
             {...register('password', {
@@ -288,8 +290,9 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
         </div>
 
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium text-black">Role</label>
+          <label htmlFor="create-role" className="mb-2 block text-sm font-medium text-black">Role</label>
           <select
+            id="create-role"
             {...register('role', { required: 'Role is required' })}
             className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
           >
@@ -303,10 +306,11 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
         </div>
 
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium text-black">
+          <label htmlFor="create-orgUnitId" className="mb-2 block text-sm font-medium text-black">
             Org Unit{orgUnitRequired ? ' *' : ''}
           </label>
           <select
+            id="create-orgUnitId"
             {...register('orgUnitId', {
               validate: (v) =>
                 !orgUnitRequired || (v !== '' && v != null) || 'Org Unit is required for this role',
@@ -394,10 +398,11 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
 
   return (
     <ModalShell title={`Edit user — ${user.email}`} onClose={onClose}>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate data-testid="edit-user-form">
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium text-black">Role</label>
+          <label htmlFor="edit-role" className="mb-2 block text-sm font-medium text-black">Role</label>
           <select
+            id="edit-role"
             {...register('role', { required: 'Role is required' })}
             className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
           >
@@ -411,10 +416,11 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
         </div>
 
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium text-black">
+          <label htmlFor="edit-orgUnitId" className="mb-2 block text-sm font-medium text-black">
             Org Unit{orgUnitRequired ? ' *' : ''}
           </label>
           <select
+            id="edit-orgUnitId"
             {...register('orgUnitId', {
               validate: (v) =>
                 !orgUnitRequired || (v !== '' && v != null) || 'Org Unit is required for this role',
