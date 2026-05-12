@@ -4,7 +4,7 @@
   "newMember": "Нови члан",
   "editMember": "Измени члана",
   "filter": {
-    "firstName": "Иmе",
+    "firstName": "Име",
     "lastName": "Презиме",
     "jmbg": "ЈМБГ",
     "orgUnit": "Орг. јединица",
@@ -13,7 +13,7 @@
     "occupation": "Занимање"
   },
   "table": {
-    "fullName": "Пуно иmе",
+    "fullName": "Пуно име",
     "jmbg": "ЈМБГ",
     "orgUnit": "Орг. јединица",
     "membershipDate": "Датум чланства",
@@ -30,9 +30,9 @@
     "employment": "Запослење",
     "education": "Образовање",
     "linkedForms": "Повезани обрасци",
-    "firstName": "Иmе",
+    "firstName": "Име",
     "lastName": "Презиме",
-    "parentName": "Иmе родитеља",
+    "parentName": "Име родитеља",
     "dateOfBirth": "Датум рођења",
     "jmbg": "ЈМБГ",
     "gender": "Пол",
@@ -63,7 +63,7 @@
     "phoneNumber": "Број"
   },
   "validation": {
-    "firstNameRequired": "Иmе је обавезно",
+    "firstNameRequired": "Име је обавезно",
     "lastNameRequired": "Презиме је обавезно",
     "dateOfBirthRequired": "Датум рођења је обавезан",
     "jmbgRequired": "ЈМБГ је обавезан",

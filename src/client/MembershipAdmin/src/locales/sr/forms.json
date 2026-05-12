@@ -5,14 +5,14 @@
     "formNumber": "Број обрасца",
     "orgUnit": "Орг. јединица",
     "status": "Статус",
-    "memberName": "Иmе члана",
+    "memberName": "Име члана",
     "placeholderFormNumber": "нпр. Ф-12345",
-    "placeholderMemberName": "Иmе или презиме",
+    "placeholderMemberName": "Име или презиме",
     "all": "Сви"
   },
   "table": {
     "formNumber": "Број обрасца",
-    "memberName": "Иmе члана",
+    "memberName": "Име члана",
     "orgUnit": "Орг. јединица",
     "scanDate": "Датум скенирања",
     "status": "Статус",
