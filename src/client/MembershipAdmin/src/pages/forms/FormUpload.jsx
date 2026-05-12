@@ -198,6 +198,7 @@ export default function FormUpload() {
             <div>
               <label className="mb-1 block text-xs font-medium text-body">Form Number</label>
               <input
+                data-testid="upload-formNumber"
                 type="text"
                 value={meta.formNumber}
                 onChange={(e) => setMeta({ ...meta, formNumber: e.target.value })}
@@ -227,6 +228,7 @@ export default function FormUpload() {
                 Scan Date <span className="text-red-500">*</span>
               </label>
               <input
+                data-testid="upload-scanDate"
                 type="date"
                 required
                 value={meta.scanDate}
@@ -291,6 +293,7 @@ export default function FormUpload() {
           <h2 className="mb-3 text-sm font-semibold uppercase text-body">Images</h2>
 
           <div
+            data-testid="upload-dropzone"
             onDragEnter={onZoneDragEnter}
             onDragOver={(e) => {
               e.preventDefault()
@@ -360,6 +363,7 @@ export default function FormUpload() {
 
         <div className="flex gap-2">
           <button
+            data-testid="upload-submit-btn"
             type="submit"
             disabled={submitting}
             className="rounded bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-60"

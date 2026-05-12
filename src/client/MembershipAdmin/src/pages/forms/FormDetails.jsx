@@ -8,6 +8,20 @@ import auth from '../../framework/auth'
 
 const ADMIN_ROLES = new Set(['SuperAdmin', 'Admin', 'LocalAdmin'])
 
+// The API may return FormStatus as integer (0,1,2) or string ("Pending","Verified","Rejected")
+// depending on the .NET JSON serializer configuration. Normalise to string here.
+const STATUS_NAMES = { 0: 'Pending', 1: 'Verified', 2: 'Rejected' }
+const STATUS_INTS = { Pending: 0, Verified: 1, Rejected: 2 }
+function normaliseStatus(status) {
+  if (typeof status === 'number') return STATUS_NAMES[status] ?? String(status)
+  return status
+}
+// The PATCH /api/forms/:id/status endpoint requires integer enum value
+function statusToInt(status) {
+  if (typeof status === 'number') return status
+  return STATUS_INTS[status] ?? 0
+}
+
 const STATUS_CLASS = {
   Pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
   Verified: 'bg-green-100 text-green-800 border-green-300',
@@ -15,9 +29,10 @@ const STATUS_CLASS = {
 }
 
 function StatusBadge({ status }) {
-  const cls = STATUS_CLASS[status] || 'bg-gray-100 text-gray-800 border-gray-300'
+  const s = normaliseStatus(status)
+  const cls = STATUS_CLASS[s] || 'bg-gray-100 text-gray-800 border-gray-300'
   return (
-    <span className={`inline-block rounded border px-3 py-1 text-sm font-medium ${cls}`}>{status}</span>
+    <span data-testid="status-badge" className={`inline-block rounded border px-3 py-1 text-sm font-medium ${cls}`}>{s}</span>
   )
 }
 
@@ -89,7 +104,7 @@ export default function FormDetails() {
     if (!isAdmin) return
     setBusy(true)
     try {
-      await api.patch(`/api/forms/${id}/status`, { status })
+      await api.patch(`/api/forms/${id}/status`, { status: statusToInt(status) })
       await load()
     } catch (err) {
       alert(err?.response?.data?.message || err.message || 'Status update failed')
@@ -148,16 +163,40 @@ export default function FormDetails() {
   return (
     <div className="p-6">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-black">
+        <h1 data-testid="form-title" className="text-2xl font-semibold text-black">
           Form {form.formNumber || `#${form.id}`}
         </h1>
-        <button
-          type="button"
-          onClick={() => navigate('/forms')}
-          className="rounded border border-stroke px-3 py-1 text-sm text-body hover:bg-gray-50"
-        >
-          Back to list
-        </button>
+        <div className="flex gap-2">
+          {isAdmin && (
+            <button
+              data-testid="btn-delete-form"
+              type="button"
+              disabled={busy}
+              onClick={async () => {
+                if (!confirm('Delete this form?')) return
+                setBusy(true)
+                try {
+                  await api.delete(`/api/forms/${id}`)
+                  navigate('/forms')
+                } catch (err) {
+                  alert(err?.response?.data?.message || err.message || 'Delete failed')
+                } finally {
+                  setBusy(false)
+                }
+              }}
+              className="rounded bg-red-600 px-3 py-1 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
+            >
+              Delete Form
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => navigate('/forms')}
+            className="rounded border border-stroke px-3 py-1 text-sm text-body hover:bg-gray-50"
+          >
+            Back to list
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -193,8 +232,9 @@ export default function FormDetails() {
                 <dt className="mb-1 text-xs text-body">Status</dt>
                 <dd className="flex items-center gap-2">
                   <StatusBadge status={form.status} />
-                  {isAdmin && form.status !== 'Verified' && (
+                  {isAdmin && normaliseStatus(form.status) !== 'Verified' && (
                     <button
+                      data-testid="btn-verify"
                       type="button"
                       disabled={busy}
                       onClick={() => setStatus('Verified')}
@@ -203,8 +243,9 @@ export default function FormDetails() {
                       Verify
                     </button>
                   )}
-                  {isAdmin && form.status !== 'Rejected' && (
+                  {isAdmin && normaliseStatus(form.status) !== 'Rejected' && (
                     <button
+                      data-testid="btn-reject"
                       type="button"
                       disabled={busy}
                       onClick={() => setStatus('Rejected')}
@@ -220,11 +261,12 @@ export default function FormDetails() {
 
           <section className="rounded border border-stroke bg-white p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-semibold uppercase text-body">Images ({images.length})</h2>
+              <h2 data-testid="images-count-heading" className="text-sm font-semibold uppercase text-body">Images ({images.length})</h2>
               {isAdmin && (
                 <label className="cursor-pointer rounded border border-stroke px-3 py-1 text-xs font-medium text-body hover:bg-gray-50">
                   + Add images
                   <input
+                    data-testid="add-images-input"
                     type="file"
                     multiple
                     accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
@@ -237,12 +279,12 @@ export default function FormDetails() {
             {images.length === 0 ? (
               <p className="text-sm text-body">No images.</p>
             ) : (
-              <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              <ul data-testid="gallery-list" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {images.map((img, idx) => {
                   const src = imageUrl(img)
                   const isImage = !img.fileName || !/\.pdf$/i.test(img.fileName)
                   return (
-                    <li key={img.id} className="relative rounded border border-stroke bg-white p-2">
+                    <li key={img.id} data-testid="gallery-item" className="relative rounded border border-stroke bg-white p-2">
                       <button
                         type="button"
                         onClick={() => setViewerIndex(idx)}
@@ -280,6 +322,7 @@ export default function FormDetails() {
             <h2 className="mb-3 text-sm font-semibold uppercase text-body">Member</h2>
             {member ? (
               <Link
+                data-testid="member-card"
                 to={`/members/${member.id}`}
                 className="block rounded border border-stroke p-3 hover:bg-gray-50"
               >
