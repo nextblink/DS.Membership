@@ -1,16 +1,13 @@
 import { NavLink } from 'react-router-dom'
-
-const navItems = [
-  { to: '/', label: 'Dashboard' },
-  { to: '/members', label: 'Members' },
-  { to: '/forms', label: 'Forms' },
-  { to: '/org-units', label: 'Org Units' },
-  { to: '/functions', label: 'Functions' },
-  { to: '/users', label: 'Users' },
-  { to: '/profile', label: 'Profile' },
-]
+import auth from '../framework/auth'
+import { NAV_ITEMS } from '../config'
 
 export default function Sidebar({ open, onClose }) {
+  const role = auth.getRole()
+  const items = NAV_ITEMS.filter(
+    (item) => !item.roles || item.roles.length === 0 || (role && item.roles.includes(role)),
+  )
+
   return (
     <aside
       className={`fixed inset-y-0 left-0 z-40 flex h-screen w-72 flex-col overflow-y-hidden bg-boxdark text-bodydark1 duration-300 ease-linear lg:static lg:translate-x-0 ${
@@ -18,9 +15,9 @@ export default function Sidebar({ open, onClose }) {
       }`}
     >
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-        <a href="/" className="text-xl font-semibold text-white">
+        <NavLink to="/dashboard" className="text-xl font-semibold text-white">
           Membership
-        </a>
+        </NavLink>
         <button
           type="button"
           onClick={onClose}
@@ -39,11 +36,11 @@ export default function Sidebar({ open, onClose }) {
             Menu
           </h3>
           <ul className="flex flex-col gap-1.5">
-            {navItems.map((item) => (
+            {items.map((item) => (
               <li key={item.to}>
                 <NavLink
                   to={item.to}
-                  end={item.to === '/'}
+                  end={item.to === '/dashboard'}
                   className={({ isActive }) =>
                     `group flex items-center gap-2.5 rounded-md px-4 py-2 text-sm font-medium duration-300 ease-in-out ${
                       isActive
