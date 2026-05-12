@@ -1,6 +1,7 @@
 // Dashboard page: total members, sortable org-unit table, and forms-status donut.
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { QRCodeSVG } from 'qrcode.react'
 import api from '../../framework/api'
 import StatsCard from './StatsCard'
 import OrgUnitsTable from './OrgUnitsTable'
@@ -78,6 +79,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [reloadKey, setReloadKey] = useState(0)
+  const [qrOpen, setQrOpen] = useState(false)
+  const [qrToken, setQrToken] = useState(null)
+  const [qrExpiry, setQrExpiry] = useState(null)
+  const [qrError, setQrError] = useState(null)
+  const [qrLoading, setQrLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -105,12 +111,42 @@ export default function Dashboard() {
     }
   }, [reloadKey])
 
+  const openQr = async () => {
+    setQrToken(null)
+    setQrError(null)
+    setQrExpiry(null)
+    setQrLoading(true)
+    setQrOpen(true)
+    try {
+      const res = await api.post('/api/forms/qr-token')
+      setQrToken(res.data.token)
+      setQrExpiry(res.data.expiresAt)
+    } catch {
+      setQrError('Could not generate upload link. Please try again.')
+    } finally {
+      setQrLoading(false)
+    }
+  }
+
   if (loading) {
     return (
       <div>
-        <h2 className="mb-6 text-2xl font-semibold text-black dark:text-white">
-          {t('title')}
-        </h2>
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-black dark:text-white">
+            {t('title')}
+          </h2>
+          <button
+            type="button"
+            onClick={openQr}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 3.5V16M4 4h4v4H4V4zm12 0h4v4h-4V4zM4 16h4v4H4v-4z" />
+            </svg>
+            Upload from Phone
+          </button>
+        </div>
         <LoadingState />
       </div>
     )
@@ -119,9 +155,22 @@ export default function Dashboard() {
   if (error) {
     return (
       <div>
-        <h2 className="mb-6 text-2xl font-semibold text-black dark:text-white">
-          {t('title')}
-        </h2>
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-black dark:text-white">
+            {t('title')}
+          </h2>
+          <button
+            type="button"
+            onClick={openQr}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 3.5V16M4 4h4v4H4V4zm12 0h4v4h-4V4zM4 16h4v4H4v-4z" />
+            </svg>
+            Upload from Phone
+          </button>
+        </div>
         <ErrorState
           message={error}
           onRetry={() => setReloadKey((k) => k + 1)}
@@ -145,9 +194,22 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h2 className="mb-6 text-2xl font-semibold text-black dark:text-white">
-        {t('title')}
-      </h2>
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-2xl font-semibold text-black dark:text-white">
+          {t('title')}
+        </h2>
+        <button
+          type="button"
+          onClick={openQr}
+          className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 3.5V16M4 4h4v4H4V4zm12 0h4v4h-4V4zM4 16h4v4H4v-4z" />
+          </svg>
+          Upload from Phone
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
         <StatsCard
@@ -201,6 +263,55 @@ export default function Dashboard() {
           <FormsStatusDonut formsByStatus={formsByStatus} />
         </div>
       </div>
+
+      {qrOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="relative w-full max-w-sm rounded-sm border border-stroke bg-white p-8 shadow-default">
+            <button
+              type="button"
+              onClick={() => setQrOpen(false)}
+              className="absolute right-4 top-4 text-body hover:text-black"
+              aria-label="Close"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <h3 className="mb-4 text-lg font-semibold text-black">Upload from Phone</h3>
+
+            {qrLoading && (
+              <div className="flex justify-center py-8">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+              </div>
+            )}
+
+            {qrError && (
+              <p className="text-sm text-danger">{qrError}</p>
+            )}
+
+            {qrToken && !qrLoading && (
+              <>
+                <div className="flex justify-center mb-4">
+                  <QRCodeSVG
+                    value={`${window.location.origin}/m/upload?token=${encodeURIComponent(qrToken)}`}
+                    size={220}
+                    level="M"
+                  />
+                </div>
+                <p className="text-center text-xs text-body">
+                  Scan with your phone to upload photos.
+                </p>
+                {qrExpiry && (
+                  <p className="mt-1 text-center text-xs text-bodydark2">
+                    Valid until {new Date(qrExpiry).toLocaleTimeString()}
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
