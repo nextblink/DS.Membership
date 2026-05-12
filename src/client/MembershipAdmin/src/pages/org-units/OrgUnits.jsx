@@ -111,7 +111,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" data-testid="add-unit-modal">
       <div className="w-full max-w-md rounded-sm border border-stroke bg-white shadow-default">
         <div className="border-b border-stroke px-6 py-4">
           <h3 className="text-lg font-semibold text-black">
@@ -127,6 +127,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded border border-stroke bg-transparent px-4 py-2 outline-none focus:border-primary"
               autoFocus
+              data-testid="modal-name-input"
             />
           </div>
           <div className="mb-4">
@@ -135,6 +136,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
               value={type}
               onChange={(e) => setType(e.target.value)}
               className="w-full rounded border border-stroke bg-transparent px-4 py-2 outline-none focus:border-primary"
+              data-testid="modal-type-select"
             >
               <option value={TYPE_CITY}>City</option>
               <option value={TYPE_MUNICIPAL}>Municipal</option>
@@ -150,10 +152,11 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
               value={voterCount}
               onChange={(e) => setVoterCount(e.target.value)}
               className="w-full rounded border border-stroke bg-transparent px-4 py-2 outline-none focus:border-primary"
+              data-testid="modal-voter-count-input"
             />
           </div>
           {error && (
-            <p className="mb-3 text-sm text-danger">{error}</p>
+            <p className="mb-3 text-sm text-danger" data-testid="modal-error">{error}</p>
           )}
           <div className="flex justify-end gap-2">
             <button
@@ -161,6 +164,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
               onClick={onClose}
               className="rounded border border-stroke px-4 py-2 text-sm font-medium text-black hover:bg-gray-50"
               disabled={submitting}
+              data-testid="modal-cancel"
             >
               Cancel
             </button>
@@ -168,6 +172,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
               type="submit"
               className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-50"
               disabled={submitting}
+              data-testid="modal-save"
             >
               {submitting ? 'Saving...' : 'Save'}
             </button>
@@ -234,6 +239,7 @@ function VoterCountEditor({ node, onSave }) {
           disabled={saving}
           autoFocus
           className="w-24 rounded border border-stroke bg-white px-2 py-0.5 text-sm outline-none focus:border-primary"
+          data-testid={`voter-count-input-${node.id}`}
         />
         {saving && <span className="text-xs text-body">saving...</span>}
       </span>
@@ -246,6 +252,7 @@ function VoterCountEditor({ node, onSave }) {
       onClick={() => setEditing(true)}
       title="Click to edit voter count"
       className="rounded px-2 py-0.5 text-sm text-black hover:bg-gray-100"
+      data-testid={`voter-count-display-${node.id}`}
     >
       {node.voterCount ?? 0}
       {error && <span className="ml-2 text-xs text-danger">{error}</span>}
@@ -265,7 +272,7 @@ function TreeNode({
   const memberCount = node.memberCount ?? node.members?.length ?? 0
 
   return (
-    <li>
+    <li data-testid={`org-unit-node-${node.id}`} data-node-name={node.name}>
       <div
         className="flex flex-wrap items-center gap-3 rounded border border-stroke bg-white px-3 py-2 hover:bg-gray-50"
         style={{ marginLeft: depth * 24 }}
@@ -280,7 +287,7 @@ function TreeNode({
           {hasChildren ? (expanded ? '▾' : '▸') : '•'}
         </button>
 
-        <span className="font-medium text-black">{node.name}</span>
+        <span className="font-medium text-black" data-testid={`node-name-${node.id}`}>{node.name}</span>
         <span className={typeBadgeClass(node.type)}>{node.type}</span>
 
         <span className="text-sm text-body">
@@ -298,6 +305,7 @@ function TreeNode({
             type="button"
             onClick={() => onAddChild(node)}
             className="rounded border border-stroke px-3 py-1 text-xs font-medium text-black hover:bg-gray-50"
+            data-testid={`add-child-btn-${node.id}`}
           >
             + Add child unit
           </button>
@@ -306,6 +314,7 @@ function TreeNode({
               type="button"
               onClick={() => onDelete(node)}
               className="rounded border border-danger px-3 py-1 text-xs font-medium text-danger hover:bg-danger hover:text-white"
+              data-testid={`delete-btn-${node.id}`}
             >
               Delete
             </button>
@@ -408,16 +417,16 @@ export default function OrgUnits() {
 
   const content = useMemo(() => {
     if (loading) {
-      return <p className="text-sm text-body">Loading...</p>
+      return <p className="text-sm text-body" data-testid="org-units-loading">Loading...</p>
     }
     if (error) {
-      return <p className="text-sm text-danger">{error}</p>
+      return <p className="text-sm text-danger" data-testid="org-units-error">{error}</p>
     }
     if (tree.length === 0) {
       return <p className="text-sm text-body">No org units yet. Click "Add root unit" to create one.</p>
     }
     return (
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-2" data-testid="org-units-tree">
         {tree.map((node) => (
           <TreeNode
             key={node.id}
@@ -440,6 +449,7 @@ export default function OrgUnits() {
           type="button"
           onClick={handleAddRoot}
           className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+          data-testid="add-root-unit-btn"
         >
           + Add root unit
         </button>
