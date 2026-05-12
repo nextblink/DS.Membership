@@ -140,7 +140,7 @@ public class FormsService : IFormsService
             FormDate = meta.FormDate,
             MunicipalBoard = meta.MunicipalBoard,
             MemberId = meta.MemberId,
-            ScanDate = meta.ScanDate,
+            ScanDate = meta.ScanDate ?? DateOnly.FromDateTime(DateTime.Now),
             Status = FormStatus.Pending,
             CreatedByUserId = _user.Id!,
             CreatedDate = DateTime.UtcNow,

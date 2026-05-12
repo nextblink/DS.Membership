@@ -33,7 +33,6 @@ export default function MobileUpload() {
 
     const fd = new FormData()
     files.forEach((f) => fd.append('files', f))
-    fd.append('scanDate', new Date().toISOString().slice(0, 10)) // YYYY-MM-DD
 
     try {
       const res = await fetch(`${API_BASE}/api/forms`, {

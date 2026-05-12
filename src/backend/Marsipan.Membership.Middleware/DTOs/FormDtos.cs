@@ -80,8 +80,7 @@ public class CreateFormMetadataDto
 
     public int? MemberId { get; set; }
 
-    [Required]
-    public DateOnly ScanDate { get; set; }
+    public DateOnly? ScanDate { get; set; }
 }
 
 /// <summary>
