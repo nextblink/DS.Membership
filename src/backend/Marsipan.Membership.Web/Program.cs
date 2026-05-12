@@ -93,6 +93,10 @@ builder.Services.AddCors(opts =>
 });
 // --- end JWT auth ---
 
+// --- Users (issue #13) ---
+builder.Services.AddScoped<IUsersService, UsersService>();
+// --- end Users ---
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
