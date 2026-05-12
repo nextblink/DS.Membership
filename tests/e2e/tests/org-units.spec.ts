@@ -70,21 +70,18 @@ test.describe('UC-ORG org units', () => {
     await loginAsUI(page, 'superAdmin');
     await page.goto('/org-units');
     await waitForTree(page);
-    // The implementation hides the Delete button on nodes that have children
-    const belgradNode = page.locator('li').filter({ hasText: 'Belgrade' }).first();
-    const deleteBtn = belgradNode.getByRole('button', { name: /delete/i });
-    const count = await deleteBtn.count();
+    // Belgrade now has a child so its own delete button must be hidden.
+    // data-testid="delete-btn-1" only exists when the node is a leaf.
+    const belgradDeleteBtn = page.getByTestId('delete-btn-1');
+    const count = await belgradDeleteBtn.count();
     if (count > 0) {
+      // Unexpected: delete button shown — click and expect 409 error in DOM.
       page.on('dialog', d => d.accept());
-      await deleteBtn.click();
-      // Look for the window.alert text that gets displayed
-      await expect(
-        page.locator('[class*="danger"]').first().or(
-          page.getByText(/cannot delete/i).first()
-        )
-      ).toBeVisible({ timeout: 5000 });
+      await belgradDeleteBtn.click();
+      await expect(page.getByText(/cannot delete/i)).toBeVisible({ timeout: 5000 });
     }
-    await expect(page.getByText('Belgrade')).toBeVisible();
+    // Belgrade must still be in the tree regardless.
+    await expect(page.getByTestId('node-name-1')).toBeVisible();
   });
 
   test('ORG-07 Non-SuperAdmin (Admin) blocked from /org-units', async ({ page, loginAsUI }) => {
