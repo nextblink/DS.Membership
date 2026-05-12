@@ -3,6 +3,7 @@
 // add/delete image actions for admin roles.
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import auth from '../../framework/auth'
 
@@ -29,10 +30,11 @@ const STATUS_CLASS = {
 }
 
 function StatusBadge({ status }) {
+  const { t } = useTranslation('enums')
   const s = normaliseStatus(status)
   const cls = STATUS_CLASS[s] || 'bg-gray-100 text-gray-800 border-gray-300'
   return (
-    <span data-testid="status-badge" className={`inline-block rounded border px-3 py-1 text-sm font-medium ${cls}`}>{s}</span>
+    <span data-testid="status-badge" className={`inline-block rounded border px-3 py-1 text-sm font-medium ${cls}`}>{t(`formStatus.${s.toLowerCase()}`, { defaultValue: s })}</span>
   )
 }
 
@@ -47,6 +49,7 @@ function imageUrl(img) {
 }
 
 export default function FormDetails() {
+  const { t } = useTranslation(['forms', 'enums', 'common'])
   const { id } = useParams()
   const navigate = useNavigate()
   const role = auth.getRole()
@@ -66,7 +69,7 @@ export default function FormDetails() {
       const res = await api.get(`/api/forms/${id}`)
       setForm(res.data)
     } catch (err) {
-      setError(err?.response?.data?.message || err.message || 'Failed to load form')
+      setError(err?.response?.data?.message || err.message || t('forms:detail.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -134,7 +137,7 @@ export default function FormDetails() {
 
   const onDeleteImage = async (imageId) => {
     if (!isAdmin) return
-    if (!confirm('Delete this image?')) return
+    if (!confirm(t('forms:detail.deleteImageConfirm'))) return
     setBusy(true)
     try {
       await api.delete(`/api/forms/${id}/images/${imageId}`)
@@ -147,13 +150,13 @@ export default function FormDetails() {
   }
 
   if (loading) {
-    return <div className="p-6 text-sm text-body">Loading…</div>
+    return <div className="p-6 text-sm text-body">{t('common:state.loading')}</div>
   }
   if (error) {
     return <div className="p-6 text-sm text-red-600">{error}</div>
   }
   if (!form) {
-    return <div className="p-6 text-sm text-body">Form not found.</div>
+    return <div className="p-6 text-sm text-body">{t('forms:detail.notFound')}</div>
   }
 
   const member = form.member || form.Member
@@ -173,7 +176,7 @@ export default function FormDetails() {
               type="button"
               disabled={busy}
               onClick={async () => {
-                if (!confirm('Delete this form?')) return
+                if (!confirm(t('forms:detail.deleteFormConfirm'))) return
                 setBusy(true)
                 try {
                   await api.delete(`/api/forms/${id}`)
@@ -186,7 +189,7 @@ export default function FormDetails() {
               }}
               className="rounded bg-red-600 px-3 py-1 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
             >
-              Delete Form
+              {t('forms:detail.deleteForm')}
             </button>
           )}
           <button
@@ -194,7 +197,7 @@ export default function FormDetails() {
             onClick={() => navigate('/forms')}
             className="rounded border border-stroke px-3 py-1 text-sm text-body hover:bg-gray-50"
           >
-            Back to list
+            {t('forms:detail.backToList')}
           </button>
         </div>
       </div>
@@ -202,34 +205,34 @@ export default function FormDetails() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <section className="rounded border border-stroke bg-white p-4">
-            <h2 className="mb-3 text-sm font-semibold uppercase text-body">Metadata</h2>
+            <h2 className="mb-3 text-sm font-semibold uppercase text-body">{t('forms:detail.metadata')}</h2>
             <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <dt className="text-xs text-body">Form Number</dt>
+                <dt className="text-xs text-body">{t('forms:detail.formNumber')}</dt>
                 <dd className="text-sm">{form.formNumber || '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs text-body">Form Date</dt>
+                <dt className="text-xs text-body">{t('forms:detail.formDate')}</dt>
                 <dd className="text-sm">{form.formDate ? String(form.formDate).slice(0, 10) : '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs text-body">Municipal Board</dt>
+                <dt className="text-xs text-body">{t('forms:detail.municipalBoard')}</dt>
                 <dd className="text-sm">{form.municipalBoard || '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs text-body">Scan Date</dt>
+                <dt className="text-xs text-body">{t('forms:detail.scanDate')}</dt>
                 <dd className="text-sm">{form.scanDate ? String(form.scanDate).slice(0, 10) : '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs text-body">Org Unit</dt>
+                <dt className="text-xs text-body">{t('forms:detail.orgUnit')}</dt>
                 <dd className="text-sm">{orgUnitName}</dd>
               </div>
               <div>
-                <dt className="text-xs text-body">Uploaded By</dt>
+                <dt className="text-xs text-body">{t('forms:detail.uploadedBy')}</dt>
                 <dd className="text-sm">{uploadedBy}</dd>
               </div>
               <div className="sm:col-span-2">
-                <dt className="mb-1 text-xs text-body">Status</dt>
+                <dt className="mb-1 text-xs text-body">{t('forms:detail.status')}</dt>
                 <dd className="flex items-center gap-2">
                   <StatusBadge status={form.status} />
                   {isAdmin && normaliseStatus(form.status) !== 'Verified' && (
@@ -240,7 +243,7 @@ export default function FormDetails() {
                       onClick={() => setStatus('Verified')}
                       className="rounded bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-60"
                     >
-                      Verify
+                      {t('forms:detail.verify')}
                     </button>
                   )}
                   {isAdmin && normaliseStatus(form.status) !== 'Rejected' && (
@@ -251,7 +254,7 @@ export default function FormDetails() {
                       onClick={() => setStatus('Rejected')}
                       className="rounded bg-red-600 px-3 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
                     >
-                      Reject
+                      {t('forms:detail.reject')}
                     </button>
                   )}
                 </dd>
@@ -261,10 +264,10 @@ export default function FormDetails() {
 
           <section className="rounded border border-stroke bg-white p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 data-testid="images-count-heading" className="text-sm font-semibold uppercase text-body">Images ({images.length})</h2>
+              <h2 data-testid="images-count-heading" className="text-sm font-semibold uppercase text-body">{t('forms:detail.images')} ({images.length})</h2>
               {isAdmin && (
                 <label className="cursor-pointer rounded border border-stroke px-3 py-1 text-xs font-medium text-body hover:bg-gray-50">
-                  + Add images
+                  {t('forms:detail.addImages')}
                   <input
                     data-testid="add-images-input"
                     type="file"
@@ -277,7 +280,7 @@ export default function FormDetails() {
               )}
             </div>
             {images.length === 0 ? (
-              <p className="text-sm text-body">No images.</p>
+              <p className="text-sm text-body">{t('forms:detail.noImages')}</p>
             ) : (
               <ul data-testid="gallery-list" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {images.map((img, idx) => {
@@ -319,7 +322,7 @@ export default function FormDetails() {
 
         <aside className="space-y-4">
           <section className="rounded border border-stroke bg-white p-4">
-            <h2 className="mb-3 text-sm font-semibold uppercase text-body">Member</h2>
+            <h2 className="mb-3 text-sm font-semibold uppercase text-body">{t('forms:detail.member')}</h2>
             {member ? (
               <Link
                 data-testid="member-card"
@@ -335,7 +338,7 @@ export default function FormDetails() {
                 )}
               </Link>
             ) : (
-              <p className="text-sm text-body">No linked member.</p>
+              <p className="text-sm text-body">{t('forms:detail.noMember')}</p>
             )}
           </section>
         </aside>

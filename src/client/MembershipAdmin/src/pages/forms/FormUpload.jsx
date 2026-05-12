@@ -2,6 +2,7 @@
 // with drag-and-drop reordering. POST as multipart/form-data to /api/forms.
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 
 const ACCEPTED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf']
@@ -12,6 +13,7 @@ function todayIso() {
 }
 
 export default function FormUpload() {
+  const { t } = useTranslation(['forms', 'common'])
   const navigate = useNavigate()
 
   const [meta, setMeta] = useState({
@@ -155,11 +157,11 @@ export default function FormUpload() {
     e.preventDefault()
     setError(null)
     if (!meta.scanDate) {
-      setError('Scan Date is required.')
+      setError(t('forms:upload.validation.scanDateRequired'))
       return
     }
     if (files.length === 0) {
-      setError('At least one image is required.')
+      setError(t('forms:upload.validation.imagesRequired'))
       return
     }
 
@@ -189,14 +191,14 @@ export default function FormUpload() {
 
   return (
     <div className="p-6">
-      <h1 className="mb-4 text-2xl font-semibold text-black">Upload Form</h1>
+      <h1 className="mb-4 text-2xl font-semibold text-black">{t('forms:upload.title')}</h1>
 
       <form onSubmit={submit} className="space-y-6">
         <div className="rounded border border-stroke bg-white p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase text-body">Metadata</h2>
+          <h2 className="mb-3 text-sm font-semibold uppercase text-body">{t('forms:upload.metadata')}</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-body">Form Number</label>
+              <label className="mb-1 block text-xs font-medium text-body">{t('forms:upload.formNumber')}</label>
               <input
                 data-testid="upload-formNumber"
                 type="text"
@@ -206,7 +208,7 @@ export default function FormUpload() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-body">Form Date</label>
+              <label className="mb-1 block text-xs font-medium text-body">{t('forms:upload.formDate')}</label>
               <input
                 type="date"
                 value={meta.formDate}
@@ -215,7 +217,7 @@ export default function FormUpload() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-body">Municipal Board</label>
+              <label className="mb-1 block text-xs font-medium text-body">{t('forms:upload.municipalBoard')}</label>
               <input
                 type="text"
                 value={meta.municipalBoard}
@@ -225,7 +227,7 @@ export default function FormUpload() {
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-body">
-                Scan Date <span className="text-red-500">*</span>
+                {t('forms:upload.scanDateRequired')}
               </label>
               <input
                 data-testid="upload-scanDate"
@@ -237,7 +239,7 @@ export default function FormUpload() {
               />
             </div>
             <div className="relative sm:col-span-2">
-              <label className="mb-1 block text-xs font-medium text-body">Member (optional)</label>
+              <label className="mb-1 block text-xs font-medium text-body">{t('forms:upload.member')}</label>
               {selectedMember ? (
                 <div className="flex items-center justify-between rounded border border-stroke bg-gray-50 px-3 py-2 text-sm">
                   <span>
@@ -247,7 +249,7 @@ export default function FormUpload() {
                     <span className="text-body">— JMBG {selectedMember.jmbg}</span>
                   </span>
                   <button type="button" onClick={clearMember} className="text-xs text-primary hover:underline">
-                    Change
+                    {t('forms:upload.memberChange')}
                   </button>
                 </div>
               ) : (
@@ -261,7 +263,7 @@ export default function FormUpload() {
                     }}
                     onFocus={() => setShowSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                    placeholder="Search by first name…"
+                    placeholder={t('forms:upload.memberSearch')}
                     className="w-full rounded border border-stroke px-3 py-2 text-sm"
                   />
                   {showSuggestions && memberSuggestions.length > 0 && (
@@ -290,7 +292,7 @@ export default function FormUpload() {
         </div>
 
         <div className="rounded border border-stroke bg-white p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase text-body">Images</h2>
+          <h2 className="mb-3 text-sm font-semibold uppercase text-body">{t('forms:upload.images')}</h2>
 
           <div
             data-testid="upload-dropzone"
@@ -306,8 +308,8 @@ export default function FormUpload() {
               isDragOver ? 'border-primary bg-primary/5' : 'border-stroke bg-gray-50'
             }`}
           >
-            <p className="text-sm text-body">Drag & drop files here, or click to browse</p>
-            <p className="mt-1 text-xs text-body">Accepted: jpg, png, webp, pdf — max 10 MB each</p>
+            <p className="text-sm text-body">{t('forms:upload.dropzone')}</p>
+            <p className="mt-1 text-xs text-body">{t('forms:upload.dropzoneHint')}</p>
             <input
               ref={fileInputRef}
               type="file"
@@ -321,7 +323,7 @@ export default function FormUpload() {
           {files.length > 0 && (
             <>
               <p className="mt-3 text-xs text-body">
-                {files.length} file(s) selected — drag thumbnails to reorder.
+                {t('forms:upload.filesSelected', { count: files.length })}
               </p>
               <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {files.map((f, idx) => (
@@ -368,14 +370,14 @@ export default function FormUpload() {
             disabled={submitting}
             className="rounded bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-60"
           >
-            {submitting ? 'Uploading…' : 'Upload'}
+            {submitting ? t('forms:upload.uploading') : t('forms:upload.submit')}
           </button>
           <button
             type="button"
             onClick={() => navigate('/forms')}
             className="rounded border border-stroke px-5 py-2 text-sm font-medium text-body hover:bg-gray-50"
           >
-            Cancel
+            {t('common:button.cancel')}
           </button>
         </div>
       </form>

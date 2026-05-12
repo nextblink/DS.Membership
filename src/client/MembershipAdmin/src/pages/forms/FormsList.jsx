@@ -2,6 +2,7 @@
 // Operator scope is enforced server-side; UI is identical for all roles.
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 
 const STATUSES = ['Pending', 'Verified', 'Rejected']
@@ -14,15 +15,17 @@ const STATUS_CLASS = {
 }
 
 function StatusBadge({ status }) {
+  const { t } = useTranslation('enums')
   const cls = STATUS_CLASS[status] || 'bg-gray-100 text-gray-800 border-gray-300'
   return (
     <span className={`inline-block rounded border px-2 py-0.5 text-xs font-medium ${cls}`}>
-      {status}
+      {t(`formStatus.${status.toLowerCase()}`) || status}
     </span>
   )
 }
 
 export default function FormsList() {
+  const { t } = useTranslation(['forms', 'enums', 'common'])
   const [searchParams, setSearchParams] = useSearchParams()
 
   const formNumber = searchParams.get('formNumber') || ''
@@ -97,7 +100,7 @@ export default function FormsList() {
       })
       .catch((err) => {
         if (cancelled) return
-        setError(err?.response?.data?.message || err.message || 'Failed to load forms')
+        setError(err?.response?.data?.message || err.message || t('forms:state.loadFailed'))
         setItems([])
         setTotalCount(0)
         setTotalPages(1)
@@ -143,109 +146,117 @@ export default function FormsList() {
   }, [page, totalPages])
 
   return (
-    <div className="p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-black">Forms</h1>
+    <div className="rounded-sm border border-stroke bg-white shadow-default overflow-hidden">
+      {/* Card header */}
+      <div className="flex items-center justify-between border-b border-stroke px-5 pt-6 pb-4">
+        <h1 className="text-xl font-semibold text-black">{t('forms:title')}</h1>
         <Link
           to="/forms/new"
-          className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
         >
-          Upload Form
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          {t('forms:uploadForm')}
         </Link>
       </div>
 
+      {/* Filter row */}
       <form
         data-testid="forms-filter-form"
         onSubmit={applyFilters}
-        className="mb-4 grid grid-cols-1 gap-3 rounded border border-stroke bg-white p-4 sm:grid-cols-2 lg:grid-cols-5"
+        className="border-b border-stroke bg-gray-2 px-5 py-4"
       >
-        <div>
-          <label className="mb-1 block text-xs font-medium text-body">Form Number</label>
-          <input
-            data-testid="filter-formNumber"
-            type="text"
-            value={draft.formNumber}
-            onChange={(e) => setDraft({ ...draft, formNumber: e.target.value })}
-            className="w-full rounded border border-stroke px-3 py-2 text-sm"
-            placeholder="e.g. F-12345"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-body">Org Unit</label>
-          <select
-            value={draft.orgUnitId}
-            onChange={(e) => setDraft({ ...draft, orgUnitId: e.target.value })}
-            className="w-full rounded border border-stroke px-3 py-2 text-sm"
-          >
-            <option value="">All</option>
-            {orgUnits.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-body">Status</label>
-          <select
-            data-testid="filter-status"
-            value={draft.status}
-            onChange={(e) => setDraft({ ...draft, status: e.target.value })}
-            className="w-full rounded border border-stroke px-3 py-2 text-sm"
-          >
-            <option value="">All</option>
-            {STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-body">Member Name</label>
-          <input
-            type="text"
-            value={draft.memberName}
-            onChange={(e) => setDraft({ ...draft, memberName: e.target.value })}
-            className="w-full rounded border border-stroke px-3 py-2 text-sm"
-            placeholder="First or last name"
-          />
-        </div>
-        <div className="flex items-end gap-2">
-          <button
-            type="submit"
-            data-testid="filter-search-btn"
-            className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
-          >
-            Search
-          </button>
-          <button
-            type="button"
-            onClick={clearFilters}
-            className="rounded border border-stroke px-4 py-2 text-sm font-medium text-body hover:bg-gray-50"
-          >
-            Clear
-          </button>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-body">{t('forms:filter.formNumber')}</label>
+            <input
+              data-testid="filter-formNumber"
+              type="text"
+              value={draft.formNumber}
+              onChange={(e) => setDraft({ ...draft, formNumber: e.target.value })}
+              className="w-full rounded-sm border border-stroke bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none"
+              placeholder={t('forms:filter.placeholderFormNumber')}
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-body">{t('forms:filter.orgUnit')}</label>
+            <select
+              value={draft.orgUnitId}
+              onChange={(e) => setDraft({ ...draft, orgUnitId: e.target.value })}
+              className="w-full rounded-sm border border-stroke bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none"
+            >
+              <option value="">{t('enums:all')}</option>
+              {orgUnits.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-body">{t('forms:filter.status')}</label>
+            <select
+              data-testid="filter-status"
+              value={draft.status}
+              onChange={(e) => setDraft({ ...draft, status: e.target.value })}
+              className="w-full rounded-sm border border-stroke bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none"
+            >
+              <option value="">{t('enums:all')}</option>
+              {STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-body">{t('forms:filter.memberName')}</label>
+            <input
+              type="text"
+              value={draft.memberName}
+              onChange={(e) => setDraft({ ...draft, memberName: e.target.value })}
+              className="w-full rounded-sm border border-stroke bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none"
+              placeholder={t('forms:filter.placeholderMemberName')}
+            />
+          </div>
+          <div className="flex items-end gap-2">
+            <button
+              type="submit"
+              data-testid="filter-search-btn"
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+            >
+              {t('common:button.search')}
+            </button>
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="rounded-md border border-stroke bg-white px-4 py-2 text-sm font-medium text-body hover:bg-gray-2"
+            >
+              {t('common:button.clear')}
+            </button>
+          </div>
         </div>
       </form>
 
-      <div className="overflow-hidden rounded border border-stroke bg-white">
+      {/* Table */}
+      <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 text-xs uppercase text-body">
+          <thead className="bg-gray-2 text-xs uppercase text-body">
             <tr>
-              <th className="px-4 py-3">Form Number</th>
-              <th className="px-4 py-3">Member Name</th>
-              <th className="px-4 py-3">Org Unit</th>
-              <th className="px-4 py-3">Scan Date</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Uploaded By</th>
+              <th className="px-4 py-3">{t('forms:table.formNumber')}</th>
+              <th className="px-4 py-3">{t('forms:table.memberName')}</th>
+              <th className="px-4 py-3">{t('forms:table.orgUnit')}</th>
+              <th className="px-4 py-3">{t('forms:table.scanDate')}</th>
+              <th className="px-4 py-3">{t('forms:table.status')}</th>
+              <th className="px-4 py-3">{t('forms:table.uploadedBy')}</th>
             </tr>
           </thead>
           <tbody>
             {loading && (
               <tr>
                 <td colSpan={6} className="px-4 py-6 text-center text-body">
-                  Loading…
+                  {t('common:state.loading')}
                 </td>
               </tr>
             )}
@@ -259,7 +270,7 @@ export default function FormsList() {
             {!loading && !error && items.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-6 text-center text-body">
-                  No forms found.
+                  {t('forms:state.noForms')}
                 </td>
               </tr>
             )}
@@ -273,7 +284,7 @@ export default function FormsList() {
                 const orgUnitName = f.orgUnitName || f.member?.orgUnit?.name || f.member?.orgUnitName || '—'
                 const uploadedBy = f.createdByEmail || f.uploadedBy || f.createdBy?.email || '—'
                 return (
-                  <tr key={f.id} data-testid="forms-row" className="border-t border-stroke hover:bg-gray-50">
+                  <tr key={f.id} data-testid="forms-row" className="border-t border-stroke hover:bg-gray-2">
                     <td className="px-4 py-3">
                       <Link to={`/forms/${f.id}`} className="text-primary hover:underline">
                         {f.formNumber || `#${f.id}`}
@@ -293,45 +304,44 @@ export default function FormsList() {
         </table>
       </div>
 
-      {totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between">
-          <div className="text-xs text-body">
-            Showing page {page} of {totalPages} ({totalCount} total)
-          </div>
-          <div className="flex gap-1">
-            <button
-              type="button"
-              disabled={page <= 1}
-              onClick={() => goToPage(page - 1)}
-              className="rounded border border-stroke px-3 py-1 text-sm disabled:opacity-50"
-            >
-              Prev
-            </button>
-            {pageNumbers.map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => goToPage(p)}
-                className={`rounded border px-3 py-1 text-sm ${
-                  p === page
-                    ? 'border-primary bg-primary text-white'
-                    : 'border-stroke text-body hover:bg-gray-50'
-                }`}
-              >
-                {p}
-              </button>
-            ))}
-            <button
-              type="button"
-              disabled={page >= totalPages}
-              onClick={() => goToPage(page + 1)}
-              className="rounded border border-stroke px-3 py-1 text-sm disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
+      {/* Pagination */}
+      <div className="flex items-center justify-between border-t border-stroke px-5 py-4 text-sm">
+        <div className="text-xs text-body">
+          {t('forms:pagination.showing', { page, total: totalPages, count: totalCount })}
         </div>
-      )}
+        <div className="flex gap-1">
+          <button
+            type="button"
+            disabled={page <= 1}
+            onClick={() => goToPage(page - 1)}
+            className="rounded-md border border-stroke px-3 py-1 disabled:opacity-50 hover:bg-gray-2"
+          >
+            {t('common:button.prev')}
+          </button>
+          {pageNumbers.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => goToPage(p)}
+              className={`rounded-md border px-3 py-1 ${
+                p === page
+                  ? 'border-primary bg-primary text-white'
+                  : 'border-stroke text-body hover:bg-gray-2'
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+          <button
+            type="button"
+            disabled={page >= totalPages}
+            onClick={() => goToPage(page + 1)}
+            className="rounded-md border border-stroke px-3 py-1 disabled:opacity-50 hover:bg-gray-2"
+          >
+            {t('common:button.next')}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
