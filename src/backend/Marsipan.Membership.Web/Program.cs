@@ -1,5 +1,7 @@
 using Marsipan.Membership.Middleware.Data;
 using Marsipan.Membership.Middleware.Entities;
+using Marsipan.Membership.Middleware.Options;
+using Marsipan.Membership.Middleware.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +33,12 @@ builder.Services
     .AddEntityFrameworkStores<ApplicationContext>()
     .AddDefaultTokenProviders();
 
+// --- File storage (issue #8) ---
+builder.Services.Configure<FileStorageOptions>(
+    builder.Configuration.GetSection("FileStorage"));
+builder.Services.AddScoped<IFormImageStorage, FormImageStorage>();
+// --- end file storage ---
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -40,6 +48,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// --- File storage (issue #8) ---
+// Serves uploaded form scans from wwwroot/uploads/forms/... at /uploads/forms/...
+app.UseStaticFiles();
+// --- end file storage ---
 
 app.UseAuthentication();
 app.UseAuthorization();
