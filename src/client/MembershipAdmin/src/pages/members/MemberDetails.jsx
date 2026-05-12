@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 
 const labelClass = 'text-xs uppercase text-body'
@@ -20,6 +21,7 @@ function Field({ label, children }) {
 export default function MemberDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation(['members', 'enums', 'common'])
   const [member, setMember] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -42,7 +44,7 @@ export default function MemberDetails() {
         }
       })
       .catch((err) => {
-        if (!cancelled) setError(err?.response?.data?.message || 'Failed to load member.')
+        if (!cancelled) setError(err?.response?.data?.message || t('members:error.loadFailed'))
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -74,13 +76,13 @@ export default function MemberDetails() {
   }, [member, formsLoaded, id])
 
   async function handleDelete() {
-    if (!window.confirm('Delete this member? This cannot be undone.')) return
+    if (!window.confirm(t('members:detail.deleteConfirm'))) return
     setDeleting(true)
     try {
       await api.delete(`/api/members/${id}`)
       navigate('/members')
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to delete member.')
+      setError(err?.response?.data?.message || t('members:error.deleteFailed'))
       setDeleting(false)
     }
   }
@@ -88,19 +90,19 @@ export default function MemberDetails() {
   if (loading) {
     return (
       <div className="p-6">
-        <p className="text-sm text-body">Loading...</p>
+        <p className="text-sm text-body">{t('common:state.loading')}</p>
       </div>
     )
   }
   if (error || !member) {
     return (
       <div className="p-6">
-        <p className="text-sm text-red-600">{error || 'Not found.'}</p>
+        <p className="text-sm text-red-600">{error || t('members:error.notFound')}</p>
         <button
           onClick={() => navigate('/members')}
           className="mt-3 rounded border border-stroke px-4 py-2 text-sm text-black hover:bg-gray-50"
         >
-          Back to Members
+          {t('members:detail.backToMembers')}
         </button>
       </div>
     )
@@ -123,53 +125,57 @@ export default function MemberDetails() {
             onClick={() => navigate('/members')}
             className="rounded border border-stroke px-4 py-2 text-sm text-black hover:bg-gray-50"
           >
-            Back
+            {t('members:detail.back')}
           </button>
           <button
             onClick={() => navigate(`/members/${id}/edit`)}
             className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
           >
-            Edit
+            {t('members:detail.edit')}
           </button>
           <button
             onClick={handleDelete}
             disabled={deleting}
             className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-50"
           >
-            {deleting ? 'Deleting...' : 'Delete'}
+            {deleting ? t('members:detail.deleting') : t('members:detail.delete')}
           </button>
         </div>
       </div>
 
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>Personal</h2>
+        <h2 className={sectionTitleClass}>{t('members:form.personal')}</h2>
         <div className={gridClass}>
-          <Field label="First Name">{member.firstName}</Field>
-          <Field label="Last Name">{member.lastName}</Field>
-          <Field label="Parent Name">{member.parentName}</Field>
-          <Field label="Date of Birth">{member.dateOfBirth}</Field>
-          <Field label="JMBG">{member.jmbg}</Field>
-          <Field label="Gender">{member.gender}</Field>
-          <Field label="Marital Status">{member.maritalStatus}</Field>
+          <Field label={t('members:form.firstName')}>{member.firstName}</Field>
+          <Field label={t('members:form.lastName')}>{member.lastName}</Field>
+          <Field label={t('members:form.parentName')}>{member.parentName}</Field>
+          <Field label={t('members:form.dateOfBirth')}>{member.dateOfBirth}</Field>
+          <Field label={t('members:form.jmbg')}>{member.jmbg}</Field>
+          <Field label={t('members:form.gender')}>
+            {member.gender ? t(`enums:gender.${member.gender.toLowerCase()}`) : '—'}
+          </Field>
+          <Field label={t('members:form.maritalStatus')}>
+            {member.maritalStatus ? t(`enums:maritalStatus.${member.maritalStatus.toLowerCase()}`) : '—'}
+          </Field>
         </div>
       </section>
 
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>Contact</h2>
+        <h2 className={sectionTitleClass}>{t('members:form.contact')}</h2>
         <div className={gridClass}>
-          <Field label="Postal Code">{member.postalCode}</Field>
-          <Field label="City">{member.city}</Field>
-          <Field label="Email">{member.email}</Field>
+          <Field label={t('members:form.postalCode')}>{member.postalCode}</Field>
+          <Field label={t('members:form.city')}>{member.city}</Field>
+          <Field label={t('members:form.email')}>{member.email}</Field>
         </div>
         <div className="mt-4">
-          <div className={labelClass}>Phones</div>
+          <div className={labelClass}>{t('members:form.phones')}</div>
           {phones.length === 0 ? (
             <p className="text-sm text-body">—</p>
           ) : (
             <ul className="mt-1 text-sm text-black list-disc pl-5">
               {phones.map((p) => (
                 <li key={p.id}>
-                  {p.number} <span className="text-body">({p.type})</span>
+                  {p.number} <span className="text-body">({t(`enums:phoneType.${p.type.toLowerCase()}`)})</span>
                 </li>
               ))}
             </ul>
@@ -178,14 +184,14 @@ export default function MemberDetails() {
       </section>
 
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>Membership</h2>
+        <h2 className={sectionTitleClass}>{t('members:form.membership')}</h2>
         <div className={gridClass}>
-          <Field label="Org Unit">{orgUnitName}</Field>
-          <Field label="Membership Date">{member.membershipDate}</Field>
-          <Field label="Voting Place Number">{member.votingPlaceNumber}</Field>
+          <Field label={t('members:form.orgUnit')}>{orgUnitName}</Field>
+          <Field label={t('members:form.membershipDate')}>{member.membershipDate}</Field>
+          <Field label={t('members:form.votingPlaceNumber')}>{member.votingPlaceNumber}</Field>
         </div>
         <div className="mt-4">
-          <div className={labelClass}>Functions</div>
+          <div className={labelClass}>{t('members:form.functions')}</div>
           {fns.length === 0 ? (
             <p className="text-sm text-body">—</p>
           ) : (
@@ -193,7 +199,7 @@ export default function MemberDetails() {
               {fns.map((f) => (
                 <li key={f.id}>
                   {f.function?.name ?? f.functionName ?? f.name}
-                  {f.assignedDate ? ` — assigned ${f.assignedDate}` : ''}
+                  {f.assignedDate ? ` — ${t('members:detail.assigned')} ${f.assignedDate}` : ''}
                 </li>
               ))}
             </ul>
@@ -202,29 +208,31 @@ export default function MemberDetails() {
       </section>
 
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>Employment</h2>
+        <h2 className={sectionTitleClass}>{t('members:form.employment')}</h2>
         <div className={gridClass}>
-          <Field label="Occupation">{member.occupation}</Field>
-          <Field label="Job Title">{member.jobTitle}</Field>
-          <Field label="Company Name">{member.companyName}</Field>
-          <Field label="Company City">{member.companyCity}</Field>
-          <Field label="Is Public Company">{member.isPublicCompany ? 'Yes' : 'No'}</Field>
+          <Field label={t('members:form.occupation')}>{member.occupation}</Field>
+          <Field label={t('members:form.jobTitle')}>{member.jobTitle}</Field>
+          <Field label={t('members:form.companyName')}>{member.companyName}</Field>
+          <Field label={t('members:form.companyCity')}>{member.companyCity}</Field>
+          <Field label={t('members:form.isPublicCompany')}>{member.isPublicCompany ? 'Yes' : 'No'}</Field>
         </div>
       </section>
 
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>Education</h2>
+        <h2 className={sectionTitleClass}>{t('members:form.education')}</h2>
         <div className={gridClass}>
-          <Field label="Education Level">{member.educationLevel}</Field>
+          <Field label={t('members:form.educationLevel')}>
+            {member.educationLevel ? t(`enums:educationLevel.${member.educationLevel.toLowerCase()}`) : '—'}
+          </Field>
         </div>
       </section>
 
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>Linked Forms</h2>
+        <h2 className={sectionTitleClass}>{t('members:form.linkedForms')}</h2>
         {!formsLoaded ? (
-          <p className="text-sm text-body">Loading...</p>
+          <p className="text-sm text-body">{t('common:state.loading')}</p>
         ) : forms.length === 0 ? (
-          <p className="text-sm text-body">No linked forms.</p>
+          <p className="text-sm text-body">{t('members:detail.noLinkedForms')}</p>
         ) : (
           <ul className="text-sm text-black list-disc pl-5">
             {forms.map((f) => (

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import MemberForm from './MemberForm'
 
 export default function MemberEdit() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation(['members', 'common'])
   const [member, setMember] = useState(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
@@ -21,7 +23,7 @@ export default function MemberEdit() {
         if (!cancelled) setMember(res.data)
       })
       .catch((err) => {
-        if (!cancelled) setLoadError(err?.response?.data?.message || 'Failed to load member.')
+        if (!cancelled) setLoadError(err?.response?.data?.message || t('members:error.loadFailed'))
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -57,9 +59,9 @@ export default function MemberEdit() {
     } catch (err) {
       const status = err?.response?.status
       if (status === 409) {
-        setError('A member with this JMBG already exists.')
+        setError(t('members:validation.jmbgTaken'))
       } else {
-        setError(err?.response?.data?.message || 'Failed to save changes.')
+        setError(err?.response?.data?.message || t('members:error.saveChangesFailed'))
       }
     } finally {
       setSubmitting(false)
@@ -69,7 +71,7 @@ export default function MemberEdit() {
   if (loading) {
     return (
       <div className="p-6">
-        <p className="text-sm text-body">Loading...</p>
+        <p className="text-sm text-body">{t('common:state.loading')}</p>
       </div>
     )
   }
@@ -84,7 +86,7 @@ export default function MemberEdit() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold text-black mb-4">
-        Edit Member
+        {t('members:editMember')}
         {member?.firstName ? ` — ${member.firstName} ${member.lastName ?? ''}` : ''}
       </h1>
       <MemberForm

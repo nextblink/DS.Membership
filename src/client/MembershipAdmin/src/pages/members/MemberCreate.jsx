@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import MemberForm from './MemberForm'
 
 export default function MemberCreate() {
   const navigate = useNavigate()
+  const { t } = useTranslation(['members', 'common'])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
@@ -19,9 +21,9 @@ export default function MemberCreate() {
     } catch (err) {
       const status = err?.response?.status
       if (status === 409) {
-        setError('A member with this JMBG already exists.')
+        setError(t('members:validation.jmbgTaken'))
       } else {
-        setError(err?.response?.data?.message || 'Failed to create member.')
+        setError(err?.response?.data?.message || t('members:error.saveFailed'))
       }
     } finally {
       setSubmitting(false)
@@ -30,7 +32,7 @@ export default function MemberCreate() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold text-black mb-4">New Member</h1>
+      <h1 className="text-2xl font-semibold text-black mb-4">{t('members:newMember')}</h1>
       <MemberForm
         mode="create"
         onSubmit={onSubmit}

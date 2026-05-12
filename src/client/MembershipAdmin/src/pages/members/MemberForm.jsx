@@ -10,6 +10,7 @@
 //                     ({ addedPhones, removedPhoneIds, addedFunctions, removedFunctionIds }).
 import { useEffect, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import {
   GENDER_OPTIONS,
@@ -154,6 +155,8 @@ export default function MemberForm({
   submitError = null,
   submitting = false,
 }) {
+  const { t } = useTranslation(['members', 'enums', 'common'])
+
   const {
     register,
     handleSubmit,
@@ -220,57 +223,57 @@ export default function MemberForm({
 
       {/* Personal */}
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>Personal</h2>
+        <h2 className={sectionTitleClass}>{t('members:form.personal')}</h2>
         <div className={gridClass}>
-          <Field label="First Name" required error={errors.firstName?.message}>
+          <Field label={t('members:form.firstName')} required error={errors.firstName?.message}>
             <input
               className={inputClass}
-              {...register('firstName', { required: 'First name is required' })}
+              {...register('firstName', { required: t('members:validation.firstNameRequired') })}
             />
           </Field>
-          <Field label="Last Name" required error={errors.lastName?.message}>
+          <Field label={t('members:form.lastName')} required error={errors.lastName?.message}>
             <input
               className={inputClass}
-              {...register('lastName', { required: 'Last name is required' })}
+              {...register('lastName', { required: t('members:validation.lastNameRequired') })}
             />
           </Field>
-          <Field label="Parent Name" error={errors.parentName?.message}>
+          <Field label={t('members:form.parentName')} error={errors.parentName?.message}>
             <input className={inputClass} {...register('parentName')} />
           </Field>
-          <Field label="Date of Birth" required error={errors.dateOfBirth?.message}>
+          <Field label={t('members:form.dateOfBirth')} required error={errors.dateOfBirth?.message}>
             <input
               type="date"
               className={inputClass}
-              {...register('dateOfBirth', { required: 'Date of birth is required' })}
+              {...register('dateOfBirth', { required: t('members:validation.dateOfBirthRequired') })}
             />
           </Field>
-          <Field label="JMBG" required error={errors.jmbg?.message}>
+          <Field label={t('members:form.jmbg')} required error={errors.jmbg?.message}>
             <input
               className={inputClass}
               {...register('jmbg', {
-                required: 'JMBG is required',
-                minLength: { value: 13, message: 'JMBG must be 13 digits' },
-                maxLength: { value: 13, message: 'JMBG must be 13 digits' },
+                required: t('members:validation.jmbgRequired'),
+                minLength: { value: 13, message: t('members:validation.jmbgLength') },
+                maxLength: { value: 13, message: t('members:validation.jmbgLength') },
               })}
             />
           </Field>
-          <Field label="Gender" required error={errors.gender?.message}>
+          <Field label={t('members:form.gender')} required error={errors.gender?.message}>
             <select className={inputClass} {...register('gender', { required: true })}>
               {GENDER_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
-                  {o.label}
+                  {t(`enums:gender.${o.value.toLowerCase()}`)}
                 </option>
               ))}
             </select>
           </Field>
-          <Field label="Marital Status" required error={errors.maritalStatus?.message}>
+          <Field label={t('members:form.maritalStatus')} required error={errors.maritalStatus?.message}>
             <select
               className={inputClass}
               {...register('maritalStatus', { required: true })}
             >
               {MARITAL_STATUS_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
-                  {o.label}
+                  {t(`enums:maritalStatus.${o.value.toLowerCase()}`)}
                 </option>
               ))}
             </select>
@@ -280,22 +283,22 @@ export default function MemberForm({
 
       {/* Contact */}
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>Contact</h2>
+        <h2 className={sectionTitleClass}>{t('members:form.contact')}</h2>
         <div className={gridClass}>
-          <Field label="Postal Code">
+          <Field label={t('members:form.postalCode')}>
             <input className={inputClass} {...register('postalCode')} />
           </Field>
-          <Field label="City">
+          <Field label={t('members:form.city')}>
             <input className={inputClass} {...register('city')} />
           </Field>
-          <Field label="Email" error={errors.email?.message}>
+          <Field label={t('members:form.email')} error={errors.email?.message}>
             <input
               type="email"
               className={inputClass}
               {...register('email', {
                 pattern: {
                   value: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
-                  message: 'Invalid email',
+                  message: t('members:validation.emailInvalid'),
                 },
               })}
             />
@@ -304,24 +307,24 @@ export default function MemberForm({
 
         <div className="mt-4">
           <div className="flex items-center justify-between mb-2">
-            <label className={labelClass}>Phones</label>
+            <label className={labelClass}>{t('members:form.phones')}</label>
             <button
               type="button"
               className="text-sm text-primary hover:underline"
               onClick={() => phones.append({ number: '', type: 'Mobile' })}
             >
-              + Add Phone
+              {t('members:form.addPhone')}
             </button>
           </div>
           {phones.fields.length === 0 && (
-            <p className="text-xs text-body">No phones added.</p>
+            <p className="text-xs text-body">{t('members:form.noPhones')}</p>
           )}
           {phones.fields.map((f, idx) => (
             <div key={f.id} className="flex gap-2 mb-2 items-start">
               <input
                 className={`${inputClass} flex-1`}
-                placeholder="Number"
-                {...register(`phones.${idx}.number`, { required: 'Required' })}
+                placeholder={t('members:form.phoneNumber')}
+                {...register(`phones.${idx}.number`, { required: t('members:validation.phoneRequired') })}
               />
               <select
                 className={`${inputClass} w-40`}
@@ -329,7 +332,7 @@ export default function MemberForm({
               >
                 {PHONE_TYPE_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
-                    {o.label}
+                    {t(`enums:phoneType.${o.value.toLowerCase()}`)}
                   </option>
                 ))}
               </select>
@@ -338,7 +341,7 @@ export default function MemberForm({
                 className="px-3 py-2 text-sm text-red-600 hover:underline"
                 onClick={() => phones.remove(idx)}
               >
-                Remove
+                {t('members:form.removePhone')}
               </button>
             </div>
           ))}
@@ -347,14 +350,14 @@ export default function MemberForm({
 
       {/* Membership */}
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>Membership</h2>
+        <h2 className={sectionTitleClass}>{t('members:form.membership')}</h2>
         <div className={gridClass}>
-          <Field label="Org Unit" required error={errors.orgUnitId?.message}>
+          <Field label={t('members:form.orgUnit')} required error={errors.orgUnitId?.message}>
             <select
               className={inputClass}
-              {...register('orgUnitId', { required: 'Org Unit is required' })}
+              {...register('orgUnitId', { required: t('members:validation.orgUnitRequired') })}
             >
-              <option value="">{lookupsLoaded ? '-- Select --' : 'Loading...'}</option>
+              <option value="">{lookupsLoaded ? t('members:form.selectOrgUnit') : t('members:form.loadingOrgUnit')}</option>
               {orgUnits.map((o) => (
                 <option key={o.id} value={o.id}>
                   {o.label}
@@ -362,14 +365,14 @@ export default function MemberForm({
               ))}
             </select>
           </Field>
-          <Field label="Membership Date" required error={errors.membershipDate?.message}>
+          <Field label={t('members:form.membershipDate')} required error={errors.membershipDate?.message}>
             <input
               type="date"
               className={inputClass}
-              {...register('membershipDate', { required: 'Membership date is required' })}
+              {...register('membershipDate', { required: t('members:validation.membershipDateRequired') })}
             />
           </Field>
-          <Field label="Voting Place Number">
+          <Field label={t('members:form.votingPlaceNumber')}>
             <input
               type="number"
               className={inputClass}
@@ -380,7 +383,7 @@ export default function MemberForm({
 
         <div className="mt-4">
           <div className="flex items-center justify-between mb-2">
-            <label className={labelClass}>Functions</label>
+            <label className={labelClass}>{t('members:form.functions')}</label>
             <button
               type="button"
               className="text-sm text-primary hover:underline"
@@ -391,11 +394,11 @@ export default function MemberForm({
                 })
               }
             >
-              + Add Function
+              {t('members:form.addFunction')}
             </button>
           </div>
           {fns.fields.length === 0 && (
-            <p className="text-xs text-body">No functions assigned.</p>
+            <p className="text-xs text-body">{t('members:form.noFunctions')}</p>
           )}
           {fns.fields.map((f, idx) => (
             <div key={f.id} className="flex gap-2 mb-2 items-start">
@@ -403,7 +406,7 @@ export default function MemberForm({
                 className={`${inputClass} flex-1`}
                 {...register(`memberFunctions.${idx}.functionId`, { required: true })}
               >
-                <option value="">-- Select Function --</option>
+                <option value="">{t('members:form.selectFunction')}</option>
                 {functionsList.map((fn) => (
                   <option key={fn.id} value={fn.id}>
                     {fn.name}
@@ -420,7 +423,7 @@ export default function MemberForm({
                 className="px-3 py-2 text-sm text-red-600 hover:underline"
                 onClick={() => fns.remove(idx)}
               >
-                Remove
+                {t('members:form.removeFunction')}
               </button>
             </div>
           ))}
@@ -429,36 +432,36 @@ export default function MemberForm({
 
       {/* Employment */}
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>Employment</h2>
+        <h2 className={sectionTitleClass}>{t('members:form.employment')}</h2>
         <div className={gridClass}>
-          <Field label="Occupation">
+          <Field label={t('members:form.occupation')}>
             <input className={inputClass} {...register('occupation')} />
           </Field>
-          <Field label="Job Title">
+          <Field label={t('members:form.jobTitle')}>
             <input className={inputClass} {...register('jobTitle')} />
           </Field>
-          <Field label="Company Name">
+          <Field label={t('members:form.companyName')}>
             <input className={inputClass} {...register('companyName')} />
           </Field>
-          <Field label="Company City">
+          <Field label={t('members:form.companyCity')}>
             <input className={inputClass} {...register('companyCity')} />
           </Field>
           <label className="flex items-center gap-2 mt-2">
             <input type="checkbox" {...register('isPublicCompany')} />
-            <span className="text-sm text-black">Is Public Company</span>
+            <span className="text-sm text-black">{t('members:form.isPublicCompany')}</span>
           </label>
         </div>
       </section>
 
       {/* Education */}
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>Education</h2>
+        <h2 className={sectionTitleClass}>{t('members:form.education')}</h2>
         <div className={gridClass}>
-          <Field label="Education Level" required>
+          <Field label={t('members:form.educationLevel')} required>
             <select className={inputClass} {...register('educationLevel', { required: true })}>
               {EDUCATION_LEVEL_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
-                  {o.label}
+                  {t(`enums:educationLevel.${o.value.toLowerCase()}`)}
                 </option>
               ))}
             </select>
@@ -472,7 +475,7 @@ export default function MemberForm({
           disabled={submitting}
           className="rounded bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-50"
         >
-          {submitting ? 'Saving...' : mode === 'create' ? 'Create Member' : 'Save Changes'}
+          {submitting ? t('members:submit.saving') : mode === 'create' ? t('members:submit.create') : t('members:submit.save')}
         </button>
         {onCancel && (
           <button
@@ -480,7 +483,7 @@ export default function MemberForm({
             onClick={onCancel}
             className="rounded border border-stroke px-5 py-2 text-sm text-black hover:bg-gray-50"
           >
-            Cancel
+            {t('common:button.cancel')}
           </button>
         )}
       </div>
