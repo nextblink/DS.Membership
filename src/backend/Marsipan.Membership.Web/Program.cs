@@ -57,6 +57,10 @@ builder.Services.AddScoped<IOrgUnitsService, OrgUnitsService>();
 builder.Services.AddScoped<IFunctionsService, FunctionsService>();
 // --- end Functions ---
 
+// --- Members (issue #11) ---
+builder.Services.AddScoped<IMembersService, MembersService>();
+// --- end Members ---
+
 // --- JWT auth (issue #6) ---
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<IAuthService, AuthService>();
