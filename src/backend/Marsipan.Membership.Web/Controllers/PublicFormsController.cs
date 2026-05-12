@@ -45,14 +45,15 @@ public class PublicFormsController : ControllerBase
             return BadRequest(new { message = "At least one file is required." });
 
         await using var tx = await _db.Database.BeginTransactionAsync(ct);
+        var form = new Form
+        {
+            ScanDate = DateOnly.FromDateTime(DateTime.Today),
+            Status = FormStatus.Pending,
+            CreatedByUserId = userId,
+            CreatedDate = DateTime.UtcNow,
+        };
         try
         {
-            var form = new Form
-            {
-                ScanDate = DateOnly.FromDateTime(DateTime.Today),
-                Status = FormStatus.Pending,
-                CreatedByUserId = userId,
-            };
             _db.Forms.Add(form);
             await _db.SaveChangesAsync(ct);
 
@@ -75,11 +76,13 @@ public class PublicFormsController : ControllerBase
         catch (FileStorageException ex)
         {
             await tx.RollbackAsync(ct);
+            await _imageStorage.DeleteAllForFormAsync(form.Id, ct);
             return BadRequest(new { message = ex.Message });
         }
         catch
         {
             await tx.RollbackAsync(ct);
+            await _imageStorage.DeleteAllForFormAsync(form.Id, ct);
             return StatusCode(500, new { message = "Upload failed. Please try again." });
         }
     }
