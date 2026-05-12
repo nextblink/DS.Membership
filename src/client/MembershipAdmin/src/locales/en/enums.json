@@ -31,7 +31,7 @@
   "role": {
     "superAdmin": "Super Admin",
     "admin": "Admin",
-    "localAdmin": "Local Admin",
+    "localAdmin": "LocalAdmin",
     "operator": "Operator",
     "viewer": "Viewer"
   }

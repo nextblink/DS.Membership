@@ -367,7 +367,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
             disabled={isSubmitting}
             className="cursor-pointer rounded-lg border border-brand-500 bg-brand-500 hover:bg-brand-600 py-2 px-4 text-theme-sm text-white disabled:opacity-60"
           >
-            {isSubmitting ? t('users:action.saving') : t('users:action.save')}
+            {isSubmitting ? t('users:action.saving') : t('users:action.create')}
           </button>
         </div>
       </form>

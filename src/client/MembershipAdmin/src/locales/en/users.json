@@ -39,6 +39,7 @@
   "action": {
     "edit": "Edit",
     "delete": "Delete",
+    "create": "Create",
     "save": "Save",
     "cancel": "Cancel",
     "saving": "Saving…",

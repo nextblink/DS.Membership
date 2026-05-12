@@ -349,6 +349,7 @@ export default function OrgUnits() {
   const [tree, setTree] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [deleteError, setDeleteError] = useState(null)
   const [modal, setModal] = useState({ open: false, parent: null })
 
   const load = useCallback(async () => {
@@ -406,16 +407,15 @@ export default function OrgUnits() {
 
   const handleDelete = useCallback(async (node) => {
     if (!window.confirm(t('orgUnits:action.deleteConfirm'))) return
+    setDeleteError(null)
     try {
       await api.delete(`/api/orgunits/${node.id}`)
       setTree((prev) => removeNode(prev, node.id))
     } catch (err) {
       if (err?.response?.status === 409) {
-        window.alert(t('orgUnits:error.deleteRestricted'))
+        setDeleteError(t('orgUnits:error.deleteRestricted'))
       } else {
-        window.alert(
-          err?.response?.data?.message || err?.message || t('orgUnits:error.deleteFailed'),
-        )
+        setDeleteError(err?.response?.data?.message || err?.message || t('orgUnits:error.deleteFailed'))
       }
     }
   }, [t])
@@ -461,6 +461,11 @@ export default function OrgUnits() {
       </div>
 
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm">
+        {deleteError && (
+          <p className="mb-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
+            {deleteError}
+          </p>
+        )}
         {content}
       </div>
 
