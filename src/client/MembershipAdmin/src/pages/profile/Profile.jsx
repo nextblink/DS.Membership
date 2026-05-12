@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import auth from '../../framework/auth'
 
 export default function Profile() {
+  const { t } = useTranslation('profile')
   const [user, setUser] = useState(() => auth.getUser())
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
@@ -37,7 +39,7 @@ export default function Profile() {
       .catch((err) => {
         if (cancelled) return
         setLoadError(
-          err?.response?.data?.message || err?.message || 'Failed to load profile.',
+          err?.response?.data?.message || err?.message || t('error.loadFailed'),
         )
       })
       .finally(() => {
@@ -54,7 +56,7 @@ export default function Profile() {
     setPwNotImplemented(false)
 
     if (newPassword !== confirmNewPassword) {
-      setPwError('New password and confirmation do not match.')
+      setPwError(t('validation.confirmMismatch'))
       return
     }
 
@@ -63,7 +65,7 @@ export default function Profile() {
         currentPassword,
         newPassword,
       })
-      setPwSuccess('Password changed successfully.')
+      setPwSuccess(t('changePassword.success'))
       reset({ currentPassword: '', newPassword: '', confirmNewPassword: '' })
     } catch (err) {
       const status = err?.response?.status
@@ -75,7 +77,7 @@ export default function Profile() {
         err?.response?.data?.message ||
           err?.response?.data?.title ||
           err?.message ||
-          'Failed to change password.',
+          t('error.changeFailed'),
       )
     }
   }
@@ -87,13 +89,13 @@ export default function Profile() {
 
   return (
     <div className="p-6">
-      <h1 className="mb-6 text-2xl font-semibold text-black">Profile</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-black">{t('title')}</h1>
 
       {/* Current user info card */}
       <div className="mb-6 rounded-sm border border-stroke bg-white p-6 shadow-default">
-        <h2 className="mb-4 text-lg font-semibold text-black">Account</h2>
+        <h2 className="mb-4 text-lg font-semibold text-black">{t('account')}</h2>
 
-        {loading && <p className="text-sm text-body">Loading…</p>}
+        {loading && <p className="text-sm text-body">{t('state.loading')}</p>}
 
         {!loading && loadError && (
           <div className="rounded-sm border border-danger bg-danger/10 px-4 py-2 text-sm text-danger">
@@ -104,20 +106,20 @@ export default function Profile() {
         {!loading && !loadError && user && (
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <dt className="text-xs uppercase tracking-wide text-body">Email</dt>
+              <dt className="text-xs uppercase tracking-wide text-body">{t('fields.email')}</dt>
               <dd data-testid="profile-email" className="mt-1 text-sm text-black">{user.email ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-xs uppercase tracking-wide text-body">Role</dt>
+              <dt className="text-xs uppercase tracking-wide text-body">{t('fields.role')}</dt>
               <dd data-testid="profile-role" className="mt-1 text-sm text-black">{user.role ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-xs uppercase tracking-wide text-body">Org Unit</dt>
+              <dt className="text-xs uppercase tracking-wide text-body">{t('fields.orgUnit')}</dt>
               <dd data-testid="profile-org-unit" className="mt-1 text-sm text-black">{orgUnitName ?? '—'}</dd>
             </div>
             {user.id && (
               <div>
-                <dt className="text-xs uppercase tracking-wide text-body">User ID</dt>
+                <dt className="text-xs uppercase tracking-wide text-body">{t('fields.userId')}</dt>
                 <dd className="mt-1 break-all text-sm text-black">{user.id}</dd>
               </div>
             )}
@@ -127,7 +129,7 @@ export default function Profile() {
 
       {/* Change password card */}
       <div className="rounded-sm border border-stroke bg-white p-6 shadow-default">
-        <h2 className="mb-4 text-lg font-semibold text-black">Change password</h2>
+        <h2 className="mb-4 text-lg font-semibold text-black">{t('changePassword.title')}</h2>
 
         <form onSubmit={handleSubmit(onChangePassword)} noValidate className="max-w-md">
           <div className="mb-4">
@@ -135,13 +137,13 @@ export default function Profile() {
               htmlFor="currentPassword"
               className="mb-2.5 block text-sm font-medium text-black"
             >
-              Current password
+              {t('changePassword.current')}
             </label>
             <input
               id="currentPassword"
               type="password"
               autoComplete="current-password"
-              {...register('currentPassword', { required: 'Current password is required' })}
+              {...register('currentPassword', { required: t('validation.currentRequired') })}
               className="w-full rounded-sm border border-stroke bg-transparent py-3 px-4 text-black outline-none focus:border-primary focus-visible:shadow-none"
             />
             {errors.currentPassword && (
@@ -154,15 +156,15 @@ export default function Profile() {
               htmlFor="newPassword"
               className="mb-2.5 block text-sm font-medium text-black"
             >
-              New password
+              {t('changePassword.new')}
             </label>
             <input
               id="newPassword"
               type="password"
               autoComplete="new-password"
               {...register('newPassword', {
-                required: 'New password is required',
-                minLength: { value: 6, message: 'New password must be at least 6 characters' },
+                required: t('validation.newRequired'),
+                minLength: { value: 6, message: t('validation.newMinLength') },
               })}
               className="w-full rounded-sm border border-stroke bg-transparent py-3 px-4 text-black outline-none focus:border-primary focus-visible:shadow-none"
             />
@@ -176,16 +178,16 @@ export default function Profile() {
               htmlFor="confirmNewPassword"
               className="mb-2.5 block text-sm font-medium text-black"
             >
-              Confirm new password
+              {t('changePassword.confirm')}
             </label>
             <input
               id="confirmNewPassword"
               type="password"
               autoComplete="new-password"
               {...register('confirmNewPassword', {
-                required: 'Please confirm the new password',
+                required: t('validation.confirmRequired'),
                 validate: (value) =>
-                  value === newPassword || 'Passwords do not match',
+                  value === newPassword || t('validation.confirmMismatch'),
               })}
               className="w-full rounded-sm border border-stroke bg-transparent py-3 px-4 text-black outline-none focus:border-primary focus-visible:shadow-none"
             />
@@ -208,7 +210,7 @@ export default function Profile() {
 
           {pwNotImplemented && (
             <div data-testid="pw-not-implemented" className="mb-4 rounded-sm border border-warning bg-warning/10 px-4 py-2 text-sm text-warning">
-              Change password is not yet supported by the server.
+              {t('changePassword.notSupported')}
             </div>
           )}
 
@@ -217,7 +219,7 @@ export default function Profile() {
             disabled={isSubmitting}
             className="cursor-pointer rounded-sm border border-primary bg-primary py-3 px-6 text-white transition hover:bg-opacity-90 disabled:opacity-60"
           >
-            {isSubmitting ? 'Changing…' : 'Change password'}
+            {isSubmitting ? t('changePassword.submitting') : t('changePassword.submit')}
           </button>
         </form>
       </div>
