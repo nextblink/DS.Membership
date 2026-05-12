@@ -19,12 +19,12 @@ import {
   PHONE_TYPE_OPTIONS,
 } from './enums'
 
-const sectionClass = 'rounded border border-stroke bg-white p-5 shadow-sm mb-6'
-const sectionTitleClass = 'text-lg font-semibold text-black mb-4 border-b border-stroke pb-2'
-const labelClass = 'block text-sm font-medium text-black mb-1'
+const sectionClass = 'rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm mb-6'
+const sectionTitleClass = 'text-base font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-800 pb-3'
+const labelClass = 'block text-theme-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5'
 const inputClass =
-  'w-full rounded border border-stroke bg-white px-3 py-2 text-sm text-black focus:border-primary focus:outline-none'
-const errorClass = 'text-xs text-red-600 mt-1'
+  'w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500'
+const errorClass = 'text-theme-xs text-error-500 mt-1'
 const gridClass = 'grid grid-cols-1 md:grid-cols-2 gap-4'
 
 function emptyDefaults() {
@@ -216,7 +216,7 @@ export default function MemberForm({
   return (
     <form onSubmit={submit} className="max-w-5xl">
       {submitError && (
-        <div className="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mb-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
           {submitError}
         </div>
       )}
@@ -310,7 +310,7 @@ export default function MemberForm({
             <label className={labelClass}>{t('members:form.phones')}</label>
             <button
               type="button"
-              className="text-sm text-primary hover:underline"
+              className="text-theme-sm text-brand-500 hover:underline"
               onClick={() => phones.append({ number: '', type: 'Mobile' })}
             >
               {t('members:form.addPhone')}
@@ -338,7 +338,7 @@ export default function MemberForm({
               </select>
               <button
                 type="button"
-                className="px-3 py-2 text-sm text-red-600 hover:underline"
+                className="px-3 py-2 text-theme-sm text-error-500 hover:underline"
                 onClick={() => phones.remove(idx)}
               >
                 {t('members:form.removePhone')}
@@ -386,7 +386,7 @@ export default function MemberForm({
             <label className={labelClass}>{t('members:form.functions')}</label>
             <button
               type="button"
-              className="text-sm text-primary hover:underline"
+              className="text-theme-sm text-brand-500 hover:underline"
               onClick={() =>
                 fns.append({
                   functionId: functionsList[0] ? String(functionsList[0].id) : '',
@@ -420,7 +420,7 @@ export default function MemberForm({
               />
               <button
                 type="button"
-                className="px-3 py-2 text-sm text-red-600 hover:underline"
+                className="px-3 py-2 text-theme-sm text-error-500 hover:underline"
                 onClick={() => fns.remove(idx)}
               >
                 {t('members:form.removeFunction')}
@@ -448,7 +448,7 @@ export default function MemberForm({
           </Field>
           <label className="flex items-center gap-2 mt-2">
             <input type="checkbox" {...register('isPublicCompany')} />
-            <span className="text-sm text-black">{t('members:form.isPublicCompany')}</span>
+            <span className="text-theme-sm text-gray-900 dark:text-white">{t('members:form.isPublicCompany')}</span>
           </label>
         </div>
       </section>
@@ -473,7 +473,7 @@ export default function MemberForm({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-50"
+          className="rounded-lg bg-brand-500 hover:bg-brand-600 px-5 py-2.5 text-theme-sm font-medium text-white disabled:opacity-50"
         >
           {submitting ? t('members:submit.saving') : mode === 'create' ? t('members:submit.create') : t('members:submit.save')}
         </button>
@@ -481,7 +481,7 @@ export default function MemberForm({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded border border-stroke px-5 py-2 text-sm text-black hover:bg-gray-50"
+            className="rounded-lg border border-gray-300 dark:border-gray-700 px-5 py-2.5 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             {t('common:button.cancel')}
           </button>
@@ -496,7 +496,7 @@ function Field({ label, required, error, children }) {
     <div>
       <label className={labelClass}>
         {label}
-        {required && <span className="text-red-600 ml-0.5">*</span>}
+        {required && <span className="text-error-500 ml-0.5">*</span>}
       </label>
       {children}
       {error && <p className={errorClass}>{error}</p>}
