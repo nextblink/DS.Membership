@@ -14,7 +14,6 @@
     "formNumber": "Број обрасца",
     "memberName": "Име члана",
     "orgUnit": "Орг. јединица",
-    "scanDate": "Датум скенирања",
     "status": "Статус",
     "uploadedBy": "Додао"
   },
@@ -30,7 +29,6 @@
     "formNumber": "Број обрасца",
     "formDate": "Датум обрасца",
     "municipalBoard": "Општински одбор",
-    "scanDate": "Датум скенирања",
     "orgUnit": "Орг. јединица",
     "uploadedBy": "Додао",
     "status": "Статус",
@@ -60,8 +58,6 @@
     "formNumber": "Број обрасца",
     "formDate": "Датум обрасца",
     "municipalBoard": "Општински одбор",
-    "scanDate": "Датум скенирања",
-    "scanDateRequired": "Датум скенирања *",
     "member": "Члан (опционално)",
     "memberSearch": "Претражи по имену…",
     "memberChange": "Промени",
@@ -75,7 +71,6 @@
     "exceedsMaxSize": "{{name}}: превелики фајл (макс. 10 MB)",
     "uploadFailed": "Слање није успело.",
     "validation": {
-      "scanDateRequired": "Датум скенирања је обавезан.",
       "imagesRequired": "Потребна је барем једна слика."
     }
   }

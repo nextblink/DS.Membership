@@ -13,7 +13,6 @@ public class FormListItemDto
     public string? MemberFullName { get; set; }
     public int? OrgUnitId { get; set; }
     public string? OrgUnitName { get; set; }
-    public DateOnly ScanDate { get; set; }
     public string Status { get; set; } = string.Empty;
     public string CreatedByUserId { get; set; } = string.Empty;
     public string? CreatedByEmail { get; set; }
@@ -56,7 +55,6 @@ public class FormDetailsDto
     public string? MunicipalBoard { get; set; }
     public int? MemberId { get; set; }
     public FormMemberSummaryDto? Member { get; set; }
-    public DateOnly ScanDate { get; set; }
     public FormStatus Status { get; set; }
     public string CreatedByUserId { get; set; } = string.Empty;
     public string? CreatedByEmail { get; set; }
@@ -80,7 +78,6 @@ public class CreateFormMetadataDto
 
     public int? MemberId { get; set; }
 
-    public DateOnly? ScanDate { get; set; }
 }
 
 /// <summary>
@@ -99,8 +96,6 @@ public class UpdateFormDto
 
     public int? MemberId { get; set; }
 
-    [Required]
-    public DateOnly ScanDate { get; set; }
 }
 
 /// <summary>

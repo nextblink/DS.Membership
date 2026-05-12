@@ -270,7 +270,6 @@ export default function FormsList() {
               <th className="px-4 py-3">{t('forms:table.formNumber')}</th>
               <th className="px-4 py-3">{t('forms:table.memberName')}</th>
               <th className="px-4 py-3">{t('forms:table.orgUnit')}</th>
-              <th className="px-4 py-3">{t('forms:table.scanDate')}</th>
               <th className="px-4 py-3">{t('forms:table.status')}</th>
               <th className="px-4 py-3">{t('forms:table.uploadedBy')}</th>
             </tr>
@@ -278,21 +277,21 @@ export default function FormsList() {
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-body">
+                <td colSpan={5} className="px-4 py-6 text-center text-body">
                   {t('common:state.loading')}
                 </td>
               </tr>
             )}
             {!loading && error && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-red-600">
+                <td colSpan={5} className="px-4 py-6 text-center text-red-600">
                   {error}
                 </td>
               </tr>
             )}
             {!loading && !error && items.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-body">
+                <td colSpan={5} className="px-4 py-6 text-center text-body">
                   {t('forms:state.noForms')}
                 </td>
               </tr>
@@ -315,7 +314,6 @@ export default function FormsList() {
                     </td>
                     <td className="px-4 py-3">{memberName}</td>
                     <td className="px-4 py-3">{orgUnitName}</td>
-                    <td className="px-4 py-3">{f.scanDate ? String(f.scanDate).slice(0, 10) : '—'}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={f.status} />
                     </td>

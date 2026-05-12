@@ -8,10 +8,6 @@ import api from '../../framework/api'
 const ACCEPTED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf']
 const MAX_SIZE = 10 * 1024 * 1024 // 10 MB
 
-function todayIso() {
-  return new Date().toISOString().slice(0, 10)
-}
-
 export default function FormUpload() {
   const { t } = useTranslation(['forms', 'common'])
   const navigate = useNavigate()
@@ -20,7 +16,6 @@ export default function FormUpload() {
     formNumber: '',
     formDate: '',
     municipalBoard: '',
-    scanDate: todayIso(),
   })
 
   // Member typeahead
@@ -156,10 +151,6 @@ export default function FormUpload() {
   const submit = async (e) => {
     e.preventDefault()
     setError(null)
-    if (!meta.scanDate) {
-      setError(t('forms:upload.validation.scanDateRequired'))
-      return
-    }
     if (files.length === 0) {
       setError(t('forms:upload.validation.imagesRequired'))
       return
@@ -169,7 +160,6 @@ export default function FormUpload() {
     if (meta.formNumber) fd.append('formNumber', meta.formNumber)
     if (meta.formDate) fd.append('formDate', meta.formDate)
     if (meta.municipalBoard) fd.append('municipalBoard', meta.municipalBoard)
-    fd.append('scanDate', meta.scanDate)
     if (selectedMember?.id) fd.append('memberId', String(selectedMember.id))
     files.forEach((f) => fd.append('files', f.file, f.name))
 
@@ -222,19 +212,6 @@ export default function FormUpload() {
                 type="text"
                 value={meta.municipalBoard}
                 onChange={(e) => setMeta({ ...meta, municipalBoard: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:border-brand-500"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-theme-xs font-medium text-gray-600 dark:text-gray-400">
-                {t('forms:upload.scanDateRequired')}
-              </label>
-              <input
-                data-testid="upload-scanDate"
-                type="date"
-                required
-                value={meta.scanDate}
-                onChange={(e) => setMeta({ ...meta, scanDate: e.target.value })}
                 className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:border-brand-500"
               />
             </div>

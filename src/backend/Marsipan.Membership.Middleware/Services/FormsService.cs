@@ -89,7 +89,6 @@ public class FormsService : IFormsService
                 OrgUnitName = f.Member != null && f.Member.OrgUnit != null
                     ? f.Member.OrgUnit.Name
                     : null,
-                ScanDate = f.ScanDate,
                 Status = f.Status.ToString(),
                 CreatedByUserId = f.CreatedByUserId,
                 CreatedByEmail = f.CreatedBy != null ? f.CreatedBy.Email : null
@@ -140,7 +139,6 @@ public class FormsService : IFormsService
             FormDate = meta.FormDate,
             MunicipalBoard = meta.MunicipalBoard,
             MemberId = meta.MemberId,
-            ScanDate = meta.ScanDate ?? DateOnly.FromDateTime(DateTime.Now),
             Status = FormStatus.Pending,
             CreatedByUserId = _user.Id!,
             CreatedDate = DateTime.UtcNow,
@@ -199,7 +197,6 @@ public class FormsService : IFormsService
         form.FormDate = dto.FormDate;
         form.MunicipalBoard = dto.MunicipalBoard;
         form.MemberId = dto.MemberId;
-        form.ScanDate = dto.ScanDate;
         form.LastModifiedDate = DateTime.UtcNow;
         form.LastModifiedByUserId = _user.Id;
         // CreatedByUserId is intentionally NOT touched.
@@ -353,7 +350,6 @@ public class FormsService : IFormsService
             OrgUnitId = f.Member.OrgUnitId,
             OrgUnitName = f.Member.OrgUnit?.Name
         },
-        ScanDate = f.ScanDate,
         Status = f.Status,
         CreatedByUserId = f.CreatedByUserId,
         CreatedByEmail = f.CreatedBy?.Email,

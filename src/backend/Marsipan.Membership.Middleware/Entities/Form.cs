@@ -21,9 +21,6 @@ public class Form : BaseEntity
     public Member? Member { get; set; }
 
     [Required]
-    public DateOnly ScanDate { get; set; }
-
-    [Required]
     public FormStatus Status { get; set; } = FormStatus.Pending;
 
     // Spec requires CreatedByUserId on Form to be [Required, MaxLength(450)] and bound to

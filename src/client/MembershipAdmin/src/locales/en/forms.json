@@ -14,7 +14,6 @@
     "formNumber": "Form Number",
     "memberName": "Member Name",
     "orgUnit": "Org Unit",
-    "scanDate": "Scan Date",
     "status": "Status",
     "uploadedBy": "Uploaded By"
   },
@@ -30,7 +29,6 @@
     "formNumber": "Form Number",
     "formDate": "Form Date",
     "municipalBoard": "Municipal Board",
-    "scanDate": "Scan Date",
     "orgUnit": "Org Unit",
     "uploadedBy": "Uploaded By",
     "status": "Status",
@@ -60,8 +58,6 @@
     "formNumber": "Form Number",
     "formDate": "Form Date",
     "municipalBoard": "Municipal Board",
-    "scanDate": "Scan Date",
-    "scanDateRequired": "Scan Date *",
     "member": "Member (optional)",
     "memberSearch": "Search by first name…",
     "memberChange": "Change",
@@ -75,7 +71,6 @@
     "exceedsMaxSize": "{{name}}: exceeds 10 MB",
     "uploadFailed": "Upload failed.",
     "validation": {
-      "scanDateRequired": "Scan Date is required.",
       "imagesRequired": "At least one image is required."
     }
   }
