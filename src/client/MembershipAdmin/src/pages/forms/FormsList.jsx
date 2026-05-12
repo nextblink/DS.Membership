@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { QRCodeSVG } from 'qrcode.react'
+import api from '../../framework/api'
 import auth from '../../framework/auth'
 
 const STATUSES = ['Pending', 'Verified', 'Rejected']
