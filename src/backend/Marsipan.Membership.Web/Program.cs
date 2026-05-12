@@ -119,6 +119,24 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 var app = builder.Build();
 
+// --- Dev seed: ensure a default SuperAdmin user exists ---
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    const string defaultAdminEmail = "admin@local.com";
+    const string defaultAdminPassword = "Admin123!";
+    if (await userManager.FindByEmailAsync(defaultAdminEmail) is null)
+    {
+        var admin = new ApplicationUser { UserName = defaultAdminEmail, Email = defaultAdminEmail, EmailConfirmed = true };
+        var createResult = await userManager.CreateAsync(admin, defaultAdminPassword);
+        if (createResult.Succeeded)
+        {
+            await userManager.AddToRoleAsync(admin, "SuperAdmin");
+        }
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

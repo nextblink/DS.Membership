@@ -484,3 +484,6 @@ $RECYCLE.BIN/
 # Project-specific additions
 dist/
 .env*
+
+# Claude Code agent worktrees
+.claude/

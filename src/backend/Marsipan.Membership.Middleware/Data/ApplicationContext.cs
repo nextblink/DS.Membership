@@ -107,11 +107,11 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
         );
 
         modelBuilder.Entity<IdentityRole>().HasData(
-            new IdentityRole { Id = "1", Name = "SuperAdmin", NormalizedName = "SUPERADMIN" },
-            new IdentityRole { Id = "2", Name = "Admin", NormalizedName = "ADMIN" },
-            new IdentityRole { Id = "3", Name = "LocalAdmin", NormalizedName = "LOCALADMIN" },
-            new IdentityRole { Id = "4", Name = "Operator", NormalizedName = "OPERATOR" },
-            new IdentityRole { Id = "5", Name = "Viewer", NormalizedName = "VIEWER" }
+            new IdentityRole { Id = "1", Name = "SuperAdmin", NormalizedName = "SUPERADMIN", ConcurrencyStamp = "00000000-0000-0000-0000-000000000001" },
+            new IdentityRole { Id = "2", Name = "Admin", NormalizedName = "ADMIN", ConcurrencyStamp = "00000000-0000-0000-0000-000000000002" },
+            new IdentityRole { Id = "3", Name = "LocalAdmin", NormalizedName = "LOCALADMIN", ConcurrencyStamp = "00000000-0000-0000-0000-000000000003" },
+            new IdentityRole { Id = "4", Name = "Operator", NormalizedName = "OPERATOR", ConcurrencyStamp = "00000000-0000-0000-0000-000000000004" },
+            new IdentityRole { Id = "5", Name = "Viewer", NormalizedName = "VIEWER", ConcurrencyStamp = "00000000-0000-0000-0000-000000000005" }
         );
     }
 }
