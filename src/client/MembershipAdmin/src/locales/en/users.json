@@ -1,7 +1,7 @@
 {
   "title": "Users",
   "subtitle": "Manage admin and operator accounts.",
-  "addUser": "Add User",
+  "addUser": "Create User",
   "table": {
     "email": "Email",
     "role": "Role",
@@ -45,7 +45,8 @@
     "deleting": "Deleting…"
   },
   "modal": {
-    "addTitle": "Add User",
-    "editTitle": "Edit User"
+    "addTitle": "Create User",
+    "editTitle": "Edit user",
+    "deleteTitle": "Delete user"
   }
 }

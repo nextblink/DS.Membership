@@ -194,7 +194,7 @@ export default function Users() {
 
       {deleteTarget && (
         <ConfirmModal
-          title={t('users:action.delete')}
+          title={t('users:modal.deleteTitle')}
           message={`${t('users:confirm.delete')} "${deleteTarget.email}"`}
           confirmLabel={deleting ? t('users:action.deleting') : t('users:action.delete')}
           confirmDisabled={deleting}

@@ -93,7 +93,7 @@ test.describe('UC-DASH — Dashboard', () => {
     // Total Members stat card — the h4 value must be >= 1.
     const totalMembersValue = page
       .getByText('Total Members')
-      .locator('xpath=ancestor::div[contains(@class,"rounded-sm")][1]//h4')
+      .locator('xpath=ancestor::div[contains(@class,"rounded-xl")][1]//h4')
       .first();
     await expect(totalMembersValue).toHaveText(/^[1-9]\d*$/);
 
