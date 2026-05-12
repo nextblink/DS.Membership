@@ -113,6 +113,10 @@ builder.Services.AddCors(opts =>
 builder.Services.AddScoped<IUsersService, UsersService>();
 // --- end Users ---
 
+// --- Dashboard (issue #14) ---
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+// --- end Dashboard ---
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
