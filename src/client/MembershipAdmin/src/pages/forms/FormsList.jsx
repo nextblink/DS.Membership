@@ -155,12 +155,14 @@ export default function FormsList() {
       </div>
 
       <form
+        data-testid="forms-filter-form"
         onSubmit={applyFilters}
         className="mb-4 grid grid-cols-1 gap-3 rounded border border-stroke bg-white p-4 sm:grid-cols-2 lg:grid-cols-5"
       >
         <div>
           <label className="mb-1 block text-xs font-medium text-body">Form Number</label>
           <input
+            data-testid="filter-formNumber"
             type="text"
             value={draft.formNumber}
             onChange={(e) => setDraft({ ...draft, formNumber: e.target.value })}
@@ -186,6 +188,7 @@ export default function FormsList() {
         <div>
           <label className="mb-1 block text-xs font-medium text-body">Status</label>
           <select
+            data-testid="filter-status"
             value={draft.status}
             onChange={(e) => setDraft({ ...draft, status: e.target.value })}
             className="w-full rounded border border-stroke px-3 py-2 text-sm"
@@ -211,6 +214,7 @@ export default function FormsList() {
         <div className="flex items-end gap-2">
           <button
             type="submit"
+            data-testid="filter-search-btn"
             className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
           >
             Search
@@ -269,7 +273,7 @@ export default function FormsList() {
                 const orgUnitName = f.orgUnitName || f.member?.orgUnit?.name || f.member?.orgUnitName || '—'
                 const uploadedBy = f.createdByEmail || f.uploadedBy || f.createdBy?.email || '—'
                 return (
-                  <tr key={f.id} className="border-t border-stroke hover:bg-gray-50">
+                  <tr key={f.id} data-testid="forms-row" className="border-t border-stroke hover:bg-gray-50">
                     <td className="px-4 py-3">
                       <Link to={`/forms/${f.id}`} className="text-primary hover:underline">
                         {f.formNumber || `#${f.id}`}
