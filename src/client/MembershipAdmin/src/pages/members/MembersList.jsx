@@ -8,8 +8,8 @@ import { EDUCATION_LEVEL_OPTIONS } from './enums'
 const PAGE_SIZE_DEFAULT = 20
 
 const inputClass =
-  'w-full rounded border border-stroke bg-white px-3 py-2 text-sm text-black focus:border-primary focus:outline-none'
-const labelClass = 'block text-xs font-medium text-body mb-1'
+  'w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500'
+const labelClass = 'block text-theme-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5'
 
 function flattenOrgUnits(data) {
   const out = []
@@ -143,14 +143,14 @@ export default function MembersList() {
   const totalPages = data.totalPages || Math.max(1, Math.ceil(data.totalCount / pageSize))
 
   return (
-    <div className="rounded-sm border border-stroke bg-white shadow-default overflow-hidden">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
       {/* Card header */}
-      <div className="flex items-center justify-between border-b border-stroke px-5 pt-6 pb-4">
-        <h1 className="text-xl font-semibold text-black">{t('title')}</h1>
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 pt-6 pb-4">
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
         <button
           type="button"
           onClick={() => navigate('/members/new')}
-          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -160,7 +160,7 @@ export default function MembersList() {
       </div>
 
       {/* Filter row */}
-      <form onSubmit={applyFilters} className="border-b border-stroke bg-gray-2 px-5 py-4">
+      <form onSubmit={applyFilters} className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 px-6 py-4">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
           <div>
             <label className={labelClass}>{t('filter.firstName')}</label>
@@ -243,14 +243,14 @@ export default function MembersList() {
         <div className="mt-3 flex gap-2">
           <button
             type="submit"
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+            className="rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
           >
             {t('common:button.apply')}
           </button>
           <button
             type="button"
             onClick={clearFilters}
-            className="rounded-md border border-stroke bg-white px-4 py-2 text-sm text-black hover:bg-gray-2"
+            className="rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             {t('common:button.clear')}
           </button>
@@ -260,7 +260,7 @@ export default function MembersList() {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="bg-gray-2 text-xs uppercase text-body">
+          <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
             <tr>
               <th className="px-4 py-3">{t('table.fullName')}</th>
               <th className="px-4 py-3">{t('table.jmbg')}</th>
@@ -272,21 +272,21 @@ export default function MembersList() {
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-body">
+                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
                   {t('common:state.loading')}
                 </td>
               </tr>
             )}
             {!loading && error && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-red-600">
+                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-error-500">
                   {error}
                 </td>
               </tr>
             )}
             {!loading && !error && data.items.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-body">
+                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
                   {t('state.noMembers')}
                 </td>
               </tr>
@@ -296,16 +296,16 @@ export default function MembersList() {
               data.items.map((m) => (
                 <tr
                   key={m.id}
-                  className="border-t border-stroke hover:bg-gray-2 cursor-pointer"
+                  className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30 cursor-pointer"
                   onClick={() => navigate(`/members/${m.id}`)}
                 >
-                  <td className="px-4 py-3 text-black">
+                  <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">
                     {m.fullName ?? [m.firstName, m.lastName].filter(Boolean).join(' ')}
                   </td>
-                  <td className="px-4 py-3">{m.jmbg}</td>
-                  <td className="px-4 py-3">{m.orgUnit?.name ?? m.orgUnitName ?? ''}</td>
-                  <td className="px-4 py-3">{m.membershipDate ?? ''}</td>
-                  <td className="px-4 py-3">{renderFunctions(m)}</td>
+                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.jmbg}</td>
+                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.orgUnit?.name ?? m.orgUnitName ?? ''}</td>
+                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.membershipDate ?? ''}</td>
+                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{renderFunctions(m)}</td>
                 </tr>
               ))}
           </tbody>
@@ -313,8 +313,8 @@ export default function MembersList() {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between border-t border-stroke px-5 py-4 text-sm">
-        <div className="text-body">
+      <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-6 py-4">
+        <div className="text-theme-xs text-gray-500 dark:text-gray-400">
           {t('common:pagination.summary', { count: data.totalCount, page: data.page, total: totalPages })}
         </div>
         <div className="flex gap-2">
@@ -322,7 +322,7 @@ export default function MembersList() {
             type="button"
             disabled={data.page <= 1}
             onClick={() => goToPage(data.page - 1)}
-            className="rounded-md border border-stroke px-3 py-1 disabled:opacity-50 hover:bg-gray-2"
+            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             {t('common:button.prev')}
           </button>
@@ -330,7 +330,7 @@ export default function MembersList() {
             type="button"
             disabled={data.page >= totalPages}
             onClick={() => goToPage(data.page + 1)}
-            className="rounded-md border border-stroke px-3 py-1 disabled:opacity-50 hover:bg-gray-2"
+            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             {t('common:button.next')}
           </button>
