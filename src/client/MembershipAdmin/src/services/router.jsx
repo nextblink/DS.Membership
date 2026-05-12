@@ -2,7 +2,7 @@
 // Public: /login. Everything else wrapped in <PrivateRoute>, with role-restricted
 // routes passing `roles={[...]}` per the spec (Authorization Rules Summary).
 import { Routes, Route, Navigate } from 'react-router-dom'
-import DefaultLayout from '../components/DefaultLayout'
+import AppLayout from '../components/AppLayout'
 import PrivateRoute from '../framework/private-route'
 import {
   DASHBOARD_ROLES,
@@ -37,7 +37,7 @@ export default function AppRouter() {
       <Route
         element={
           <PrivateRoute>
-            <DefaultLayout />
+            <AppLayout />
           </PrivateRoute>
         }
       >
