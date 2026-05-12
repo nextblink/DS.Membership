@@ -11,7 +11,7 @@ test.describe('UC-PRF — Profile', () => {
     // Wait for the async GET /api/auth/me to finish rendering
     const emailEl = page.locator('[data-testid="profile-email"]');
     await expect(emailEl).toBeVisible();
-    await expect(emailEl).toHaveText('localadmin1@test');
+    await expect(emailEl).toHaveText('localadmin1@test.local');
 
     const roleEl = page.locator('[data-testid="profile-role"]');
     await expect(roleEl).toBeVisible();

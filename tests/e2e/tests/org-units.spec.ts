@@ -22,6 +22,7 @@ test.describe('UC-ORG org units', () => {
   test('ORG-02 Add root unit', async ({ page, loginAsUI }) => {
     await loginAsUI(page, 'superAdmin');
     await page.goto('/org-units');
+    await page.waitForSelector('[data-testid="org-units-tree"]', { timeout: 15_000 });
     // Click add root unit button
     const addBtn = page.getByTestId('add-root-unit-btn').or(
       page.getByRole('button', { name: /add root|add unit/i }).first()
@@ -40,6 +41,7 @@ test.describe('UC-ORG org units', () => {
   test('ORG-03 Add child under Belgrade', async ({ page, loginAsUI }) => {
     await loginAsUI(page, 'superAdmin');
     await page.goto('/org-units');
+    await page.waitForSelector('[data-testid="org-units-tree"]', { timeout: 15_000 });
     // Find Belgrade node and click its "Add child" button
     const belgradNode = page.getByTestId('org-unit-node-1').or(
       page.locator('[data-node-name="Belgrade"]')
@@ -59,6 +61,7 @@ test.describe('UC-ORG org units', () => {
   test('ORG-04 Inline-edit VoterCount', async ({ page, loginAsUI, superAdminApi }) => {
     await loginAsUI(page, 'superAdmin');
     await page.goto('/org-units');
+    await page.waitForSelector('[data-testid="org-units-tree"]', { timeout: 15_000 });
     // Click the VoterCount display for Belgrade (Id=1)
     const voterDisplay = page.getByTestId('voter-count-display-1').or(
       page.locator('[data-testid="org-unit-node-1"] [data-voter-count], [data-node-name="Belgrade"] .cursor-pointer').first()
@@ -105,7 +108,7 @@ test.describe('UC-ORG org units', () => {
       await deleteBtn.click();
       // Expect a visible error/alert message
       await expect(
-        page.getByText(/cannot delete|has children|child/i).or(page.getByRole('alert'))
+        page.getByText(/cannot delete|has children|child/i).first().or(page.getByRole('alert').first())
       ).toBeVisible({ timeout: 5000 });
     }
     // Either way, Belgrade should still be in the tree
