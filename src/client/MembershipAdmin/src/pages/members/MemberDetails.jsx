@@ -97,7 +97,7 @@ export default function MemberDetails() {
   if (error || !member) {
     return (
       <div className="p-6">
-        <p className="text-sm text-red-600">{error || t('members:error.notFound')}</p>
+        <p className="text-theme-sm text-error-500">{error || t('members:error.notFound')}</p>
         <button
           onClick={() => navigate('/members')}
           className="mt-3 rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
