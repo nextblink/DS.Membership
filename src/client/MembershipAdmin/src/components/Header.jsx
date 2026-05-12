@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import auth from '../framework/auth'
 
 export default function Header({ onToggleSidebar }) {
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation('common')
   const user = auth.getUser()
   const email = user?.email || 'Account'
   const role = user?.role
@@ -26,6 +28,8 @@ export default function Header({ onToggleSidebar }) {
     navigate('/login', { replace: true })
   }
 
+  const toggleLang = () => i18n.changeLanguage(i18n.language === 'en' ? 'sr' : 'en')
+
   return (
     <header className="sticky top-0 z-30 flex w-full bg-white drop-shadow-sm">
       <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-sm md:px-6 2xl:px-11">
@@ -43,10 +47,18 @@ export default function Header({ onToggleSidebar }) {
         </div>
 
         <div className="hidden sm:block">
-          <h1 className="text-lg font-semibold text-black">Admin Panel</h1>
+          <h1 className="text-lg font-semibold text-black">{t('header.adminPanel')}</h1>
         </div>
 
         <div className="relative flex items-center gap-3 2xsm:gap-7" ref={menuRef}>
+          <button
+            type="button"
+            onClick={toggleLang}
+            className="rounded-md border border-stroke px-2.5 py-1 text-sm font-medium text-body hover:text-primary"
+          >
+            {i18n.language === 'en' ? 'СР' : 'EN'}
+          </button>
+
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
@@ -79,7 +91,7 @@ export default function Header({ onToggleSidebar }) {
                 data-testid="logout-button"
                 className="block w-full px-4 py-2 text-left text-sm text-black hover:bg-whiten"
               >
-                Logout
+                {t('header.logout')}
               </button>
             </div>
           )}
