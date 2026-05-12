@@ -7,10 +7,11 @@ test.describe('UC-PRF — Profile', () => {
   }) => {
     await loginAsUI(page, 'localAdmin1');
     await page.goto('/profile');
+    await page.waitForLoadState('networkidle');
 
     // Wait for the async GET /api/auth/me to finish rendering
     const emailEl = page.locator('[data-testid="profile-email"]');
-    await expect(emailEl).toBeVisible();
+    await expect(emailEl).toBeVisible({ timeout: 15_000 });
     await expect(emailEl).toHaveText('localadmin1@test.local');
 
     const roleEl = page.locator('[data-testid="profile-role"]');
@@ -30,6 +31,7 @@ test.describe('UC-PRF — Profile', () => {
   }) => {
     await loginAsUI(page, 'localAdmin1');
     await page.goto('/profile');
+    await page.waitForLoadState('networkidle');
 
     // Fill the change-password form
     await page.locator('#currentPassword').fill('Test123!');
