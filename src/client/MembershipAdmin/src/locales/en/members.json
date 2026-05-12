@@ -89,7 +89,9 @@
     "deleteConfirm": "Delete this member? This cannot be undone.",
     "backToMembers": "Back to Members",
     "noLinkedForms": "No linked forms.",
-    "assigned": "assigned"
+    "assigned": "assigned",
+    "scanned": "scanned",
+    "formStatus": "{{status}}"
   },
   "submit": {
     "create": "Create Member",

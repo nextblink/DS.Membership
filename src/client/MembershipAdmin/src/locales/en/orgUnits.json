@@ -8,7 +8,10 @@
     "parent": "Parent Unit",
     "type": "Type",
     "nameRequired": "Name is required",
-    "typeRequired": "Type is required"
+    "typeRequired": "Type is required",
+    "voterCountInvalid": "Invalid number",
+    "saveFailed": "Save failed.",
+    "voterCountTooltip": "Click to edit voter count"
   },
   "type": {
     "city": "City",
@@ -29,6 +32,16 @@
     "save": "Save",
     "cancel": "Cancel",
     "saving": "Saving…",
-    "deleteConfirm": "Delete this org unit?"
+    "deleteConfirm": "Delete this org unit?",
+    "addChild": "+ Add child unit",
+    "addRoot": "+ Add root unit"
+  },
+  "stats": {
+    "voters": "Voters",
+    "members": "Members"
+  },
+  "modal": {
+    "addChildTitle": "Add child unit under \"{{parentName}}\"",
+    "addRootTitle": "Add root unit"
   }
 }

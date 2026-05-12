@@ -29,13 +29,13 @@ export const USERS_ROLES = [ROLES.SuperAdmin]
 
 // Sidebar nav — each item declares which roles can see it.
 export const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Dashboard', roles: DASHBOARD_ROLES },
-  { to: '/members', label: 'Members', roles: MEMBERS_ROLES },
-  { to: '/forms', label: 'Forms', roles: FORMS_ROLES },
-  { to: '/org-units', label: 'Org Units', roles: ORG_UNITS_ROLES },
-  { to: '/functions', label: 'Functions', roles: FUNCTIONS_ROLES },
-  { to: '/users', label: 'Users', roles: USERS_ROLES },
-  { to: '/profile', label: 'Profile', roles: ALL_ROLES },
+  { to: '/dashboard', label: 'Dashboard', roles: DASHBOARD_ROLES, iconName: 'home', section: 'main' },
+  { to: '/members', label: 'Members', roles: MEMBERS_ROLES, iconName: 'users', section: 'main' },
+  { to: '/forms', label: 'Forms', roles: FORMS_ROLES, iconName: 'document', section: 'main' },
+  { to: '/org-units', label: 'Org Units', roles: ORG_UNITS_ROLES, iconName: 'building', section: 'main' },
+  { to: '/functions', label: 'Functions', roles: FUNCTIONS_ROLES, iconName: 'clipboard', section: 'main' },
+  { to: '/users', label: 'Users', roles: USERS_ROLES, iconName: 'user-group', section: 'main' },
+  { to: '/profile', label: 'Profile', roles: ALL_ROLES, iconName: 'user-circle', section: 'account' },
 ]
 
 // Entity metadata sketch — filled in during Wave 7 (issues #16-#22).

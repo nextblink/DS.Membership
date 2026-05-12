@@ -1,5 +1,6 @@
 {
   "title": "Users",
+  "subtitle": "Manage admin and operator accounts.",
   "addUser": "Add User",
   "table": {
     "email": "Email",
@@ -28,7 +29,9 @@
   "validation": {
     "emailRequired": "Email is required",
     "passwordRequired": "Password is required",
-    "roleRequired": "Role is required"
+    "roleRequired": "Role is required",
+    "emailInvalid": "Enter a valid email address",
+    "passwordMinLength": "Password must be at least 6 characters"
   },
   "confirm": {
     "delete": "Delete this user?"

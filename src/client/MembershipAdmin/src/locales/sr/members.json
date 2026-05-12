@@ -89,7 +89,9 @@
     "deleteConfirm": "Обрисати овог члана? Ова акција је неповратна.",
     "backToMembers": "Назад на чланове",
     "noLinkedForms": "Нема повезаних образаца.",
-    "assigned": "додељено"
+    "assigned": "додељено",
+    "scanned": "скениран",
+    "formStatus": "{{status}}"
   },
   "submit": {
     "create": "Креирај члана",

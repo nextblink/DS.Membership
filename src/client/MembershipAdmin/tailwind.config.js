@@ -29,6 +29,9 @@ export default {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
+      boxShadow: {
+        default: '0px 8px 13px -3px rgba(0, 0, 0, 0.07)',
+      },
     },
   },
   plugins: [],

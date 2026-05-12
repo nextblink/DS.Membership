@@ -8,7 +8,10 @@
     "parent": "Надређена јединица",
     "type": "Врста",
     "nameRequired": "Назив је обавезан",
-    "typeRequired": "Врста је обавезна"
+    "typeRequired": "Врста је обавезна",
+    "voterCountInvalid": "Неисправан број",
+    "saveFailed": "Чување није успело.",
+    "voterCountTooltip": "Кликните да измените број бирача"
   },
   "type": {
     "city": "Град",
@@ -29,6 +32,16 @@
     "save": "Сачувај",
     "cancel": "Откажи",
     "saving": "Чување…",
-    "deleteConfirm": "Обрисати ову орг. јединицу?"
+    "deleteConfirm": "Обрисати ову орг. јединицу?",
+    "addChild": "+ Додај потчињену јединицу",
+    "addRoot": "+ Додај нову јединицу"
+  },
+  "stats": {
+    "voters": "Бирачи",
+    "members": "Чланови"
+  },
+  "modal": {
+    "addChildTitle": "Додај потчињену јединицу под \"{{parentName}}\"",
+    "addRootTitle": "Додај нову јединицу"
   }
 }

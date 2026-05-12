@@ -46,7 +46,13 @@
     "verify": "Verify",
     "reject": "Reject",
     "loadFailed": "Failed to load form",
-    "notFound": "Form not found."
+    "notFound": "Form not found.",
+    "formLabel": "Form",
+    "orgUnitLabel": "Org Unit",
+    "statusUpdateFailed": "Status update failed.",
+    "imageUploadFailed": "Image upload failed.",
+    "imageDeleteFailed": "Image delete failed.",
+    "deleteFailed": "Delete failed."
   },
   "upload": {
     "title": "Upload Form",
@@ -65,6 +71,9 @@
     "filesSelected": "{{count}} file(s) selected — drag thumbnails to reorder.",
     "submit": "Upload",
     "uploading": "Uploading…",
+    "unsupportedType": "{{name}}: unsupported file type",
+    "exceedsMaxSize": "{{name}}: exceeds 10 MB",
+    "uploadFailed": "Upload failed.",
     "validation": {
       "scanDateRequired": "Scan Date is required.",
       "imagesRequired": "At least one image is required."

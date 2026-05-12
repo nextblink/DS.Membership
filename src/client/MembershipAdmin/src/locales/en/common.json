@@ -34,5 +34,9 @@
   "header": {
     "logout": "Logout",
     "adminPanel": "Admin Panel"
+  },
+  "bool": {
+    "yes": "Yes",
+    "no": "No"
   }
 }

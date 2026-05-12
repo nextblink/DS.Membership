@@ -46,7 +46,13 @@
     "verify": "Верификуј",
     "reject": "Одбиј",
     "loadFailed": "Учитавање обрасца није успело.",
-    "notFound": "Образац није пронађен."
+    "notFound": "Образац није пронађен.",
+    "formLabel": "Образац",
+    "orgUnitLabel": "Орг. јединица",
+    "statusUpdateFailed": "Промена статуса није успела.",
+    "imageUploadFailed": "Слање слике није успело.",
+    "imageDeleteFailed": "Брисање слике није успело.",
+    "deleteFailed": "Брисање није успело."
   },
   "upload": {
     "title": "Додај образац",
@@ -65,6 +71,9 @@
     "filesSelected": "{{count}} фајл(ова) одабрано — превуци да промениш редослед.",
     "submit": "Пошаљи",
     "uploading": "Слање…",
+    "unsupportedType": "{{name}}: неподржан формат фајла",
+    "exceedsMaxSize": "{{name}}: превелики фајл (макс. 10 MB)",
+    "uploadFailed": "Слање није успело.",
     "validation": {
       "scanDateRequired": "Датум скенирања је обавезан.",
       "imagesRequired": "Потребна је барем једна слика."
