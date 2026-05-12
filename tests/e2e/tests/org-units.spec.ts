@@ -65,7 +65,7 @@ test.describe('UC-ORG org units', () => {
   test('ORG-06 Delete unit with children → 409 friendly message', async ({ page, loginAsUI, superAdminApi }) => {
     // Seed a child under Belgrade so its delete is blocked by 409.
     await superAdminApi.post('/api/orgunits', {
-      data: { name: 'ChildOfBelgrade', type: 'Municipal', voterCount: 0, parentId: 1 },
+      data: { name: 'TestMunicipalChild', type: 'Municipal', voterCount: 0, parentId: 1 },
     });
     await loginAsUI(page, 'superAdmin');
     await page.goto('/org-units');
