@@ -14,6 +14,7 @@ import {
 } from '../config'
 
 import Login from '../pages/login/Login'
+import MobileUpload from '../pages/upload/MobileUpload'
 import Dashboard from '../pages/dashboard/Dashboard'
 import MembersList from '../pages/members/MembersList'
 import MemberCreate from '../pages/members/MemberCreate'
@@ -60,6 +61,9 @@ export default function AppRouter() {
 
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       </Route>
+
+      {/* Public mobile upload — no auth required */}
+      <Route path="/m/upload" element={<MobileUpload />} />
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
