@@ -53,6 +53,7 @@ export default function Header({ onToggleSidebar }) {
             className="flex items-center gap-3 rounded-sm px-2 py-1 hover:bg-whiten focus:outline-none"
             aria-haspopup="menu"
             aria-expanded={menuOpen}
+            data-testid="user-menu-toggle"
           >
             <span className="hidden text-right sm:block">
               <span className="block text-sm font-medium text-black">{email}</span>
@@ -75,6 +76,7 @@ export default function Header({ onToggleSidebar }) {
               <button
                 type="button"
                 onClick={handleLogout}
+                data-testid="logout-button"
                 className="block w-full px-4 py-2 text-left text-sm text-black hover:bg-whiten"
               >
                 Logout
