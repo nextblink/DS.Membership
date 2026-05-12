@@ -297,7 +297,7 @@ export default function MembersList() {
                   onClick={() => navigate(`/members/${m.id}`)}
                 >
                   <td className="px-4 py-3 text-black">
-                    {[m.firstName, m.lastName].filter(Boolean).join(' ')}
+                    {m.fullName ?? [m.firstName, m.lastName].filter(Boolean).join(' ')}
                   </td>
                   <td className="px-4 py-3">{m.jmbg}</td>
                   <td className="px-4 py-3">{m.orgUnit?.name ?? m.orgUnitName ?? ''}</td>

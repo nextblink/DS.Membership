@@ -26,12 +26,12 @@ interface RoleCreds {
 
 export const ROLES: Record<RoleKey, RoleCreds> = {
   superAdmin: { email: 'admin@local.com', password: 'Admin123!' },
-  admin: { email: 'admin@test', password: 'Test123!' },
-  localAdmin1: { email: 'localadmin1@test', password: 'Test123!' },
-  localAdmin2: { email: 'localadmin2@test', password: 'Test123!' },
-  operator1: { email: 'operator1@test', password: 'Test123!' },
-  operator2: { email: 'operator2@test', password: 'Test123!' },
-  viewer1: { email: 'viewer1@test', password: 'Test123!' },
+  admin: { email: 'admin@test.local', password: 'Test123!' },
+  localAdmin1: { email: 'localadmin1@test.local', password: 'Test123!' },
+  localAdmin2: { email: 'localadmin2@test.local', password: 'Test123!' },
+  operator1: { email: 'operator1@test.local', password: 'Test123!' },
+  operator2: { email: 'operator2@test.local', password: 'Test123!' },
+  viewer1: { email: 'viewer1@test.local', password: 'Test123!' },
 };
 
 /**

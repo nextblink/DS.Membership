@@ -110,12 +110,12 @@ public class DevController : ControllerBase
 
         var spec = new (string Email, string Role, int? OrgUnitId)[]
         {
-            ("admin@test", "Admin", null),
-            ("localadmin1@test", "LocalAdmin", 1),
-            ("localadmin2@test", "LocalAdmin", 3),
-            ("operator1@test", "Operator", 1),
-            ("operator2@test", "Operator", 1),
-            ("viewer1@test", "Viewer", 1),
+            ("admin@test.local", "Admin", null),
+            ("localadmin1@test.local", "LocalAdmin", 1),
+            ("localadmin2@test.local", "LocalAdmin", 3),
+            ("operator1@test.local", "Operator", 1),
+            ("operator2@test.local", "Operator", 1),
+            ("viewer1@test.local", "Viewer", 1),
         };
 
         var created = new List<string>();
