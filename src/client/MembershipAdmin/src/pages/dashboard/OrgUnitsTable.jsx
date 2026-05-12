@@ -1,4 +1,3 @@
-// Sortable table of org units with member/voter counts and membership %.
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -55,36 +54,28 @@ export default function OrgUnitsTable({ rows }) {
   }
 
   function sortIndicator(key) {
-    if (key !== sortKey) return <span className="ml-1 text-bodydark2">⇅</span>
-    return (
-      <span className="ml-1 text-primary">{sortDir === 'asc' ? '▲' : '▼'}</span>
-    )
+    if (key !== sortKey) return <span className="ml-1 text-gray-400 dark:text-gray-600">⇅</span>
+    return <span className="ml-1 text-brand-500">{sortDir === 'asc' ? '▲' : '▼'}</span>
   }
 
   return (
-    <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5">
-      <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 pb-2.5 pt-6 shadow-theme-sm sm:px-7">
+      <h4 className="mb-6 text-xl font-semibold text-gray-900 dark:text-white">
         {t('orgTable.title')}
       </h4>
       <div className="max-w-full overflow-x-auto">
         <table className="w-full table-auto">
           <thead>
-            <tr className="bg-gray-2 text-left dark:bg-meta-4">
+            <tr className="bg-gray-50 dark:bg-gray-800/50 text-left">
               {columns.map((c) => (
                 <th
                   key={c.key}
                   scope="col"
-                  className={`min-w-[80px] cursor-pointer select-none px-4 py-4 font-medium text-black dark:text-white ${
+                  className={`min-w-[80px] cursor-pointer select-none px-4 py-3 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400 ${
                     c.numeric ? 'text-right' : ''
                   }`}
                   onClick={() => toggleSort(c.key)}
-                  aria-sort={
-                    sortKey === c.key
-                      ? sortDir === 'asc'
-                        ? 'ascending'
-                        : 'descending'
-                      : 'none'
-                  }
+                  aria-sort={sortKey === c.key ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
                 >
                   {c.label}
                   {sortIndicator(c.key)}
@@ -95,29 +86,21 @@ export default function OrgUnitsTable({ rows }) {
           <tbody>
             {sorted.length === 0 ? (
               <tr>
-                <td
-                  colSpan={columns.length}
-                  className="px-4 py-6 text-center text-sm text-body"
-                >
+                <td colSpan={columns.length} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
                   {t('orgTable.noData')}
                 </td>
               </tr>
             ) : (
               sorted.map((row) => (
-                <tr
-                  key={row.orgUnitId}
-                  className="border-b border-stroke dark:border-strokedark"
-                >
-                  <td className="px-4 py-4 text-sm text-black dark:text-white">
-                    {row.name}
-                  </td>
-                  <td className="px-4 py-4 text-right text-sm text-black dark:text-white">
+                <tr key={row.orgUnitId} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30">
+                  <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">{row.name}</td>
+                  <td className="px-4 py-3 text-right text-theme-sm text-gray-700 dark:text-gray-300">
                     {row.memberCount.toLocaleString()}
                   </td>
-                  <td className="px-4 py-4 text-right text-sm text-black dark:text-white">
+                  <td className="px-4 py-3 text-right text-theme-sm text-gray-700 dark:text-gray-300">
                     {row.voterCount.toLocaleString()}
                   </td>
-                  <td className="px-4 py-4 text-right text-sm font-medium text-primary">
+                  <td className="px-4 py-3 text-right text-theme-sm font-medium text-brand-500">
                     {row.percentage.toFixed(2)}%
                   </td>
                 </tr>

@@ -19,6 +19,10 @@
     "title": "Forms by Status",
     "noForms": "No forms yet"
   },
+  "donut": {
+    "title": "Forms by Status",
+    "noData": "No forms yet"
+  },
   "error": {
     "loadFailed": "Failed to load dashboard"
   }

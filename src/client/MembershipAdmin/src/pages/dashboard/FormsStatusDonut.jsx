@@ -1,86 +1,62 @@
-// Donut chart of Forms by status using recharts PieChart.
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { useTranslation } from 'react-i18next'
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
-const STATUS_COLORS = {
-  Pending: '#FFA70B', // warning
-  Verified: '#10B981', // success
-  Rejected: '#F87171', // danger
+const COLORS = {
+  Pending: '#f79009',
+  Verified: '#12b76a',
+  Rejected: '#f04438',
 }
 
-export default function FormsStatusDonut({ formsByStatus }) {
+export default function FormsStatusDonut({ formsByStatus = {} }) {
   const { t } = useTranslation(['dashboard', 'enums'])
+
   const data = [
-    { name: 'Pending', label: t('enums:formStatus.pending'), value: formsByStatus?.pending ?? 0 },
-    { name: 'Verified', label: t('enums:formStatus.verified'), value: formsByStatus?.verified ?? 0 },
-    { name: 'Rejected', label: t('enums:formStatus.rejected'), value: formsByStatus?.rejected ?? 0 },
-  ]
-  const total = data.reduce((sum, d) => sum + d.value, 0)
+    { name: t('enums:formStatus.pending'), value: formsByStatus.pending ?? 0, key: 'Pending' },
+    { name: t('enums:formStatus.verified'), value: formsByStatus.verified ?? 0, key: 'Verified' },
+    { name: t('enums:formStatus.rejected'), value: formsByStatus.rejected ?? 0, key: 'Rejected' },
+  ].filter((d) => d.value > 0)
+
+  const total = data.reduce((s, d) => s + d.value, 0)
 
   return (
-    <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pb-5 pt-7.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-5">
-      <div className="mb-3 justify-between gap-4 sm:flex">
-        <div>
-          <h5 className="text-xl font-semibold text-black dark:text-white">
-            {t('dashboard:chart.title')}
-          </h5>
-        </div>
+    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm h-full">
+      <div className="border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('donut.title')}</h3>
       </div>
-      <div className="mb-2">
-        <div className="mx-auto flex h-[280px] w-full justify-center">
-          {total === 0 ? (
-            <div className="flex items-center justify-center text-sm text-body">
-              {t('dashboard:chart.noForms')}
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data}
-                  dataKey="value"
-                  nameKey="label"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={70}
-                  outerRadius={110}
-                  paddingAngle={2}
-                  stroke="none"
-                >
-                  {data.map((entry) => (
-                    <Cell key={entry.name} fill={STATUS_COLORS[entry.name]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value, name) => [value.toLocaleString(), name]}
-                />
-                <Legend
-                  verticalAlign="bottom"
-                  iconType="circle"
-                  wrapperStyle={{ fontSize: 13 }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </div>
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-y-3 sm:gap-x-7.5">
-        {data.map((d) => {
-          const pct = total > 0 ? (d.value / total) * 100 : 0
-          return (
-            <div key={d.name} className="flex items-center gap-2">
-              <span
-                className="block h-3 w-3 rounded-full"
-                style={{ backgroundColor: STATUS_COLORS[d.name] }}
+      <div className="px-6 py-6">
+        {total === 0 ? (
+          <p className="text-center text-theme-sm text-gray-500 dark:text-gray-400">{t('donut.noData')}</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={220}>
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={90}
+                paddingAngle={3}
+                dataKey="value"
+              >
+                {data.map((entry) => (
+                  <Cell key={entry.key} fill={COLORS[entry.key] ?? '#98a2b3'} />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(value, name) => [value, name]}
+                contentStyle={{
+                  borderRadius: '8px',
+                  border: '1px solid #e4e7ec',
+                  fontSize: '12px',
+                }}
               />
-              <span className="text-sm font-medium text-black dark:text-white">
-                {d.label}
-              </span>
-              <span className="text-sm text-body">
-                {d.value.toLocaleString()} ({pct.toFixed(1)}%)
-              </span>
-            </div>
-          )
-        })}
+              <Legend
+                iconType="circle"
+                iconSize={8}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   )
