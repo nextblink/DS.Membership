@@ -113,28 +113,28 @@ export default function Functions() {
   return (
     <div>
       {error && (
-        <div data-testid="functions-error" className="mb-4 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div data-testid="functions-error" className="mb-4 rounded-lg border border-error-300 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-500">
           {error}
         </div>
       )}
 
-      <div className="rounded-sm border border-stroke bg-white shadow-default overflow-hidden">
-        <div className="flex items-center justify-between border-b border-stroke px-5 pt-6 pb-4">
-          <h2 className="text-xl font-semibold text-black">{t('title')}</h2>
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-5 pt-6 pb-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('title')}</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full table-auto">
             <thead>
-              <tr className="bg-gray-2 text-left">
-                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-body">{t('table.name')}</th>
-                <th className="w-64 px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-body">
+              <tr className="bg-gray-50 dark:bg-gray-800/50 text-left">
+                <th className="px-4 py-3 text-theme-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('table.name')}</th>
+                <th className="w-64 px-4 py-3 text-right text-theme-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   {t('table.actions')}
                 </th>
               </tr>
             </thead>
             <tbody>
               {/* Inline add row */}
-              <tr data-testid="functions-add-row" className="border-t border-stroke bg-gray-2">
+              <tr data-testid="functions-add-row" className="border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
                 <td className="px-4 py-3">
                   <form onSubmit={handleAdd}>
                     <input
@@ -143,7 +143,7 @@ export default function Functions() {
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
                       placeholder={t('placeholder')}
-                      className="w-full rounded-sm border border-stroke bg-white px-3 py-2 text-sm text-black focus:border-primary focus:outline-none"
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
                       disabled={adding}
                     />
                   </form>
@@ -154,7 +154,7 @@ export default function Functions() {
                     type="button"
                     onClick={handleAdd}
                     disabled={adding || !newName.trim()}
-                    className="inline-flex items-center rounded-sm bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2 text-theme-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {adding ? t('adding') : t('add')}
                   </button>
@@ -162,16 +162,16 @@ export default function Functions() {
               </tr>
 
               {loading && (
-                <tr className="border-t border-stroke">
-                  <td className="px-4 py-6 text-sm text-body" colSpan={2}>
+                <tr className="border-t border-gray-200 dark:border-gray-800">
+                  <td className="px-4 py-6 text-theme-sm text-gray-500 dark:text-gray-400" colSpan={2}>
                     {t('common:state.loading')}
                   </td>
                 </tr>
               )}
 
               {!loading && items.length === 0 && (
-                <tr className="border-t border-stroke">
-                  <td className="px-4 py-6 text-sm text-body" colSpan={2}>
+                <tr className="border-t border-gray-200 dark:border-gray-800">
+                  <td className="px-4 py-6 text-theme-sm text-gray-500 dark:text-gray-400" colSpan={2}>
                     {t('state.noFunctions')}
                   </td>
                 </tr>
@@ -183,15 +183,15 @@ export default function Functions() {
                   const isSaving = savingId === item.id
                   const isDeleting = deletingId === item.id
                   return (
-                    <tr key={item.id} data-testid={`functions-row-${item.id}`} className="border-t border-stroke">
-                      <td className="px-4 py-3 text-sm text-black">
+                    <tr key={item.id} data-testid={`functions-row-${item.id}`} className="border-t border-gray-200 dark:border-gray-800">
+                      <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">
                         {isEditing ? (
                           <input
                             data-testid={`functions-edit-input-${item.id}`}
                             type="text"
                             value={editName}
                             onChange={(e) => setEditName(e.target.value)}
-                            className="w-full rounded-sm border border-stroke bg-white px-3 py-2 text-sm text-black focus:border-primary focus:outline-none"
+                            className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
                             disabled={isSaving}
                             autoFocus
                           />
@@ -207,7 +207,7 @@ export default function Functions() {
                               type="button"
                               onClick={() => saveEdit(item.id)}
                               disabled={isSaving || !editName.trim()}
-                              className="inline-flex items-center rounded-sm bg-primary px-3 py-1.5 text-sm font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="inline-flex items-center rounded-lg bg-brand-500 hover:bg-brand-600 px-3 py-1.5 text-theme-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {isSaving ? t('saving') : t('save')}
                             </button>
@@ -216,7 +216,7 @@ export default function Functions() {
                               type="button"
                               onClick={cancelEdit}
                               disabled={isSaving}
-                              className="inline-flex items-center rounded-sm border border-stroke bg-white px-3 py-1.5 text-sm font-medium text-black hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="inline-flex items-center rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-3 py-1.5 text-theme-sm font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {t('cancel')}
                             </button>
@@ -228,7 +228,7 @@ export default function Functions() {
                               type="button"
                               onClick={() => startEdit(item)}
                               disabled={isDeleting}
-                              className="inline-flex items-center rounded-sm border border-stroke bg-white px-3 py-1.5 text-sm font-medium text-black hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="inline-flex items-center rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-3 py-1.5 text-theme-sm font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {t('edit')}
                             </button>
@@ -237,7 +237,7 @@ export default function Functions() {
                               type="button"
                               onClick={() => handleDelete(item.id)}
                               disabled={isDeleting}
-                              className="inline-flex items-center rounded-sm border border-red-300 bg-white px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="inline-flex items-center rounded-lg border border-error-300 dark:border-error-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-theme-sm font-medium text-error-500 hover:bg-error-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {isDeleting ? t('deleting') : t('delete')}
                             </button>

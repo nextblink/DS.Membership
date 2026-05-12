@@ -11,9 +11,9 @@ const TYPE_MUNICIPAL = 'Municipal'
 
 function typeBadgeClass(type) {
   if (type === TYPE_CITY) {
-    return 'inline-flex rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary'
+    return 'inline-flex rounded-full bg-brand-50 dark:bg-brand-500/10 px-2.5 py-0.5 text-theme-xs font-medium text-brand-600 dark:text-brand-400'
   }
-  return 'inline-flex rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success'
+  return 'inline-flex rounded-full bg-success-50 dark:bg-success-500/10 px-2.5 py-0.5 text-theme-xs font-medium text-success-700 dark:text-success-400'
 }
 
 // The API may return a flat list or an already-nested tree. Normalize to a
@@ -113,31 +113,31 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" data-testid="add-unit-modal">
-      <div className="w-full max-w-md rounded-sm border border-stroke bg-white shadow-default">
-        <div className="border-b border-stroke px-6 py-4">
-          <h3 className="text-lg font-semibold text-black">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4" data-testid="add-unit-modal">
+      <div className="w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-xl">
+        <div className="border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white">
             {parent ? t('modal.addChildTitle', { parentName: parent.name }) : t('modal.addRootTitle')}
           </h3>
         </div>
         <form onSubmit={handleSubmit} className="px-6 py-4">
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium text-black">{t('form.name')}</label>
+            <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('form.name')}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded border border-stroke bg-transparent px-4 py-2 outline-none focus:border-primary"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
               autoFocus
               data-testid="modal-name-input"
             />
           </div>
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium text-black">{t('form.type')}</label>
+            <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('form.type')}</label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full rounded border border-stroke bg-transparent px-4 py-2 outline-none focus:border-primary"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
               data-testid="modal-type-select"
             >
               <option value={TYPE_CITY}>{t('type.city')}</option>
@@ -145,7 +145,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
             </select>
           </div>
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium text-black">
+            <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">
               {t('form.voterCount')}
             </label>
             <input
@@ -153,18 +153,18 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
               min="0"
               value={voterCount}
               onChange={(e) => setVoterCount(e.target.value)}
-              className="w-full rounded border border-stroke bg-transparent px-4 py-2 outline-none focus:border-primary"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
               data-testid="modal-voter-count-input"
             />
           </div>
           {error && (
-            <p className="mb-3 text-sm text-danger" data-testid="modal-error">{error}</p>
+            <p className="mb-3 text-theme-sm text-error-500" data-testid="modal-error">{error}</p>
           )}
           <div className="flex justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="rounded border border-stroke px-4 py-2 text-sm font-medium text-black hover:bg-gray-50"
+              className="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-theme-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
               disabled={submitting}
               data-testid="modal-cancel"
             >
@@ -172,7 +172,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
             </button>
             <button
               type="submit"
-              className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-50"
+              className="rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white disabled:opacity-50"
               disabled={submitting}
               data-testid="modal-save"
             >
@@ -241,10 +241,10 @@ function VoterCountEditor({ node, onSave }) {
           }}
           disabled={saving}
           autoFocus
-          className="w-24 rounded border border-stroke bg-white px-2 py-0.5 text-sm outline-none focus:border-primary"
+          className="w-24 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
           data-testid={`voter-count-input-${node.id}`}
         />
-        {saving && <span className="text-xs text-body">{t('action.saving')}</span>}
+        {saving && <span className="text-theme-xs text-gray-500 dark:text-gray-400">{t('action.saving')}</span>}
       </span>
     )
   }
@@ -254,11 +254,11 @@ function VoterCountEditor({ node, onSave }) {
       type="button"
       onClick={() => setEditing(true)}
       title={t('form.voterCountTooltip')}
-      className="rounded px-2 py-0.5 text-sm text-black hover:bg-gray-100"
+      className="rounded-lg px-2 py-1 text-theme-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
       data-testid={`voter-count-display-${node.id}`}
     >
       {node.voterCount ?? 0}
-      {error && <span className="ml-2 text-xs text-danger">{error}</span>}
+      {error && <span className="ml-2 text-theme-xs text-error-500">{error}</span>}
     </button>
   )
 }
@@ -278,23 +278,23 @@ function TreeNode({
   return (
     <li data-testid={`org-unit-node-${node.id}`} data-node-name={node.name}>
       <div
-        className="flex flex-wrap items-center gap-3 rounded border border-stroke bg-white px-3 py-2 hover:bg-gray-50"
+        className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800/50"
         style={{ marginLeft: depth * 24 }}
       >
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="flex h-6 w-6 items-center justify-center rounded text-sm text-body hover:bg-gray-100 disabled:opacity-30"
+          className="flex h-6 w-6 items-center justify-center rounded text-theme-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30"
           disabled={!hasChildren}
           aria-label={expanded ? 'Collapse' : 'Expand'}
         >
           {hasChildren ? (expanded ? '▾' : '▸') : '•'}
         </button>
 
-        <span className="font-medium text-black" data-testid={`node-name-${node.id}`}>{node.name}</span>
+        <span className="font-medium text-gray-900 dark:text-white" data-testid={`node-name-${node.id}`}>{node.name}</span>
         <span className={typeBadgeClass(node.type)}>{node.type}</span>
 
-        <span className="text-sm text-body">
+        <span className="text-theme-sm text-gray-500 dark:text-gray-400">
           {t('stats.voters')}:{' '}
           <VoterCountEditor
             node={node}
@@ -302,13 +302,13 @@ function TreeNode({
           />
         </span>
 
-        <span className="text-sm text-body">{t('stats.members')}: {memberCount}</span>
+        <span className="text-theme-sm text-gray-500 dark:text-gray-400">{t('stats.members')}: {memberCount}</span>
 
         <div className="ml-auto flex items-center gap-2">
           <button
             type="button"
             onClick={() => onAddChild(node)}
-            className="rounded border border-stroke px-3 py-1 text-xs font-medium text-black hover:bg-gray-50"
+            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             data-testid={`add-child-btn-${node.id}`}
           >
             {t('action.addChild')}
@@ -317,7 +317,7 @@ function TreeNode({
             <button
               type="button"
               onClick={() => onDelete(node)}
-              className="rounded border border-danger px-3 py-1 text-xs font-medium text-danger hover:bg-danger hover:text-white"
+              className="rounded-lg border border-error-300 dark:border-error-700 px-3 py-1.5 text-theme-xs font-medium text-error-600 dark:text-error-400 hover:bg-error-500 hover:text-white"
               data-testid={`delete-btn-${node.id}`}
             >
               {t('action.delete')}
@@ -422,13 +422,13 @@ export default function OrgUnits() {
 
   const content = useMemo(() => {
     if (loading) {
-      return <p className="text-sm text-body" data-testid="org-units-loading">{t('common:state.loading')}</p>
+      return <p className="text-theme-sm text-gray-500 dark:text-gray-400" data-testid="org-units-loading">{t('common:state.loading')}</p>
     }
     if (error) {
-      return <p className="text-sm text-danger" data-testid="org-units-error">{error}</p>
+      return <p className="text-theme-sm text-error-500" data-testid="org-units-error">{error}</p>
     }
     if (tree.length === 0) {
-      return <p className="text-sm text-body">{t('orgUnits:state.noOrgUnits')}</p>
+      return <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('orgUnits:state.noOrgUnits')}</p>
     }
     return (
       <ul className="flex flex-col gap-2" data-testid="org-units-tree">
@@ -449,18 +449,18 @@ export default function OrgUnits() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-black">{t('orgUnits:title')}</h2>
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('orgUnits:title')}</h2>
         <button
           type="button"
           onClick={handleAddRoot}
-          className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+          className="rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
           data-testid="add-root-unit-btn"
         >
           {t('action.addRoot')}
         </button>
       </div>
 
-      <div className="rounded-sm border border-stroke bg-white p-6 shadow-default">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm">
         {content}
       </div>
 

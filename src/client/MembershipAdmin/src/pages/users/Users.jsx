@@ -100,53 +100,53 @@ export default function Users() {
     <div className="p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-black">{t('users:title')}</h1>
-          <p className="mt-1 text-sm text-body">{t('users:subtitle')}</p>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('users:title')}</h1>
+          <p className="mt-1 text-theme-sm text-gray-500 dark:text-gray-400">{t('users:subtitle')}</p>
         </div>
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
-          className="cursor-pointer rounded-sm border border-primary bg-primary py-2 px-4 text-sm font-medium text-white transition hover:bg-opacity-90"
+          className="cursor-pointer rounded-lg border border-brand-500 bg-brand-500 hover:bg-brand-600 py-2 px-4 text-theme-sm font-medium text-white transition"
         >
           {t('users:addUser')}
         </button>
       </div>
 
-      <div className="rounded-sm border border-stroke bg-white shadow-default">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm">
         {loading ? (
-          <div className="p-6 text-sm text-body">{t('common:state.loading')}</div>
+          <div className="p-6 text-theme-sm text-gray-500 dark:text-gray-400">{t('common:state.loading')}</div>
         ) : loadError ? (
-          <div className="m-4 rounded-sm border border-danger bg-danger/10 px-4 py-2 text-sm text-danger">
+          <div className="m-4 rounded-lg border border-error-300 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-2 text-theme-sm text-error-500">
             {loadError}
           </div>
         ) : users.length === 0 ? (
-          <div className="p-6 text-sm text-body">{t('users:state.noUsers')}</div>
+          <div className="p-6 text-theme-sm text-gray-500 dark:text-gray-400">{t('users:state.noUsers')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full table-auto">
               <thead>
-                <tr className="bg-gray-2 text-left">
-                  <th className="py-4 px-4 text-sm font-medium text-black">{t('users:table.email')}</th>
-                  <th className="py-4 px-4 text-sm font-medium text-black">{t('users:table.role')}</th>
-                  <th className="py-4 px-4 text-sm font-medium text-black">{t('users:table.orgUnit')}</th>
-                  <th className="py-4 px-4 text-right text-sm font-medium text-black">{t('users:table.actions')}</th>
+                <tr className="bg-gray-50 dark:bg-gray-800/50 text-left">
+                  <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.email')}</th>
+                  <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.role')}</th>
+                  <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.orgUnit')}</th>
+                  <th className="py-4 px-4 text-right text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u.id} className="border-t border-stroke">
-                    <td className="py-3 px-4 text-sm text-black">{u.email}</td>
-                    <td className="py-3 px-4 text-sm text-black">
+                  <tr key={u.id} className="border-t border-gray-200 dark:border-gray-800">
+                    <td className="py-3 px-4 text-theme-sm text-gray-900 dark:text-white">{u.email}</td>
+                    <td className="py-3 px-4 text-theme-sm text-gray-900 dark:text-white">
                       {t(`enums:role.${ROLE_KEY[u.role] || u.role}`)}
                     </td>
-                    <td className="py-3 px-4 text-sm text-black">
+                    <td className="py-3 px-4 text-theme-sm text-gray-900 dark:text-white">
                       {u.orgUnitId ? orgUnitNameById.get(u.orgUnitId) || `#${u.orgUnitId}` : '—'}
                     </td>
-                    <td className="py-3 px-4 text-right text-sm">
+                    <td className="py-3 px-4 text-right text-theme-sm">
                       <button
                         type="button"
                         onClick={() => setEditTarget(u)}
-                        className="mr-3 cursor-pointer text-primary hover:underline"
+                        className="mr-3 cursor-pointer text-brand-500 hover:underline"
                       >
                         {t('users:action.edit')}
                       </button>
@@ -156,7 +156,7 @@ export default function Users() {
                           setDeleteError(null)
                           setDeleteTarget(u)
                         }}
-                        className="cursor-pointer text-danger hover:underline"
+                        className="cursor-pointer text-error-500 hover:underline"
                       >
                         {t('users:action.delete')}
                       </button>
@@ -212,14 +212,14 @@ export default function Users() {
 
 function ModalShell({ title, onClose, children }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8">
-      <div className="w-full max-w-lg rounded-sm border border-stroke bg-white shadow-default">
-        <div className="flex items-center justify-between border-b border-stroke px-6 py-4">
-          <h2 className="text-lg font-semibold text-black">{title}</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4 py-8">
+      <div className="w-full max-w-lg rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-xl">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer text-body hover:text-black"
+            className="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             aria-label="Close"
           >
             ✕
@@ -272,7 +272,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
     <ModalShell title={t('users:modal.addTitle')} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate data-testid="create-user-form">
         <div className="mb-4">
-          <label htmlFor="create-email" className="mb-2 block text-sm font-medium text-black">{t('users:form.email')}</label>
+          <label htmlFor="create-email" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('users:form.email')}</label>
           <input
             id="create-email"
             type="email"
@@ -281,13 +281,13 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
               required: t('users:validation.emailRequired'),
               pattern: { value: /^\S+@\S+\.\S+$/, message: t('users:validation.emailInvalid') },
             })}
-            className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
           />
-          {errors.email && <p className="mt-1 text-sm text-danger">{errors.email.message}</p>}
+          {errors.email && <p className="mt-1 text-theme-sm text-error-500">{errors.email.message}</p>}
         </div>
 
         <div className="mb-4">
-          <label htmlFor="create-password" className="mb-2 block text-sm font-medium text-black">{t('users:form.password')}</label>
+          <label htmlFor="create-password" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('users:form.password')}</label>
           <input
             id="create-password"
             type="password"
@@ -296,19 +296,19 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
               required: t('users:validation.passwordRequired'),
               minLength: { value: 6, message: t('users:validation.passwordMinLength') },
             })}
-            className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
           />
           {errors.password && (
-            <p className="mt-1 text-sm text-danger">{errors.password.message}</p>
+            <p className="mt-1 text-theme-sm text-error-500">{errors.password.message}</p>
           )}
         </div>
 
         <div className="mb-4">
-          <label htmlFor="create-role" className="mb-2 block text-sm font-medium text-black">{t('users:form.role')}</label>
+          <label htmlFor="create-role" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('users:form.role')}</label>
           <select
             id="create-role"
             {...register('role', { required: t('users:validation.roleRequired') })}
-            className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
           >
             {ROLES.map((r) => (
               <option key={r} value={r}>
@@ -316,11 +316,11 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
               </option>
             ))}
           </select>
-          {errors.role && <p className="mt-1 text-sm text-danger">{errors.role.message}</p>}
+          {errors.role && <p className="mt-1 text-theme-sm text-error-500">{errors.role.message}</p>}
         </div>
 
         <div className="mb-4">
-          <label htmlFor="create-orgUnitId" className="mb-2 block text-sm font-medium text-black">
+          <label htmlFor="create-orgUnitId" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">
             {t('users:form.orgUnit')}{orgUnitRequired ? ' *' : ''}
           </label>
           <select
@@ -329,7 +329,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
               validate: (v) =>
                 !orgUnitRequired || (v !== '' && v != null) || t('users:form.selectOrgUnit'),
             })}
-            className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
           >
             <option value="">{t('users:form.noOrgUnit')}</option>
             {orgUnitOptions.map((o) => (
@@ -340,12 +340,12 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
             ))}
           </select>
           {errors.orgUnitId && (
-            <p className="mt-1 text-sm text-danger">{errors.orgUnitId.message}</p>
+            <p className="mt-1 text-theme-sm text-error-500">{errors.orgUnitId.message}</p>
           )}
         </div>
 
         {serverErrors.length > 0 && (
-          <div className="mb-4 rounded-sm border border-danger bg-danger/10 px-4 py-2 text-sm text-danger">
+          <div className="mb-4 rounded-lg border border-error-300 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-2 text-theme-sm text-error-500">
             <ul className="list-disc pl-4">
               {serverErrors.map((m, i) => (
                 <li key={i}>{m}</li>
@@ -358,14 +358,14 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer rounded-sm border border-stroke py-2 px-4 text-sm text-black hover:bg-gray-2"
+            className="cursor-pointer rounded-lg border border-gray-300 dark:border-gray-700 py-2 px-4 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
           >
             {t('users:action.cancel')}
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="cursor-pointer rounded-sm border border-primary bg-primary py-2 px-4 text-sm text-white hover:bg-opacity-90 disabled:opacity-60"
+            className="cursor-pointer rounded-lg border border-brand-500 bg-brand-500 hover:bg-brand-600 py-2 px-4 text-theme-sm text-white disabled:opacity-60"
           >
             {isSubmitting ? t('users:action.saving') : t('users:action.save')}
           </button>
@@ -415,11 +415,11 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
     <ModalShell title={`${t('users:modal.editTitle')} — ${user.email}`} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate data-testid="edit-user-form">
         <div className="mb-4">
-          <label htmlFor="edit-role" className="mb-2 block text-sm font-medium text-black">{t('users:form.role')}</label>
+          <label htmlFor="edit-role" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('users:form.role')}</label>
           <select
             id="edit-role"
             {...register('role', { required: t('users:validation.roleRequired') })}
-            className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
           >
             {ROLES.map((r) => (
               <option key={r} value={r}>
@@ -427,11 +427,11 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
               </option>
             ))}
           </select>
-          {errors.role && <p className="mt-1 text-sm text-danger">{errors.role.message}</p>}
+          {errors.role && <p className="mt-1 text-theme-sm text-error-500">{errors.role.message}</p>}
         </div>
 
         <div className="mb-4">
-          <label htmlFor="edit-orgUnitId" className="mb-2 block text-sm font-medium text-black">
+          <label htmlFor="edit-orgUnitId" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">
             {t('users:form.orgUnit')}{orgUnitRequired ? ' *' : ''}
           </label>
           <select
@@ -440,7 +440,7 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
               validate: (v) =>
                 !orgUnitRequired || (v !== '' && v != null) || t('users:form.selectOrgUnit'),
             })}
-            className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
           >
             <option value="">{t('users:form.noOrgUnit')}</option>
             {orgUnitOptions.map((o) => (
@@ -451,12 +451,12 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
             ))}
           </select>
           {errors.orgUnitId && (
-            <p className="mt-1 text-sm text-danger">{errors.orgUnitId.message}</p>
+            <p className="mt-1 text-theme-sm text-error-500">{errors.orgUnitId.message}</p>
           )}
         </div>
 
         {serverErrors.length > 0 && (
-          <div className="mb-4 rounded-sm border border-danger bg-danger/10 px-4 py-2 text-sm text-danger">
+          <div className="mb-4 rounded-lg border border-error-300 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-2 text-theme-sm text-error-500">
             <ul className="list-disc pl-4">
               {serverErrors.map((m, i) => (
                 <li key={i}>{m}</li>
@@ -469,14 +469,14 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer rounded-sm border border-stroke py-2 px-4 text-sm text-black hover:bg-gray-2"
+            className="cursor-pointer rounded-lg border border-gray-300 dark:border-gray-700 py-2 px-4 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
           >
             {t('users:action.cancel')}
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="cursor-pointer rounded-sm border border-primary bg-primary py-2 px-4 text-sm text-white hover:bg-opacity-90 disabled:opacity-60"
+            className="cursor-pointer rounded-lg border border-brand-500 bg-brand-500 hover:bg-brand-600 py-2 px-4 text-theme-sm text-white disabled:opacity-60"
           >
             {isSubmitting ? t('users:action.saving') : t('users:action.save')}
           </button>
@@ -490,9 +490,9 @@ function ConfirmModal({ title, message, confirmLabel, confirmDisabled, onCancel,
   const { t } = useTranslation('users')
   return (
     <ModalShell title={title} onClose={onCancel}>
-      <p className="mb-4 text-sm text-black">{message}</p>
+      <p className="mb-4 text-theme-sm text-gray-900 dark:text-white">{message}</p>
       {error && (
-        <div className="mb-4 rounded-sm border border-danger bg-danger/10 px-4 py-2 text-sm text-danger">
+        <div className="mb-4 rounded-lg border border-error-300 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-2 text-theme-sm text-error-500">
           {error}
         </div>
       )}
@@ -500,7 +500,7 @@ function ConfirmModal({ title, message, confirmLabel, confirmDisabled, onCancel,
         <button
           type="button"
           onClick={onCancel}
-          className="cursor-pointer rounded-sm border border-stroke py-2 px-4 text-sm text-black hover:bg-gray-2"
+          className="cursor-pointer rounded-lg border border-gray-300 dark:border-gray-700 py-2 px-4 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
         >
           {cancelLabel || t('action.cancel')}
         </button>
@@ -508,7 +508,7 @@ function ConfirmModal({ title, message, confirmLabel, confirmDisabled, onCancel,
           type="button"
           onClick={onConfirm}
           disabled={confirmDisabled}
-          className="cursor-pointer rounded-sm border border-danger bg-danger py-2 px-4 text-sm text-white hover:bg-opacity-90 disabled:opacity-60"
+          className="cursor-pointer rounded-lg border border-error-300 dark:border-error-700 bg-error-500 hover:bg-error-600 py-2 px-4 text-theme-sm text-white disabled:opacity-60"
         >
           {confirmLabel}
         </button>
