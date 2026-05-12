@@ -1,0 +1,38 @@
+{
+  "gender": {
+    "male": "Male",
+    "female": "Female"
+  },
+  "maritalStatus": {
+    "single": "Single",
+    "married": "Married",
+    "divorced": "Divorced",
+    "widowed": "Widowed"
+  },
+  "educationLevel": {
+    "primary": "Primary",
+    "secondary": "Secondary",
+    "higher": "Higher",
+    "university": "University",
+    "masters": "Masters",
+    "doctorate": "Doctorate"
+  },
+  "phoneType": {
+    "mobile": "Mobile",
+    "landline": "Landline",
+    "business": "Business"
+  },
+  "formStatus": {
+    "pending": "Pending",
+    "verified": "Verified",
+    "rejected": "Rejected"
+  },
+  "all": "All",
+  "role": {
+    "superAdmin": "Super Admin",
+    "admin": "Admin",
+    "localAdmin": "Local Admin",
+    "operator": "Operator",
+    "viewer": "Viewer"
+  }
+}

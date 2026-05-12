@@ -1,0 +1,29 @@
+{
+  "title": "Functions",
+  "placeholder": "New function name",
+  "adding": "Adding…",
+  "add": "Add",
+  "saving": "Saving…",
+  "save": "Save",
+  "cancel": "Cancel",
+  "edit": "Edit",
+  "delete": "Delete",
+  "deleting": "Deleting…",
+  "state": {
+    "noFunctions": "No functions yet.",
+    "loadFailed": "Failed to load functions."
+  },
+  "error": {
+    "createFailed": "Failed to create function.",
+    "updateFailed": "Failed to update function.",
+    "deleteFailed": "Failed to delete function.",
+    "deleteInUse": "This function is in use by one or more members and cannot be deleted."
+  },
+  "confirm": {
+    "delete": "Delete this function?"
+  },
+  "table": {
+    "name": "Name",
+    "actions": "Actions"
+  }
+}

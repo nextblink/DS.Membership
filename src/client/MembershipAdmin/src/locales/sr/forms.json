@@ -1,0 +1,73 @@
+{
+  "title": "Обрасци",
+  "uploadForm": "Додај образац",
+  "filter": {
+    "formNumber": "Број обрасца",
+    "orgUnit": "Орг. јединица",
+    "status": "Статус",
+    "memberName": "Иmе члана",
+    "placeholderFormNumber": "нпр. Ф-12345",
+    "placeholderMemberName": "Иmе или презиме",
+    "all": "Сви"
+  },
+  "table": {
+    "formNumber": "Број обрасца",
+    "memberName": "Иmе члана",
+    "orgUnit": "Орг. јединица",
+    "scanDate": "Датум скенирања",
+    "status": "Статус",
+    "uploadedBy": "Додао"
+  },
+  "state": {
+    "noForms": "Нема образаца.",
+    "loadFailed": "Учитавање образаца није успело."
+  },
+  "pagination": {
+    "showing": "Приказује се страна {{page}} од {{total}} ({{count}} укупно)"
+  },
+  "detail": {
+    "metadata": "Метаподаци",
+    "formNumber": "Број обрасца",
+    "formDate": "Датум обрасца",
+    "municipalBoard": "Општински одбор",
+    "scanDate": "Датум скенирања",
+    "orgUnit": "Орг. јединица",
+    "uploadedBy": "Додао",
+    "status": "Статус",
+    "images": "Слике",
+    "addImages": "+ Додај слике",
+    "noImages": "Нема слика.",
+    "member": "Члан",
+    "noMember": "Нема повезаног члана.",
+    "backToList": "Назад на листу",
+    "deleteForm": "Обриши образац",
+    "deleteFormConfirm": "Обрисати овај образац?",
+    "deleteImageConfirm": "Обрисати ову слику?",
+    "verify": "Верификуј",
+    "reject": "Одбиј",
+    "loadFailed": "Учитавање обрасца није успело.",
+    "notFound": "Образац није пронађен."
+  },
+  "upload": {
+    "title": "Додај образац",
+    "metadata": "Метаподаци",
+    "formNumber": "Број обрасца",
+    "formDate": "Датум обрасца",
+    "municipalBoard": "Општински одбор",
+    "scanDate": "Датум скенирања",
+    "scanDateRequired": "Датум скенирања *",
+    "member": "Члан (опционално)",
+    "memberSearch": "Претражи по имену…",
+    "memberChange": "Промени",
+    "images": "Слике",
+    "dropzone": "Превуци и пусти фајлове овде, или кликни да прегледаш",
+    "dropzoneHint": "Прихватљиво: jpg, png, webp, pdf — макс. 10 MB по фајлу",
+    "filesSelected": "{{count}} фајл(ова) одабрано — превуци да промениш редослед.",
+    "submit": "Пошаљи",
+    "uploading": "Слање…",
+    "validation": {
+      "scanDateRequired": "Датум скенирања је обавезан.",
+      "imagesRequired": "Потребна је барем једна слика."
+    }
+  }
+}

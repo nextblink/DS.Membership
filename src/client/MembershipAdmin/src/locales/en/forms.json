@@ -1,0 +1,73 @@
+{
+  "title": "Forms",
+  "uploadForm": "Upload Form",
+  "filter": {
+    "formNumber": "Form Number",
+    "orgUnit": "Org Unit",
+    "status": "Status",
+    "memberName": "Member Name",
+    "placeholderFormNumber": "e.g. F-12345",
+    "placeholderMemberName": "First or last name",
+    "all": "All"
+  },
+  "table": {
+    "formNumber": "Form Number",
+    "memberName": "Member Name",
+    "orgUnit": "Org Unit",
+    "scanDate": "Scan Date",
+    "status": "Status",
+    "uploadedBy": "Uploaded By"
+  },
+  "state": {
+    "noForms": "No forms found.",
+    "loadFailed": "Failed to load forms"
+  },
+  "pagination": {
+    "showing": "Showing page {{page}} of {{total}} ({{count}} total)"
+  },
+  "detail": {
+    "metadata": "Metadata",
+    "formNumber": "Form Number",
+    "formDate": "Form Date",
+    "municipalBoard": "Municipal Board",
+    "scanDate": "Scan Date",
+    "orgUnit": "Org Unit",
+    "uploadedBy": "Uploaded By",
+    "status": "Status",
+    "images": "Images",
+    "addImages": "+ Add images",
+    "noImages": "No images.",
+    "member": "Member",
+    "noMember": "No linked member.",
+    "backToList": "Back to list",
+    "deleteForm": "Delete Form",
+    "deleteFormConfirm": "Delete this form?",
+    "deleteImageConfirm": "Delete this image?",
+    "verify": "Verify",
+    "reject": "Reject",
+    "loadFailed": "Failed to load form",
+    "notFound": "Form not found."
+  },
+  "upload": {
+    "title": "Upload Form",
+    "metadata": "Metadata",
+    "formNumber": "Form Number",
+    "formDate": "Form Date",
+    "municipalBoard": "Municipal Board",
+    "scanDate": "Scan Date",
+    "scanDateRequired": "Scan Date *",
+    "member": "Member (optional)",
+    "memberSearch": "Search by first name…",
+    "memberChange": "Change",
+    "images": "Images",
+    "dropzone": "Drag & drop files here, or click to browse",
+    "dropzoneHint": "Accepted: jpg, png, webp, pdf — max 10 MB each",
+    "filesSelected": "{{count}} file(s) selected — drag thumbnails to reorder.",
+    "submit": "Upload",
+    "uploading": "Uploading…",
+    "validation": {
+      "scanDateRequired": "Scan Date is required.",
+      "imagesRequired": "At least one image is required."
+    }
+  }
+}

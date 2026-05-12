@@ -1,0 +1,25 @@
+{
+  "title": "Dashboard",
+  "stats": {
+    "totalMembers": "Total Members",
+    "verifiedForms": "Verified Forms",
+    "pendingForms": "Pending Forms",
+    "orgUnits": "Org Units",
+    "formsTotal": "{{count}} forms total"
+  },
+  "orgTable": {
+    "title": "Members by Org Unit",
+    "orgUnit": "Org Unit",
+    "members": "Members",
+    "voters": "Voters",
+    "percentage": "%",
+    "noData": "No data"
+  },
+  "chart": {
+    "title": "Forms by Status",
+    "noForms": "No forms yet"
+  },
+  "error": {
+    "loadFailed": "Failed to load dashboard"
+  }
+}

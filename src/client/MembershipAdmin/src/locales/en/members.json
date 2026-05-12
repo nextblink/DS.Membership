@@ -1,0 +1,99 @@
+{
+  "title": "Members",
+  "addMember": "Add Member",
+  "newMember": "New Member",
+  "editMember": "Edit Member",
+  "filter": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "jmbg": "JMBG",
+    "orgUnit": "Org Unit",
+    "function": "Function",
+    "educationLevel": "Education Level",
+    "occupation": "Occupation"
+  },
+  "table": {
+    "fullName": "Full Name",
+    "jmbg": "JMBG",
+    "orgUnit": "Org Unit",
+    "membershipDate": "Membership Date",
+    "functions": "Functions"
+  },
+  "state": {
+    "noMembers": "No members found.",
+    "loadFailed": "Failed to load members"
+  },
+  "form": {
+    "personal": "Personal",
+    "contact": "Contact",
+    "membership": "Membership",
+    "employment": "Employment",
+    "education": "Education",
+    "linkedForms": "Linked Forms",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "parentName": "Parent Name",
+    "dateOfBirth": "Date of Birth",
+    "jmbg": "JMBG",
+    "gender": "Gender",
+    "maritalStatus": "Marital Status",
+    "postalCode": "Postal Code",
+    "city": "City",
+    "email": "Email",
+    "phones": "Phones",
+    "addPhone": "+ Add Phone",
+    "noPhones": "No phones added.",
+    "removePhone": "Remove",
+    "orgUnit": "Org Unit",
+    "membershipDate": "Membership Date",
+    "votingPlaceNumber": "Voting Place Number",
+    "functions": "Functions",
+    "addFunction": "+ Add Function",
+    "noFunctions": "No functions assigned.",
+    "removeFunction": "Remove",
+    "occupation": "Occupation",
+    "jobTitle": "Job Title",
+    "companyName": "Company Name",
+    "companyCity": "Company City",
+    "isPublicCompany": "Is Public Company",
+    "educationLevel": "Education Level",
+    "selectOrgUnit": "-- Select --",
+    "loadingOrgUnit": "Loading...",
+    "selectFunction": "-- Select Function --",
+    "phoneNumber": "Number"
+  },
+  "validation": {
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "dateOfBirthRequired": "Date of birth is required",
+    "jmbgRequired": "JMBG is required",
+    "jmbgLength": "JMBG must be 13 digits",
+    "membershipDateRequired": "Membership date is required",
+    "orgUnitRequired": "Org Unit is required",
+    "jmbgTaken": "A member with this JMBG already exists.",
+    "emailInvalid": "Invalid email",
+    "phoneRequired": "Required"
+  },
+  "error": {
+    "loadFailed": "Failed to load member.",
+    "saveFailed": "Failed to create member.",
+    "saveChangesFailed": "Failed to save changes.",
+    "deleteFailed": "Failed to delete member.",
+    "notFound": "Not found."
+  },
+  "detail": {
+    "back": "Back",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "deleteConfirm": "Delete this member? This cannot be undone.",
+    "backToMembers": "Back to Members",
+    "noLinkedForms": "No linked forms.",
+    "assigned": "assigned"
+  },
+  "submit": {
+    "create": "Create Member",
+    "save": "Save Changes",
+    "saving": "Saving..."
+  }
+}

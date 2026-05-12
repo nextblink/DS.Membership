@@ -1,0 +1,34 @@
+{
+  "title": "Org Units",
+  "addCity": "Add City",
+  "addMunicipal": "Add Municipal",
+  "form": {
+    "name": "Name",
+    "voterCount": "Voter Count",
+    "parent": "Parent Unit",
+    "type": "Type",
+    "nameRequired": "Name is required",
+    "typeRequired": "Type is required"
+  },
+  "type": {
+    "city": "City",
+    "municipal": "Municipal"
+  },
+  "state": {
+    "noOrgUnits": "No org units found.",
+    "loadFailed": "Failed to load org units."
+  },
+  "error": {
+    "saveFailed": "Failed to save org unit.",
+    "deleteFailed": "Failed to delete org unit.",
+    "deleteRestricted": "Cannot delete — has child units or members."
+  },
+  "action": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "deleteConfirm": "Delete this org unit?"
+  }
+}

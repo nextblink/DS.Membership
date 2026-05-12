@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "mainMenu": "Главни мени",
+    "account": "Налог",
+    "dashboard": "Почетна",
+    "members": "Чланови",
+    "forms": "Обрасци",
+    "orgUnits": "Орг. јединице",
+    "functions": "Функције",
+    "users": "Корисници",
+    "profile": "Профил"
+  },
+  "button": {
+    "apply": "Примени",
+    "clear": "Поништи",
+    "save": "Сачувај",
+    "cancel": "Откажи",
+    "edit": "Измени",
+    "delete": "Обриши",
+    "retry": "Покушај поново",
+    "prev": "Претходна",
+    "next": "Следећа",
+    "add": "Додај",
+    "search": "Претражи",
+    "back": "Назад"
+  },
+  "state": {
+    "loading": "Учитавање...",
+    "noData": "Нема података."
+  },
+  "pagination": {
+    "summary": "{{count}} укупно · страна {{page}} од {{total}}"
+  },
+  "header": {
+    "logout": "Одјава",
+    "adminPanel": "Администрација"
+  }
+}

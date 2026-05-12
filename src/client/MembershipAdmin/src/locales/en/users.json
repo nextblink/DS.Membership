@@ -1,0 +1,48 @@
+{
+  "title": "Users",
+  "addUser": "Add User",
+  "table": {
+    "email": "Email",
+    "role": "Role",
+    "orgUnit": "Org Unit",
+    "actions": "Actions"
+  },
+  "form": {
+    "email": "Email",
+    "password": "Password",
+    "role": "Role",
+    "orgUnit": "Org Unit",
+    "selectRole": "-- Select Role --",
+    "selectOrgUnit": "-- Select Org Unit --",
+    "noOrgUnit": "None"
+  },
+  "state": {
+    "noUsers": "No users found.",
+    "loadFailed": "Failed to load users."
+  },
+  "error": {
+    "saveFailed": "Failed to save user.",
+    "deleteFailed": "Failed to delete user.",
+    "createFailed": "Failed to create user."
+  },
+  "validation": {
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "roleRequired": "Role is required"
+  },
+  "confirm": {
+    "delete": "Delete this user?"
+  },
+  "action": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "deleting": "Deleting…"
+  },
+  "modal": {
+    "addTitle": "Add User",
+    "editTitle": "Edit User"
+  }
+}

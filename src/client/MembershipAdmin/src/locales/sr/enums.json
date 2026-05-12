@@ -1,0 +1,38 @@
+{
+  "gender": {
+    "male": "Мушки",
+    "female": "Женски"
+  },
+  "maritalStatus": {
+    "single": "Неожењен/Неудата",
+    "married": "Ожењен/Удата",
+    "divorced": "Разведен/а",
+    "widowed": "Удовац/Удовица"
+  },
+  "educationLevel": {
+    "primary": "Основна школа",
+    "secondary": "Средња школа",
+    "higher": "Виша школа",
+    "university": "Факултет",
+    "masters": "Мастер",
+    "doctorate": "Докторат"
+  },
+  "phoneType": {
+    "mobile": "Мобилни",
+    "landline": "Фиксни",
+    "business": "Пословни"
+  },
+  "formStatus": {
+    "pending": "На чекању",
+    "verified": "Верификован",
+    "rejected": "Одбијен"
+  },
+  "all": "Сви",
+  "role": {
+    "superAdmin": "Суперадмин",
+    "admin": "Админ",
+    "localAdmin": "Локални админ",
+    "operator": "Оператер",
+    "viewer": "Прегледач"
+  }
+}

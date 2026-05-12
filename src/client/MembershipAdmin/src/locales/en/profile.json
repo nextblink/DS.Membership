@@ -1,0 +1,34 @@
+{
+  "title": "Profile",
+  "account": "Account",
+  "fields": {
+    "email": "Email",
+    "role": "Role",
+    "orgUnit": "Org Unit",
+    "userId": "User ID"
+  },
+  "changePassword": {
+    "title": "Change password",
+    "current": "Current password",
+    "new": "New password",
+    "confirm": "Confirm new password",
+    "submit": "Change password",
+    "submitting": "Changing…",
+    "success": "Password changed successfully.",
+    "notSupported": "Change password is not yet supported by the server."
+  },
+  "validation": {
+    "currentRequired": "Current password is required",
+    "newRequired": "New password is required",
+    "newMinLength": "New password must be at least 6 characters",
+    "confirmRequired": "Please confirm the new password",
+    "confirmMismatch": "Passwords do not match"
+  },
+  "error": {
+    "loadFailed": "Failed to load profile.",
+    "changeFailed": "Failed to change password."
+  },
+  "state": {
+    "loading": "Loading…"
+  }
+}

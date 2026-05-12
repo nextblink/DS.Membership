@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "mainMenu": "Main Menu",
+    "account": "Account",
+    "dashboard": "Dashboard",
+    "members": "Members",
+    "forms": "Forms",
+    "orgUnits": "Org Units",
+    "functions": "Functions",
+    "users": "Users",
+    "profile": "Profile"
+  },
+  "button": {
+    "apply": "Apply",
+    "clear": "Clear",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "retry": "Retry",
+    "prev": "Prev",
+    "next": "Next",
+    "add": "Add",
+    "search": "Search",
+    "back": "Back"
+  },
+  "state": {
+    "loading": "Loading...",
+    "noData": "No data found."
+  },
+  "pagination": {
+    "summary": "{{count}} total · page {{page}} of {{total}}"
+  },
+  "header": {
+    "logout": "Logout",
+    "adminPanel": "Admin Panel"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "title": "Чланови",
+  "addMember": "Додај члана",
+  "newMember": "Нови члан",
+  "editMember": "Измени члана",
+  "filter": {
+    "firstName": "Иmе",
+    "lastName": "Презиме",
+    "jmbg": "ЈМБГ",
+    "orgUnit": "Орг. јединица",
+    "function": "Функција",
+    "educationLevel": "Степен образовања",
+    "occupation": "Занимање"
+  },
+  "table": {
+    "fullName": "Пуно иmе",
+    "jmbg": "ЈМБГ",
+    "orgUnit": "Орг. јединица",
+    "membershipDate": "Датум чланства",
+    "functions": "Функције"
+  },
+  "state": {
+    "noMembers": "Нема чланова.",
+    "loadFailed": "Учитавање чланова није успело."
+  },
+  "form": {
+    "personal": "Лични подаци",
+    "contact": "Контакт",
+    "membership": "Чланство",
+    "employment": "Запослење",
+    "education": "Образовање",
+    "linkedForms": "Повезани обрасци",
+    "firstName": "Иmе",
+    "lastName": "Презиме",
+    "parentName": "Иmе родитеља",
+    "dateOfBirth": "Датум рођења",
+    "jmbg": "ЈМБГ",
+    "gender": "Пол",
+    "maritalStatus": "Брачни статус",
+    "postalCode": "Поштански број",
+    "city": "Град",
+    "email": "Имејл",
+    "phones": "Телефони",
+    "addPhone": "+ Додај телефон",
+    "noPhones": "Нема додатих телефона.",
+    "removePhone": "Уклони",
+    "orgUnit": "Орг. јединица",
+    "membershipDate": "Датум чланства",
+    "votingPlaceNumber": "Број бирачког места",
+    "functions": "Функције",
+    "addFunction": "+ Додај функцију",
+    "noFunctions": "Нема додељених функција.",
+    "removeFunction": "Уклони",
+    "occupation": "Занимање",
+    "jobTitle": "Радно место",
+    "companyName": "Назив фирме",
+    "companyCity": "Град фирме",
+    "isPublicCompany": "Јавно предузеће",
+    "educationLevel": "Степен образовања",
+    "selectOrgUnit": "-- Одабери --",
+    "loadingOrgUnit": "Учитавање...",
+    "selectFunction": "-- Одабери функцију --",
+    "phoneNumber": "Број"
+  },
+  "validation": {
+    "firstNameRequired": "Иmе је обавезно",
+    "lastNameRequired": "Презиме је обавезно",
+    "dateOfBirthRequired": "Датум рођења је обавезан",
+    "jmbgRequired": "ЈМБГ је обавезан",
+    "jmbgLength": "ЈМБГ мора имати 13 цифара",
+    "membershipDateRequired": "Датум чланства је обавезан",
+    "orgUnitRequired": "Орг. јединица је обавезна",
+    "jmbgTaken": "Члан са овим ЈМБГ већ постоји.",
+    "emailInvalid": "Неисправан имејл",
+    "phoneRequired": "Обавезно"
+  },
+  "error": {
+    "loadFailed": "Учитавање члана није успело.",
+    "saveFailed": "Креирање члана није успело.",
+    "saveChangesFailed": "Чување измена није успело.",
+    "deleteFailed": "Брисање члана није успело.",
+    "notFound": "Није пронађено."
+  },
+  "detail": {
+    "back": "Назад",
+    "edit": "Измени",
+    "delete": "Обриши",
+    "deleting": "Брисање...",
+    "deleteConfirm": "Обрисати овог члана? Ова акција је неповратна.",
+    "backToMembers": "Назад на чланове",
+    "noLinkedForms": "Нема повезаних образаца.",
+    "assigned": "додељено"
+  },
+  "submit": {
+    "create": "Креирај члана",
+    "save": "Сачувај измене",
+    "saving": "Чување..."
+  }
+}
