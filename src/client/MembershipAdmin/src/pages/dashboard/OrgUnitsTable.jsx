@@ -1,12 +1,6 @@
 // Sortable table of org units with member/voter counts and membership %.
 import { useMemo, useState } from 'react'
-
-const columns = [
-  { key: 'name', label: 'OrgUnit', numeric: false },
-  { key: 'memberCount', label: 'Members', numeric: true },
-  { key: 'voterCount', label: 'Voters', numeric: true },
-  { key: 'percentage', label: '%', numeric: true },
-]
+import { useTranslation } from 'react-i18next'
 
 function computePercentage(row) {
   if (typeof row.percentage === 'number') return row.percentage
@@ -15,6 +9,13 @@ function computePercentage(row) {
 }
 
 export default function OrgUnitsTable({ rows }) {
+  const { t } = useTranslation('dashboard')
+  const columns = [
+    { key: 'name', label: t('orgTable.orgUnit'), numeric: false },
+    { key: 'memberCount', label: t('orgTable.members'), numeric: true },
+    { key: 'voterCount', label: t('orgTable.voters'), numeric: true },
+    { key: 'percentage', label: t('orgTable.percentage'), numeric: true },
+  ]
   const [sortKey, setSortKey] = useState('memberCount')
   const [sortDir, setSortDir] = useState('desc')
 
@@ -63,7 +64,7 @@ export default function OrgUnitsTable({ rows }) {
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5">
       <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
-        Members by Org Unit
+        {t('orgTable.title')}
       </h4>
       <div className="max-w-full overflow-x-auto">
         <table className="w-full table-auto">
@@ -98,7 +99,7 @@ export default function OrgUnitsTable({ rows }) {
                   colSpan={columns.length}
                   className="px-4 py-6 text-center text-sm text-body"
                 >
-                  No data
+                  {t('orgTable.noData')}
                 </td>
               </tr>
             ) : (

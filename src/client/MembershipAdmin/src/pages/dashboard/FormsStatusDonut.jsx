@@ -1,5 +1,6 @@
 // Donut chart of Forms by status using recharts PieChart.
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
+import { useTranslation } from 'react-i18next'
 
 const STATUS_COLORS = {
   Pending: '#FFA70B', // warning
@@ -8,10 +9,11 @@ const STATUS_COLORS = {
 }
 
 export default function FormsStatusDonut({ formsByStatus }) {
+  const { t } = useTranslation(['dashboard', 'enums'])
   const data = [
-    { name: 'Pending', value: formsByStatus?.pending ?? 0 },
-    { name: 'Verified', value: formsByStatus?.verified ?? 0 },
-    { name: 'Rejected', value: formsByStatus?.rejected ?? 0 },
+    { name: 'Pending', label: t('enums:formStatus.pending'), value: formsByStatus?.pending ?? 0 },
+    { name: 'Verified', label: t('enums:formStatus.verified'), value: formsByStatus?.verified ?? 0 },
+    { name: 'Rejected', label: t('enums:formStatus.rejected'), value: formsByStatus?.rejected ?? 0 },
   ]
   const total = data.reduce((sum, d) => sum + d.value, 0)
 
@@ -20,7 +22,7 @@ export default function FormsStatusDonut({ formsByStatus }) {
       <div className="mb-3 justify-between gap-4 sm:flex">
         <div>
           <h5 className="text-xl font-semibold text-black dark:text-white">
-            Forms by Status
+            {t('dashboard:chart.title')}
           </h5>
         </div>
       </div>
@@ -28,7 +30,7 @@ export default function FormsStatusDonut({ formsByStatus }) {
         <div className="mx-auto flex h-[280px] w-full justify-center">
           {total === 0 ? (
             <div className="flex items-center justify-center text-sm text-body">
-              No forms yet
+              {t('dashboard:chart.noForms')}
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
@@ -36,7 +38,7 @@ export default function FormsStatusDonut({ formsByStatus }) {
                 <Pie
                   data={data}
                   dataKey="value"
-                  nameKey="name"
+                  nameKey="label"
                   cx="50%"
                   cy="50%"
                   innerRadius={70}
@@ -71,7 +73,7 @@ export default function FormsStatusDonut({ formsByStatus }) {
                 style={{ backgroundColor: STATUS_COLORS[d.name] }}
               />
               <span className="text-sm font-medium text-black dark:text-white">
-                {d.name}
+                {d.label}
               </span>
               <span className="text-sm text-body">
                 {d.value.toLocaleString()} ({pct.toFixed(1)}%)

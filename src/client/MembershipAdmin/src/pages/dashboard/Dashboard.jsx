@@ -1,5 +1,6 @@
 // Dashboard page: total members, sortable org-unit table, and forms-status donut.
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import StatsCard from './StatsCard'
 import OrgUnitsTable from './OrgUnitsTable'
@@ -53,10 +54,11 @@ function LoadingState() {
 }
 
 function ErrorState({ message, onRetry }) {
+  const { t } = useTranslation(['dashboard', 'common'])
   return (
     <div className="rounded-sm border border-danger/30 bg-danger/5 p-6 text-center shadow-default">
       <h3 className="mb-2 text-lg font-semibold text-danger">
-        Failed to load dashboard
+        {t('error.loadFailed')}
       </h3>
       <p className="mb-4 text-sm text-body">{message}</p>
       <button
@@ -64,13 +66,14 @@ function ErrorState({ message, onRetry }) {
         onClick={onRetry}
         className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-2 text-center font-medium text-white hover:bg-opacity-90"
       >
-        Retry
+        {t('common:button.retry')}
       </button>
     </div>
   )
 }
 
 export default function Dashboard() {
+  const { t } = useTranslation(['dashboard', 'common'])
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -106,7 +109,7 @@ export default function Dashboard() {
     return (
       <div>
         <h2 className="mb-6 text-2xl font-semibold text-black dark:text-white">
-          Dashboard
+          {t('title')}
         </h2>
         <LoadingState />
       </div>
@@ -117,7 +120,7 @@ export default function Dashboard() {
     return (
       <div>
         <h2 className="mb-6 text-2xl font-semibold text-black dark:text-white">
-          Dashboard
+          {t('title')}
         </h2>
         <ErrorState
           message={error}
@@ -143,23 +146,50 @@ export default function Dashboard() {
   return (
     <div>
       <h2 className="mb-6 text-2xl font-semibold text-black dark:text-white">
-        Dashboard
+        {t('title')}
       </h2>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-        <StatsCard label="Total Members" value={totalMembers.toLocaleString()} />
         <StatsCard
-          label="Verified Forms"
+          label={t('stats.totalMembers')}
+          value={totalMembers.toLocaleString()}
+          iconColor="bg-primary/10"
+          icon={
+            <svg className="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-5.13a4 4 0 11-8 0 4 4 0 018 0zm6 0a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          }
+        />
+        <StatsCard
+          label={t('stats.verifiedForms')}
           value={(formsByStatus.verified ?? 0).toLocaleString()}
+          iconColor="bg-success/10"
+          icon={
+            <svg className="h-6 w-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          }
         />
         <StatsCard
-          label="Pending Forms"
+          label={t('stats.pendingForms')}
           value={(formsByStatus.pending ?? 0).toLocaleString()}
+          iconColor="bg-warning/10"
+          icon={
+            <svg className="h-6 w-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          }
         />
         <StatsCard
-          label="Org Units"
+          label={t('stats.orgUnits')}
           value={orgUnitCount.toLocaleString()}
-          sublabel={`${totalForms.toLocaleString()} forms total`}
+          sublabel={t('stats.formsTotal', { count: totalForms.toLocaleString() })}
+          iconColor="bg-danger/10"
+          icon={
+            <svg className="h-6 w-6 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          }
         />
       </div>
 
