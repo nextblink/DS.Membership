@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { QRCodeSVG } from 'qrcode.react'
 import api from '../../framework/api'
 
 const STATUSES = ['Pending', 'Verified', 'Rejected']
@@ -50,6 +51,29 @@ export default function FormsList() {
   const [error, setError] = useState(null)
 
   const [orgUnits, setOrgUnits] = useState([])
+
+  const [qrOpen, setQrOpen] = useState(false)
+  const [qrToken, setQrToken] = useState(null)
+  const [qrExpiry, setQrExpiry] = useState(null)
+  const [qrError, setQrError] = useState(null)
+  const [qrLoading, setQrLoading] = useState(false)
+
+  const openQr = async () => {
+    setQrToken(null)
+    setQrError(null)
+    setQrExpiry(null)
+    setQrLoading(true)
+    setQrOpen(true)
+    try {
+      const res = await api.post('/api/forms/qr-token')
+      setQrToken(res.data.token)
+      setQrExpiry(res.data.expiresAt)
+    } catch {
+      setQrError('Could not generate upload link. Please try again.')
+    } finally {
+      setQrLoading(false)
+    }
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -150,15 +174,29 @@ export default function FormsList() {
       {/* Card header */}
       <div className="flex items-center justify-between border-b border-stroke px-5 pt-6 pb-4">
         <h1 className="text-xl font-semibold text-black">{t('forms:title')}</h1>
-        <Link
-          to="/forms/new"
-          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          {t('forms:uploadForm')}
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={openQr}
+            className="inline-flex items-center gap-2 rounded-md border border-stroke px-3 py-2 text-sm font-medium text-body hover:text-primary"
+            title="Upload from Phone"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 3.5V16M4 4h4v4H4V4zm12 0h4v4h-4V4zM4 16h4v4H4v-4z" />
+            </svg>
+            Upload from Phone
+          </button>
+          <Link
+            to="/forms/new"
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            {t('forms:uploadForm')}
+          </Link>
+        </div>
       </div>
 
       {/* Filter row */}
@@ -342,6 +380,47 @@ export default function FormsList() {
           </button>
         </div>
       </div>
+
+      {qrOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="relative w-full max-w-sm rounded-sm border border-stroke bg-white p-8 shadow-default">
+            <button
+              type="button"
+              onClick={() => setQrOpen(false)}
+              className="absolute right-4 top-4 text-body hover:text-black"
+              aria-label="Close"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <h3 className="mb-4 text-lg font-semibold text-black">Upload from Phone</h3>
+            {qrLoading && (
+              <div className="flex justify-center py-8">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+              </div>
+            )}
+            {qrError && <p className="text-sm text-danger">{qrError}</p>}
+            {qrToken && !qrLoading && (
+              <>
+                <div className="flex justify-center mb-4">
+                  <QRCodeSVG
+                    value={`${window.location.origin}/m/upload?token=${encodeURIComponent(qrToken)}`}
+                    size={220}
+                    level="M"
+                  />
+                </div>
+                <p className="text-center text-xs text-body">Scan with your phone to upload photos.</p>
+                {qrExpiry && (
+                  <p className="mt-1 text-center text-xs text-bodydark2">
+                    Valid until {new Date(qrExpiry).toLocaleTimeString()}
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
