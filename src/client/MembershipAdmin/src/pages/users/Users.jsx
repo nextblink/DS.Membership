@@ -101,7 +101,7 @@ export default function Users() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-black">{t('users:title')}</h1>
-          <p className="mt-1 text-sm text-body">Manage admin and operator accounts.</p>
+          <p className="mt-1 text-sm text-body">{t('users:subtitle')}</p>
         </div>
         <button
           type="button"
@@ -279,7 +279,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
             autoComplete="off"
             {...register('email', {
               required: t('users:validation.emailRequired'),
-              pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email address' },
+              pattern: { value: /^\S+@\S+\.\S+$/, message: t('users:validation.emailInvalid') },
             })}
             className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
           />
@@ -294,7 +294,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
             autoComplete="new-password"
             {...register('password', {
               required: t('users:validation.passwordRequired'),
-              minLength: { value: 6, message: 'Password must be at least 6 characters' },
+              minLength: { value: 6, message: t('users:validation.passwordMinLength') },
             })}
             className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
           />

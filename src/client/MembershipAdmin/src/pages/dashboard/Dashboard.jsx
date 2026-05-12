@@ -94,7 +94,7 @@ export default function Dashboard() {
         const msg =
           err?.response?.data?.message ||
           err?.message ||
-          'Unable to load dashboard stats.'
+          t('error.loadFailed')
         setError(msg)
       })
       .finally(() => {

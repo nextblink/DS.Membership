@@ -27,7 +27,7 @@ function flattenOrgUnits(data) {
 export default function MembersList() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { t } = useTranslation(['members', 'common'])
+  const { t } = useTranslation(['members', 'common', 'enums'])
 
   // Local form state mirrors URL params so users can type without firing a request per keystroke.
   const [draft, setDraft] = useState(() => ({
@@ -193,7 +193,7 @@ export default function MembersList() {
               value={draft.orgUnitId}
               onChange={(e) => update('orgUnitId', e.target.value)}
             >
-              <option value="">All</option>
+              <option value="">{t('enums:all')}</option>
               {orgUnits.map((o) => (
                 <option key={o.id} value={o.id}>
                   {o.label}
@@ -208,7 +208,7 @@ export default function MembersList() {
               value={draft.functionId}
               onChange={(e) => update('functionId', e.target.value)}
             >
-              <option value="">All</option>
+              <option value="">{t('enums:all')}</option>
               {functionsList.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}
@@ -223,7 +223,7 @@ export default function MembersList() {
               value={draft.educationLevel}
               onChange={(e) => update('educationLevel', e.target.value)}
             >
-              <option value="">All</option>
+              <option value="">{t('enums:all')}</option>
               {EDUCATION_LEVEL_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
                   {o.label}

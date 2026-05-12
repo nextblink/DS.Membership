@@ -214,7 +214,7 @@ export default function MemberDetails() {
           <Field label={t('members:form.jobTitle')}>{member.jobTitle}</Field>
           <Field label={t('members:form.companyName')}>{member.companyName}</Field>
           <Field label={t('members:form.companyCity')}>{member.companyCity}</Field>
-          <Field label={t('members:form.isPublicCompany')}>{member.isPublicCompany ? 'Yes' : 'No'}</Field>
+          <Field label={t('members:form.isPublicCompany')}>{member.isPublicCompany ? t('common:bool.yes') : t('common:bool.no')}</Field>
         </div>
       </section>
 
@@ -240,8 +240,8 @@ export default function MemberDetails() {
                 <Link to={`/forms/${f.id}`} className="text-primary hover:underline">
                   {f.formNumber || `Form #${f.id}`}
                 </Link>
-                {f.status ? ` — ${f.status}` : ''}
-                {f.scanDate ? ` (scanned ${f.scanDate})` : ''}
+                {f.status ? ` — ${t(`enums:formStatus.${f.status.toLowerCase()}`)}` : ''}
+                {f.scanDate ? ` (${t('members:detail.scanned')} ${f.scanDate})` : ''}
               </li>
             ))}
           </ul>

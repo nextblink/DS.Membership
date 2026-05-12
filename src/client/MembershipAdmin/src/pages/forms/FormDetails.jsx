@@ -110,7 +110,7 @@ export default function FormDetails() {
       await api.patch(`/api/forms/${id}/status`, { status: statusToInt(status) })
       await load()
     } catch (err) {
-      alert(err?.response?.data?.message || err.message || 'Status update failed')
+      alert(err?.response?.data?.message || err.message || t('forms:detail.statusUpdateFailed'))
     } finally {
       setBusy(false)
     }
@@ -129,7 +129,7 @@ export default function FormDetails() {
       })
       await load()
     } catch (err) {
-      alert(err?.response?.data?.message || err.message || 'Image upload failed')
+      alert(err?.response?.data?.message || err.message || t('forms:detail.imageUploadFailed'))
     } finally {
       setBusy(false)
     }
@@ -143,7 +143,7 @@ export default function FormDetails() {
       await api.delete(`/api/forms/${id}/images/${imageId}`)
       await load()
     } catch (err) {
-      alert(err?.response?.data?.message || err.message || 'Image delete failed')
+      alert(err?.response?.data?.message || err.message || t('forms:detail.imageDeleteFailed'))
     } finally {
       setBusy(false)
     }
@@ -167,7 +167,7 @@ export default function FormDetails() {
     <div className="p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 data-testid="form-title" className="text-2xl font-semibold text-black">
-          Form {form.formNumber || `#${form.id}`}
+          {t('forms:detail.formLabel')} {form.formNumber || `#${form.id}`}
         </h1>
         <div className="flex gap-2">
           {isAdmin && (
@@ -182,7 +182,7 @@ export default function FormDetails() {
                   await api.delete(`/api/forms/${id}`)
                   navigate('/forms')
                 } catch (err) {
-                  alert(err?.response?.data?.message || err.message || 'Delete failed')
+                  alert(err?.response?.data?.message || err.message || t('forms:detail.deleteFailed'))
                 } finally {
                   setBusy(false)
                 }
@@ -334,7 +334,7 @@ export default function FormDetails() {
                 </div>
                 <div className="mt-1 text-xs text-body">JMBG: {member.jmbg}</div>
                 {member.orgUnit?.name && (
-                  <div className="text-xs text-body">Org Unit: {member.orgUnit.name}</div>
+                  <div className="text-xs text-body">{t('forms:detail.orgUnitLabel')}: {member.orgUnit.name}</div>
                 )}
               </Link>
             ) : (

@@ -205,7 +205,7 @@ export default function FormsList() {
               <option value="">{t('enums:all')}</option>
               {STATUSES.map((s) => (
                 <option key={s} value={s}>
-                  {s}
+                  {t(`enums:formStatus.${s.toLowerCase()}`)}
                 </option>
               ))}
             </select>

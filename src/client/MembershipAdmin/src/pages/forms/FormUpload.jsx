@@ -90,11 +90,11 @@ export default function FormUpload() {
     const errors = []
     for (const f of list) {
       if (!ACCEPTED.includes(f.type)) {
-        errors.push(`${f.name}: unsupported type`)
+        errors.push(t('forms:upload.unsupportedType', { name: f.name }))
         continue
       }
       if (f.size > MAX_SIZE) {
-        errors.push(`${f.name}: exceeds 10 MB`)
+        errors.push(t('forms:upload.exceedsMaxSize', { name: f.name }))
         continue
       }
       accepted.push({
@@ -183,7 +183,7 @@ export default function FormUpload() {
       if (newId) navigate(`/forms/${newId}`)
       else navigate('/forms')
     } catch (err) {
-      setError(err?.response?.data?.message || err?.response?.data?.title || err.message || 'Upload failed')
+      setError(err?.response?.data?.message || err?.response?.data?.title || err.message || t('forms:upload.uploadFailed'))
     } finally {
       setSubmitting(false)
     }

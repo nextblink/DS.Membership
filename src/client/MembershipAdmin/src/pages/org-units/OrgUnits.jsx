@@ -117,7 +117,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
       <div className="w-full max-w-md rounded-sm border border-stroke bg-white shadow-default">
         <div className="border-b border-stroke px-6 py-4">
           <h3 className="text-lg font-semibold text-black">
-            {parent ? `Add child unit under "${parent.name}"` : 'Add root unit'}
+            {parent ? t('modal.addChildTitle', { parentName: parent.name }) : t('modal.addRootTitle')}
           </h3>
         </div>
         <form onSubmit={handleSubmit} className="px-6 py-4">
@@ -186,6 +186,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
 }
 
 function VoterCountEditor({ node, onSave }) {
+  const { t } = useTranslation('orgUnits')
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState(String(node.voterCount ?? 0))
   const [saving, setSaving] = useState(false)
@@ -198,7 +199,7 @@ function VoterCountEditor({ node, onSave }) {
   const commit = async () => {
     const parsed = Number(value)
     if (!Number.isFinite(parsed) || parsed < 0) {
-      setError('Invalid number')
+      setError(t('form.voterCountInvalid'))
       setValue(String(node.voterCount ?? 0))
       setEditing(false)
       return
@@ -213,7 +214,7 @@ function VoterCountEditor({ node, onSave }) {
       await onSave(parsed)
       setEditing(false)
     } catch (err) {
-      setError(err?.response?.data?.message || 'Save failed')
+      setError(err?.response?.data?.message || t('form.saveFailed'))
       setValue(String(node.voterCount ?? 0))
     } finally {
       setSaving(false)
@@ -243,7 +244,7 @@ function VoterCountEditor({ node, onSave }) {
           className="w-24 rounded border border-stroke bg-white px-2 py-0.5 text-sm outline-none focus:border-primary"
           data-testid={`voter-count-input-${node.id}`}
         />
-        {saving && <span className="text-xs text-body">saving...</span>}
+        {saving && <span className="text-xs text-body">{t('action.saving')}</span>}
       </span>
     )
   }
@@ -252,7 +253,7 @@ function VoterCountEditor({ node, onSave }) {
     <button
       type="button"
       onClick={() => setEditing(true)}
-      title="Click to edit voter count"
+      title={t('form.voterCountTooltip')}
       className="rounded px-2 py-0.5 text-sm text-black hover:bg-gray-100"
       data-testid={`voter-count-display-${node.id}`}
     >
@@ -294,14 +295,14 @@ function TreeNode({
         <span className={typeBadgeClass(node.type)}>{node.type}</span>
 
         <span className="text-sm text-body">
-          Voters:{' '}
+          {t('stats.voters')}:{' '}
           <VoterCountEditor
             node={node}
             onSave={(v) => onSaveVoterCount(node, v)}
           />
         </span>
 
-        <span className="text-sm text-body">Members: {memberCount}</span>
+        <span className="text-sm text-body">{t('stats.members')}: {memberCount}</span>
 
         <div className="ml-auto flex items-center gap-2">
           <button
@@ -310,7 +311,7 @@ function TreeNode({
             className="rounded border border-stroke px-3 py-1 text-xs font-medium text-black hover:bg-gray-50"
             data-testid={`add-child-btn-${node.id}`}
           >
-            + Add child unit
+            {t('action.addChild')}
           </button>
           {!hasChildren && (
             <button
@@ -455,7 +456,7 @@ export default function OrgUnits() {
           className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
           data-testid="add-root-unit-btn"
         >
-          + Add root unit
+          {t('action.addRoot')}
         </button>
       </div>
 
