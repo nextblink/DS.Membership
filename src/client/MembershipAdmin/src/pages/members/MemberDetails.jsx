@@ -172,10 +172,10 @@ export default function MemberDetails() {
           {phones.length === 0 ? (
             <p className="text-theme-sm text-gray-500 dark:text-gray-400">—</p>
           ) : (
-            <ul className="mt-1 text-sm text-black list-disc pl-5">
+            <ul className="mt-1 text-theme-sm text-gray-900 dark:text-white list-disc pl-5">
               {phones.map((p) => (
                 <li key={p.id}>
-                  {p.number} <span className="text-body">({t(`enums:phoneType.${p.type.toLowerCase()}`)})</span>
+                  {p.number} <span className="text-gray-500 dark:text-gray-400">({t(`enums:phoneType.${p.type.toLowerCase()}`)})</span>
                 </li>
               ))}
             </ul>
@@ -195,7 +195,7 @@ export default function MemberDetails() {
           {fns.length === 0 ? (
             <p className="text-theme-sm text-gray-500 dark:text-gray-400">—</p>
           ) : (
-            <ul className="mt-1 text-sm text-black list-disc pl-5">
+            <ul className="mt-1 text-theme-sm text-gray-900 dark:text-white list-disc pl-5">
               {fns.map((f) => (
                 <li key={f.id}>
                   {f.function?.name ?? f.functionName ?? f.name}
@@ -234,7 +234,7 @@ export default function MemberDetails() {
         ) : forms.length === 0 ? (
           <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('members:detail.noLinkedForms')}</p>
         ) : (
-          <ul className="text-sm text-black list-disc pl-5">
+          <ul className="text-theme-sm text-gray-900 dark:text-white list-disc pl-5">
             {forms.map((f) => (
               <li key={f.id}>
                 <Link to={`/forms/${f.id}`} className="text-brand-500 hover:underline">
