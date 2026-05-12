@@ -3,6 +3,7 @@
 // Renders the OrgUnit hierarchy (City -> Municipal) from GET /api/orgunits.
 // Supports inline VoterCount edit, add-root, add-child, and leaf delete.
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 
 const TYPE_CITY = 'City'
@@ -70,6 +71,7 @@ function removeNode(tree, id) {
 }
 
 function AddUnitModal({ open, parent, onClose, onSubmit }) {
+  const { t } = useTranslation('orgUnits')
   const [name, setName] = useState('')
   const [type, setType] = useState(parent ? TYPE_MUNICIPAL : TYPE_CITY)
   const [voterCount, setVoterCount] = useState(0)
@@ -90,7 +92,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!name.trim()) {
-      setError('Name is required')
+      setError(t('form.nameRequired'))
       return
     }
     setSubmitting(true)
@@ -104,7 +106,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
       })
       onClose()
     } catch (err) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to create unit')
+      setError(err?.response?.data?.message || err?.message || t('error.saveFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -120,7 +122,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
         </div>
         <form onSubmit={handleSubmit} className="px-6 py-4">
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium text-black">Name</label>
+            <label className="mb-2 block text-sm font-medium text-black">{t('form.name')}</label>
             <input
               type="text"
               value={name}
@@ -131,20 +133,20 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
             />
           </div>
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium text-black">Type</label>
+            <label className="mb-2 block text-sm font-medium text-black">{t('form.type')}</label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
               className="w-full rounded border border-stroke bg-transparent px-4 py-2 outline-none focus:border-primary"
               data-testid="modal-type-select"
             >
-              <option value={TYPE_CITY}>City</option>
-              <option value={TYPE_MUNICIPAL}>Municipal</option>
+              <option value={TYPE_CITY}>{t('type.city')}</option>
+              <option value={TYPE_MUNICIPAL}>{t('type.municipal')}</option>
             </select>
           </div>
           <div className="mb-4">
             <label className="mb-2 block text-sm font-medium text-black">
-              Voter Count
+              {t('form.voterCount')}
             </label>
             <input
               type="number"
@@ -166,7 +168,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
               disabled={submitting}
               data-testid="modal-cancel"
             >
-              Cancel
+              {t('action.cancel')}
             </button>
             <button
               type="submit"
@@ -174,7 +176,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
               disabled={submitting}
               data-testid="modal-save"
             >
-              {submitting ? 'Saving...' : 'Save'}
+              {submitting ? t('action.saving') : t('action.save')}
             </button>
           </div>
         </form>
@@ -267,6 +269,7 @@ function TreeNode({
   onSaveVoterCount,
   onDelete,
 }) {
+  const { t } = useTranslation('orgUnits')
   const [expanded, setExpanded] = useState(true)
   const hasChildren = node.children && node.children.length > 0
   const memberCount = node.memberCount ?? node.members?.length ?? 0
@@ -316,7 +319,7 @@ function TreeNode({
               className="rounded border border-danger px-3 py-1 text-xs font-medium text-danger hover:bg-danger hover:text-white"
               data-testid={`delete-btn-${node.id}`}
             >
-              Delete
+              {t('action.delete')}
             </button>
           )}
         </div>
@@ -341,6 +344,7 @@ function TreeNode({
 }
 
 export default function OrgUnits() {
+  const { t } = useTranslation(['orgUnits', 'common'])
   const [tree, setTree] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -353,11 +357,11 @@ export default function OrgUnits() {
       const res = await api.get('/api/orgunits')
       setTree(buildTree(res.data))
     } catch (err) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to load org units')
+      setError(err?.response?.data?.message || err?.message || t('orgUnits:state.loadFailed'))
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [t])
 
   useEffect(() => {
     load()
@@ -400,30 +404,30 @@ export default function OrgUnits() {
   }, [])
 
   const handleDelete = useCallback(async (node) => {
-    if (!window.confirm(`Delete "${node.name}"? This cannot be undone.`)) return
+    if (!window.confirm(t('orgUnits:action.deleteConfirm'))) return
     try {
       await api.delete(`/api/orgunits/${node.id}`)
       setTree((prev) => removeNode(prev, node.id))
     } catch (err) {
       if (err?.response?.status === 409) {
-        window.alert('Cannot delete unit with children')
+        window.alert(t('orgUnits:error.deleteRestricted'))
       } else {
         window.alert(
-          err?.response?.data?.message || err?.message || 'Failed to delete unit',
+          err?.response?.data?.message || err?.message || t('orgUnits:error.deleteFailed'),
         )
       }
     }
-  }, [])
+  }, [t])
 
   const content = useMemo(() => {
     if (loading) {
-      return <p className="text-sm text-body" data-testid="org-units-loading">Loading...</p>
+      return <p className="text-sm text-body" data-testid="org-units-loading">{t('common:state.loading')}</p>
     }
     if (error) {
       return <p className="text-sm text-danger" data-testid="org-units-error">{error}</p>
     }
     if (tree.length === 0) {
-      return <p className="text-sm text-body">No org units yet. Click "Add root unit" to create one.</p>
+      return <p className="text-sm text-body">{t('orgUnits:state.noOrgUnits')}</p>
     }
     return (
       <ul className="flex flex-col gap-2" data-testid="org-units-tree">
@@ -439,12 +443,12 @@ export default function OrgUnits() {
         ))}
       </ul>
     )
-  }, [loading, error, tree, handleAddChild, handleSaveVoterCount, handleDelete])
+  }, [loading, error, tree, handleAddChild, handleSaveVoterCount, handleDelete, t])
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-black">Org Units</h2>
+        <h2 className="text-2xl font-semibold text-black">{t('orgUnits:title')}</h2>
         <button
           type="button"
           onClick={handleAddRoot}

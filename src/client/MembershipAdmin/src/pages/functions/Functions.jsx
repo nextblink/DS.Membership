@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 
 export default function Functions() {
+  const { t } = useTranslation(['functions', 'common'])
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -26,7 +28,7 @@ export default function Functions() {
       const list = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : []
       setItems(list)
     } catch (e) {
-      setError(extractError(e) || 'Failed to load functions.')
+      setError(extractError(e) || t('state.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -57,7 +59,7 @@ export default function Functions() {
       setNewName('')
       await load()
     } catch (e) {
-      setError(extractError(e) || 'Failed to create function.')
+      setError(extractError(e) || t('error.createFailed'))
     } finally {
       setAdding(false)
     }
@@ -84,14 +86,14 @@ export default function Functions() {
       setEditName('')
       await load()
     } catch (e) {
-      setError(extractError(e) || 'Failed to update function.')
+      setError(extractError(e) || t('error.updateFailed'))
     } finally {
       setSavingId(null)
     }
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Delete this function?')) return
+    if (!window.confirm(t('confirm.delete'))) return
     setDeletingId(id)
     setError(null)
     try {
@@ -99,12 +101,9 @@ export default function Functions() {
       await load()
     } catch (e) {
       if (e?.response?.status === 409) {
-        setError(
-          extractError(e) ||
-            'This function is in use by one or more members and cannot be deleted.',
-        )
+        setError(extractError(e) || t('error.deleteInUse'))
       } else {
-        setError(extractError(e) || 'Failed to delete function.')
+        setError(extractError(e) || t('error.deleteFailed'))
       }
     } finally {
       setDeletingId(null)
@@ -113,30 +112,29 @@ export default function Functions() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-black">Functions</h2>
-      </div>
-
       {error && (
         <div data-testid="functions-error" className="mb-4 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      <div className="rounded-sm border border-stroke bg-white shadow-sm">
+      <div className="rounded-sm border border-stroke bg-white shadow-default overflow-hidden">
+        <div className="flex items-center justify-between border-b border-stroke px-5 pt-6 pb-4">
+          <h2 className="text-xl font-semibold text-black">{t('title')}</h2>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full table-auto">
             <thead>
-              <tr className="bg-gray-100 text-left">
-                <th className="px-4 py-3 text-sm font-semibold text-black">Name</th>
-                <th className="w-64 px-4 py-3 text-right text-sm font-semibold text-black">
-                  Actions
+              <tr className="bg-gray-2 text-left">
+                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-body">{t('table.name')}</th>
+                <th className="w-64 px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-body">
+                  {t('table.actions')}
                 </th>
               </tr>
             </thead>
             <tbody>
               {/* Inline add row */}
-              <tr data-testid="functions-add-row" className="border-t border-stroke bg-gray-50">
+              <tr data-testid="functions-add-row" className="border-t border-stroke bg-gray-2">
                 <td className="px-4 py-3">
                   <form onSubmit={handleAdd}>
                     <input
@@ -144,7 +142,7 @@ export default function Functions() {
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
-                      placeholder="New function name"
+                      placeholder={t('placeholder')}
                       className="w-full rounded-sm border border-stroke bg-white px-3 py-2 text-sm text-black focus:border-primary focus:outline-none"
                       disabled={adding}
                     />
@@ -158,7 +156,7 @@ export default function Functions() {
                     disabled={adding || !newName.trim()}
                     className="inline-flex items-center rounded-sm bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {adding ? 'Adding…' : 'Add'}
+                    {adding ? t('adding') : t('add')}
                   </button>
                 </td>
               </tr>
@@ -166,7 +164,7 @@ export default function Functions() {
               {loading && (
                 <tr className="border-t border-stroke">
                   <td className="px-4 py-6 text-sm text-body" colSpan={2}>
-                    Loading…
+                    {t('common:state.loading')}
                   </td>
                 </tr>
               )}
@@ -174,7 +172,7 @@ export default function Functions() {
               {!loading && items.length === 0 && (
                 <tr className="border-t border-stroke">
                   <td className="px-4 py-6 text-sm text-body" colSpan={2}>
-                    No functions yet.
+                    {t('state.noFunctions')}
                   </td>
                 </tr>
               )}
@@ -211,7 +209,7 @@ export default function Functions() {
                               disabled={isSaving || !editName.trim()}
                               className="inline-flex items-center rounded-sm bg-primary px-3 py-1.5 text-sm font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                              {isSaving ? 'Saving…' : 'Save'}
+                              {isSaving ? t('saving') : t('save')}
                             </button>
                             <button
                               data-testid={`functions-cancel-btn-${item.id}`}
@@ -220,7 +218,7 @@ export default function Functions() {
                               disabled={isSaving}
                               className="inline-flex items-center rounded-sm border border-stroke bg-white px-3 py-1.5 text-sm font-medium text-black hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                              Cancel
+                              {t('cancel')}
                             </button>
                           </div>
                         ) : (
@@ -232,7 +230,7 @@ export default function Functions() {
                               disabled={isDeleting}
                               className="inline-flex items-center rounded-sm border border-stroke bg-white px-3 py-1.5 text-sm font-medium text-black hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                              Edit
+                              {t('edit')}
                             </button>
                             <button
                               data-testid={`functions-delete-btn-${item.id}`}
@@ -241,7 +239,7 @@ export default function Functions() {
                               disabled={isDeleting}
                               className="inline-flex items-center rounded-sm border border-red-300 bg-white px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                              {isDeleting ? 'Deleting…' : 'Delete'}
+                              {isDeleting ? t('deleting') : t('delete')}
                             </button>
                           </div>
                         )}

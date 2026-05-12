@@ -1,9 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 
 const ROLES = ['SuperAdmin', 'Admin', 'LocalAdmin', 'Operator', 'Viewer']
 const ROLES_REQUIRING_ORG_UNIT = ['LocalAdmin', 'Operator', 'Viewer']
+
+const ROLE_KEY = {
+  SuperAdmin: 'superAdmin',
+  Admin: 'admin',
+  LocalAdmin: 'localAdmin',
+  Operator: 'operator',
+  Viewer: 'viewer',
+}
 
 function flattenOrgUnits(units, depth = 0, acc = []) {
   if (!Array.isArray(units)) return acc
@@ -33,6 +42,7 @@ function extractErrorMessages(err) {
 }
 
 export default function Users() {
+  const { t } = useTranslation(['users', 'enums', 'common'])
   const [users, setUsers] = useState([])
   const [orgUnits, setOrgUnits] = useState([])
   const [loading, setLoading] = useState(true)
@@ -90,7 +100,7 @@ export default function Users() {
     <div className="p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-black">Users</h1>
+          <h1 className="text-2xl font-semibold text-black">{t('users:title')}</h1>
           <p className="mt-1 text-sm text-body">Manage admin and operator accounts.</p>
         </div>
         <button
@@ -98,35 +108,37 @@ export default function Users() {
           onClick={() => setCreateOpen(true)}
           className="cursor-pointer rounded-sm border border-primary bg-primary py-2 px-4 text-sm font-medium text-white transition hover:bg-opacity-90"
         >
-          Create user
+          {t('users:addUser')}
         </button>
       </div>
 
       <div className="rounded-sm border border-stroke bg-white shadow-default">
         {loading ? (
-          <div className="p-6 text-sm text-body">Loading…</div>
+          <div className="p-6 text-sm text-body">{t('common:state.loading')}</div>
         ) : loadError ? (
           <div className="m-4 rounded-sm border border-danger bg-danger/10 px-4 py-2 text-sm text-danger">
             {loadError}
           </div>
         ) : users.length === 0 ? (
-          <div className="p-6 text-sm text-body">No users found.</div>
+          <div className="p-6 text-sm text-body">{t('users:state.noUsers')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full table-auto">
               <thead>
                 <tr className="bg-gray-2 text-left">
-                  <th className="py-4 px-4 text-sm font-medium text-black">Email</th>
-                  <th className="py-4 px-4 text-sm font-medium text-black">Role</th>
-                  <th className="py-4 px-4 text-sm font-medium text-black">Org Unit</th>
-                  <th className="py-4 px-4 text-right text-sm font-medium text-black">Actions</th>
+                  <th className="py-4 px-4 text-sm font-medium text-black">{t('users:table.email')}</th>
+                  <th className="py-4 px-4 text-sm font-medium text-black">{t('users:table.role')}</th>
+                  <th className="py-4 px-4 text-sm font-medium text-black">{t('users:table.orgUnit')}</th>
+                  <th className="py-4 px-4 text-right text-sm font-medium text-black">{t('users:table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((u) => (
                   <tr key={u.id} className="border-t border-stroke">
                     <td className="py-3 px-4 text-sm text-black">{u.email}</td>
-                    <td className="py-3 px-4 text-sm text-black">{u.role}</td>
+                    <td className="py-3 px-4 text-sm text-black">
+                      {t(`enums:role.${ROLE_KEY[u.role] || u.role}`)}
+                    </td>
                     <td className="py-3 px-4 text-sm text-black">
                       {u.orgUnitId ? orgUnitNameById.get(u.orgUnitId) || `#${u.orgUnitId}` : '—'}
                     </td>
@@ -136,7 +148,7 @@ export default function Users() {
                         onClick={() => setEditTarget(u)}
                         className="mr-3 cursor-pointer text-primary hover:underline"
                       >
-                        Edit
+                        {t('users:action.edit')}
                       </button>
                       <button
                         type="button"
@@ -146,7 +158,7 @@ export default function Users() {
                         }}
                         className="cursor-pointer text-danger hover:underline"
                       >
-                        Delete
+                        {t('users:action.delete')}
                       </button>
                     </td>
                   </tr>
@@ -182,15 +194,16 @@ export default function Users() {
 
       {deleteTarget && (
         <ConfirmModal
-          title="Delete user"
-          message={`Delete user "${deleteTarget.email}"? This cannot be undone.`}
-          confirmLabel={deleting ? 'Deleting…' : 'Delete'}
+          title={t('users:action.delete')}
+          message={`${t('users:confirm.delete')} "${deleteTarget.email}"`}
+          confirmLabel={deleting ? t('users:action.deleting') : t('users:action.delete')}
           confirmDisabled={deleting}
           onCancel={() => {
             if (!deleting) setDeleteTarget(null)
           }}
           onConfirm={handleConfirmDelete}
           error={deleteError}
+          cancelLabel={t('users:action.cancel')}
         />
       )}
     </div>
@@ -219,6 +232,7 @@ function ModalShell({ title, onClose, children }) {
 }
 
 function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
+  const { t } = useTranslation(['users', 'enums'])
   const [serverErrors, setServerErrors] = useState([])
   const {
     register,
@@ -245,7 +259,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
     } catch (err) {
       const status = err?.response?.status
       if (status === 409) {
-        setServerErrors(['A user with this email already exists.'])
+        setServerErrors([t('users:error.createFailed')])
       } else if (status === 400) {
         setServerErrors(extractErrorMessages(err))
       } else {
@@ -255,16 +269,16 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
   }
 
   return (
-    <ModalShell title="Create user" onClose={onClose}>
+    <ModalShell title={t('users:modal.addTitle')} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate data-testid="create-user-form">
         <div className="mb-4">
-          <label htmlFor="create-email" className="mb-2 block text-sm font-medium text-black">Email</label>
+          <label htmlFor="create-email" className="mb-2 block text-sm font-medium text-black">{t('users:form.email')}</label>
           <input
             id="create-email"
             type="email"
             autoComplete="off"
             {...register('email', {
-              required: 'Email is required',
+              required: t('users:validation.emailRequired'),
               pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email address' },
             })}
             className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
@@ -273,13 +287,13 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="create-password" className="mb-2 block text-sm font-medium text-black">Password</label>
+          <label htmlFor="create-password" className="mb-2 block text-sm font-medium text-black">{t('users:form.password')}</label>
           <input
             id="create-password"
             type="password"
             autoComplete="new-password"
             {...register('password', {
-              required: 'Password is required',
+              required: t('users:validation.passwordRequired'),
               minLength: { value: 6, message: 'Password must be at least 6 characters' },
             })}
             className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
@@ -290,15 +304,15 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="create-role" className="mb-2 block text-sm font-medium text-black">Role</label>
+          <label htmlFor="create-role" className="mb-2 block text-sm font-medium text-black">{t('users:form.role')}</label>
           <select
             id="create-role"
-            {...register('role', { required: 'Role is required' })}
+            {...register('role', { required: t('users:validation.roleRequired') })}
             className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
           >
             {ROLES.map((r) => (
               <option key={r} value={r}>
-                {r}
+                {t(`enums:role.${ROLE_KEY[r] || r}`)}
               </option>
             ))}
           </select>
@@ -307,20 +321,20 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
 
         <div className="mb-4">
           <label htmlFor="create-orgUnitId" className="mb-2 block text-sm font-medium text-black">
-            Org Unit{orgUnitRequired ? ' *' : ''}
+            {t('users:form.orgUnit')}{orgUnitRequired ? ' *' : ''}
           </label>
           <select
             id="create-orgUnitId"
             {...register('orgUnitId', {
               validate: (v) =>
-                !orgUnitRequired || (v !== '' && v != null) || 'Org Unit is required for this role',
+                !orgUnitRequired || (v !== '' && v != null) || t('users:form.selectOrgUnit'),
             })}
             className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
           >
-            <option value="">— None —</option>
+            <option value="">{t('users:form.noOrgUnit')}</option>
             {orgUnitOptions.map((o) => (
               <option key={o.id} value={o.id}>
-                {' '.repeat(o.depth * 2)}
+                {' '.repeat(o.depth * 2)}
                 {o.name}
               </option>
             ))}
@@ -346,14 +360,14 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
             onClick={onClose}
             className="cursor-pointer rounded-sm border border-stroke py-2 px-4 text-sm text-black hover:bg-gray-2"
           >
-            Cancel
+            {t('users:action.cancel')}
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
             className="cursor-pointer rounded-sm border border-primary bg-primary py-2 px-4 text-sm text-white hover:bg-opacity-90 disabled:opacity-60"
           >
-            {isSubmitting ? 'Creating…' : 'Create'}
+            {isSubmitting ? t('users:action.saving') : t('users:action.save')}
           </button>
         </div>
       </form>
@@ -362,6 +376,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
 }
 
 function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
+  const { t } = useTranslation(['users', 'enums'])
   const [serverErrors, setServerErrors] = useState([])
   const {
     register,
@@ -389,7 +404,7 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
     } catch (err) {
       const status = err?.response?.status
       if (status === 409) {
-        setServerErrors(['A user with this email already exists.'])
+        setServerErrors([t('users:error.saveFailed')])
       } else {
         setServerErrors(extractErrorMessages(err))
       }
@@ -397,18 +412,18 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
   }
 
   return (
-    <ModalShell title={`Edit user — ${user.email}`} onClose={onClose}>
+    <ModalShell title={`${t('users:modal.editTitle')} — ${user.email}`} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate data-testid="edit-user-form">
         <div className="mb-4">
-          <label htmlFor="edit-role" className="mb-2 block text-sm font-medium text-black">Role</label>
+          <label htmlFor="edit-role" className="mb-2 block text-sm font-medium text-black">{t('users:form.role')}</label>
           <select
             id="edit-role"
-            {...register('role', { required: 'Role is required' })}
+            {...register('role', { required: t('users:validation.roleRequired') })}
             className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
           >
             {ROLES.map((r) => (
               <option key={r} value={r}>
-                {r}
+                {t(`enums:role.${ROLE_KEY[r] || r}`)}
               </option>
             ))}
           </select>
@@ -417,20 +432,20 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
 
         <div className="mb-4">
           <label htmlFor="edit-orgUnitId" className="mb-2 block text-sm font-medium text-black">
-            Org Unit{orgUnitRequired ? ' *' : ''}
+            {t('users:form.orgUnit')}{orgUnitRequired ? ' *' : ''}
           </label>
           <select
             id="edit-orgUnitId"
             {...register('orgUnitId', {
               validate: (v) =>
-                !orgUnitRequired || (v !== '' && v != null) || 'Org Unit is required for this role',
+                !orgUnitRequired || (v !== '' && v != null) || t('users:form.selectOrgUnit'),
             })}
             className="w-full rounded-sm border border-stroke bg-transparent py-2.5 px-3 text-black outline-none focus:border-primary"
           >
-            <option value="">— None —</option>
+            <option value="">{t('users:form.noOrgUnit')}</option>
             {orgUnitOptions.map((o) => (
               <option key={o.id} value={o.id}>
-                {' '.repeat(o.depth * 2)}
+                {' '.repeat(o.depth * 2)}
                 {o.name}
               </option>
             ))}
@@ -456,14 +471,14 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
             onClick={onClose}
             className="cursor-pointer rounded-sm border border-stroke py-2 px-4 text-sm text-black hover:bg-gray-2"
           >
-            Cancel
+            {t('users:action.cancel')}
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
             className="cursor-pointer rounded-sm border border-primary bg-primary py-2 px-4 text-sm text-white hover:bg-opacity-90 disabled:opacity-60"
           >
-            {isSubmitting ? 'Saving…' : 'Save'}
+            {isSubmitting ? t('users:action.saving') : t('users:action.save')}
           </button>
         </div>
       </form>
@@ -471,7 +486,8 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
   )
 }
 
-function ConfirmModal({ title, message, confirmLabel, confirmDisabled, onCancel, onConfirm, error }) {
+function ConfirmModal({ title, message, confirmLabel, confirmDisabled, onCancel, onConfirm, error, cancelLabel }) {
+  const { t } = useTranslation('users')
   return (
     <ModalShell title={title} onClose={onCancel}>
       <p className="mb-4 text-sm text-black">{message}</p>
@@ -486,7 +502,7 @@ function ConfirmModal({ title, message, confirmLabel, confirmDisabled, onCancel,
           onClick={onCancel}
           className="cursor-pointer rounded-sm border border-stroke py-2 px-4 text-sm text-black hover:bg-gray-2"
         >
-          Cancel
+          {cancelLabel || t('action.cancel')}
         </button>
         <button
           type="button"
