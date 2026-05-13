@@ -68,11 +68,11 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
         // ----------------------------------------------------------------------
 
         modelBuilder.Entity<Function>().HasData(
-            new Function { Id = 1, Name = "Member OB", CreatedDate = SeedDate },
-            new Function { Id = 2, Name = "President", CreatedDate = SeedDate },
-            new Function { Id = 3, Name = "Vice President", CreatedDate = SeedDate },
-            new Function { Id = 4, Name = "Secretary", CreatedDate = SeedDate },
-            new Function { Id = 5, Name = "Treasurer", CreatedDate = SeedDate },
+            new Function { Id = 1, Name = "Члан главног одбора", CreatedDate = SeedDate },
+            new Function { Id = 2, Name = "Председник", CreatedDate = SeedDate },
+            new Function { Id = 3, Name = "Потпредседник", CreatedDate = SeedDate },
+            new Function { Id = 4, Name = "Секретар", CreatedDate = SeedDate },
+            new Function { Id = 5, Name = "Благајник", CreatedDate = SeedDate },
             new Function { Id = 6, Name = "Member EC", CreatedDate = SeedDate }
         );
 

@@ -71,6 +71,11 @@ public class FormsService : IFormsService
                  || f.Member.LastName.Contains(name)));
         }
 
+        if (q.MemberId is int memberId)
+        {
+            query = query.Where(f => f.MemberId == memberId);
+        }
+
         var totalCount = await query.CountAsync(ct);
 
         var rows = await query

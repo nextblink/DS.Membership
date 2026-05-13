@@ -116,6 +116,7 @@ public class FormQuery
     public int? OrgUnitId { get; set; }
     public FormStatus? Status { get; set; }
     public string? MemberName { get; set; }
+    public int? MemberId { get; set; }
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 20;
 }

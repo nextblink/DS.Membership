@@ -1,7 +1,7 @@
 // Form details page — metadata, image gallery with fullscreen viewer,
 // status actions (Verify/Reject) for admin roles, linked member card,
 // add/delete image actions for admin roles.
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
@@ -61,6 +61,73 @@ export default function FormDetails() {
   const [busy, setBusy] = useState(false)
 
   const [viewerIndex, setViewerIndex] = useState(null) // null = closed
+
+  // Member linking
+  const [linkingMember, setLinkingMember] = useState(false)
+  const [memberQuery, setMemberQuery] = useState('')
+  const [memberSuggestions, setMemberSuggestions] = useState([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [selectedMember, setSelectedMember] = useState(null)
+  const [linkBusy, setLinkBusy] = useState(false)
+  const memberSearchTimer = useRef(null)
+
+  useEffect(() => {
+    if (!linkingMember || !memberQuery || selectedMember) {
+      setMemberSuggestions([])
+      return
+    }
+    if (memberSearchTimer.current) clearTimeout(memberSearchTimer.current)
+    memberSearchTimer.current = setTimeout(async () => {
+      try {
+        const res = await api.get('/api/members', { params: { firstName: memberQuery, pageSize: 10, page: 1 } })
+        setMemberSuggestions(res.data?.items || [])
+        setShowSuggestions(true)
+      } catch {
+        setMemberSuggestions([])
+      }
+    }, 300)
+    return () => clearTimeout(memberSearchTimer.current)
+  }, [memberQuery, selectedMember, linkingMember])
+
+  const startLinking = () => {
+    setSelectedMember(null)
+    setMemberQuery('')
+    setMemberSuggestions([])
+    setLinkingMember(true)
+  }
+
+  const cancelLinking = () => {
+    setLinkingMember(false)
+    setSelectedMember(null)
+    setMemberQuery('')
+  }
+
+  const pickMember = (m) => {
+    setSelectedMember(m)
+    setMemberQuery(`${m.firstName} ${m.lastName}`)
+    setShowSuggestions(false)
+  }
+
+  const saveLink = async (memberId) => {
+    setLinkBusy(true)
+    try {
+      const current = form
+      await api.put(`/api/forms/${id}`, {
+        formNumber: current.formNumber ?? null,
+        formDate: current.formDate ?? null,
+        municipalBoard: current.municipalBoard ?? null,
+        memberId: memberId ?? null,
+      })
+      setLinkingMember(false)
+      setSelectedMember(null)
+      setMemberQuery('')
+      await load()
+    } catch (err) {
+      alert(err?.response?.data?.message || err.message || t('forms:detail.linkFailed'))
+    } finally {
+      setLinkBusy(false)
+    }
+  }
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -318,21 +385,99 @@ export default function FormDetails() {
 
         <aside className="space-y-4">
           <section className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm p-4">
-            <h2 className="mb-3 text-theme-sm font-semibold uppercase text-gray-500 dark:text-gray-400">{t('forms:detail.member')}</h2>
-            {member ? (
-              <Link
-                data-testid="member-card"
-                to={`/members/${member.id}`}
-                className="block rounded-lg border border-gray-200 dark:border-gray-800 p-3 hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
-                <div className="text-theme-sm font-semibold text-brand-500">
-                  {member.firstName} {member.lastName}
-                </div>
-                <div className="mt-1 text-theme-xs text-gray-500 dark:text-gray-400">JMBG: {member.jmbg}</div>
-                {member.orgUnit?.name && (
-                  <div className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.orgUnitLabel')}: {member.orgUnit.name}</div>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-theme-sm font-semibold uppercase text-gray-500 dark:text-gray-400">{t('forms:detail.member')}</h2>
+              {isAdmin && !linkingMember && (
+                <button
+                  type="button"
+                  onClick={startLinking}
+                  className="text-theme-xs text-brand-500 hover:underline"
+                >
+                  {member ? t('forms:detail.memberChange') : t('forms:detail.memberLink')}
+                </button>
+              )}
+            </div>
+
+            {linkingMember ? (
+              <div className="relative">
+                {selectedMember ? (
+                  <div className="mb-2 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 px-3 py-2 text-theme-sm">
+                    <span className="font-medium">{selectedMember.firstName} {selectedMember.lastName}</span>
+                    {' '}<span className="text-gray-500 dark:text-gray-400">— JMBG {selectedMember.jmbg}</span>
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      value={memberQuery}
+                      onChange={(e) => { setMemberQuery(e.target.value); setShowSuggestions(true) }}
+                      onFocus={() => setShowSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                      placeholder={t('forms:upload.memberSearch')}
+                      autoFocus
+                      className="mb-2 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:border-brand-500"
+                    />
+                    {showSuggestions && memberSuggestions.length > 0 && (
+                      <ul className="absolute z-10 mt-0 max-h-52 w-full overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm">
+                        {memberSuggestions.map((m) => (
+                          <li
+                            key={m.id}
+                            onMouseDown={(e) => { e.preventDefault(); pickMember(m) }}
+                            className="cursor-pointer px-3 py-2 text-theme-sm text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
+                          >
+                            <span className="font-medium">{m.firstName} {m.lastName}</span>
+                            {' '}<span className="text-theme-xs text-gray-500 dark:text-gray-400">— JMBG {m.jmbg}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
                 )}
-              </Link>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={!selectedMember || linkBusy}
+                    onClick={() => saveLink(selectedMember.id)}
+                    className="rounded-lg bg-brand-500 hover:bg-brand-600 px-3 py-1.5 text-theme-xs font-medium text-white disabled:opacity-50"
+                  >
+                    {linkBusy ? t('common:button.save') + '…' : t('common:button.save')}
+                  </button>
+                  {selectedMember && (
+                    <button type="button" onClick={() => { setSelectedMember(null); setMemberQuery('') }} className="text-theme-xs text-gray-500 hover:underline">
+                      {t('forms:upload.memberChange')}
+                    </button>
+                  )}
+                  <button type="button" onClick={cancelLinking} className="text-theme-xs text-gray-500 hover:underline">
+                    {t('common:button.cancel')}
+                  </button>
+                </div>
+              </div>
+            ) : member ? (
+              <>
+                <Link
+                  data-testid="member-card"
+                  to={`/members/${member.id}`}
+                  className="block rounded-lg border border-gray-200 dark:border-gray-800 p-3 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  <div className="text-theme-sm font-semibold text-brand-500">
+                    {member.firstName} {member.lastName}
+                  </div>
+                  <div className="mt-1 text-theme-xs text-gray-500 dark:text-gray-400">JMBG: {member.jmbg}</div>
+                  {member.orgUnitName && (
+                    <div className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.orgUnitLabel')}: {member.orgUnitName}</div>
+                  )}
+                </Link>
+                {isAdmin && (
+                  <button
+                    type="button"
+                    disabled={linkBusy}
+                    onClick={() => saveLink(null)}
+                    className="mt-2 text-theme-xs text-error-500 hover:underline disabled:opacity-50"
+                  >
+                    {t('forms:detail.memberUnlink')}
+                  </button>
+                )}
+              </>
             ) : (
               <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('forms:detail.noMember')}</p>
             )}

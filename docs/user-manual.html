@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Корисничко упутство — Чланство</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #1a1a2e;
+      background: #f7f8fc;
+    }
+
+    /* Cover */
+    .cover {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%);
+      color: #fff;
+      text-align: center;
+      padding: 80px 40px 70px;
+    }
+    .cover img.logo {
+      width: 96px;
+      height: 96px;
+      object-fit: contain;
+      margin-bottom: 24px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+    }
+    .cover h1 { font-size: 2.6rem; font-weight: 700; letter-spacing: -0.5px; }
+    .cover p  { font-size: 1.1rem; opacity: 0.85; margin-top: 12px; }
+    .cover .version {
+      display: inline-block;
+      margin-top: 28px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 4px 16px;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    /* Layout */
+    .wrapper {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* TOC */
+    .toc {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 32px 36px;
+      margin: 40px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .toc h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      margin-bottom: 18px;
+    }
+    .toc ol {
+      padding-left: 20px;
+      columns: 2;
+      column-gap: 40px;
+    }
+    .toc li { margin-bottom: 8px; }
+    .toc a { color: #2563eb; text-decoration: none; font-size: 0.95rem; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* Sections */
+    .section {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 36px 40px;
+      margin-bottom: 36px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #eff3ff;
+    }
+    .section-num {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .section h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #1e3a8a;
+    }
+    .section p {
+      color: #475569;
+      margin-bottom: 14px;
+    }
+    .section ul {
+      margin: 10px 0 16px 20px;
+      color: #475569;
+    }
+    .section ul li { margin-bottom: 6px; }
+
+    /* Screenshots */
+    .screenshot-wrap {
+      margin-top: 24px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    .screenshot-wrap img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .screenshot-caption {
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      padding: 10px 16px;
+      font-size: 0.82rem;
+      color: #94a3b8;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* Two-col screenshots */
+    .screenshot-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    /* Mobile screenshot */
+    .mobile-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 24px;
+    }
+    .mobile-frame {
+      width: 320px;
+      border: 8px solid #1e293b;
+      border-radius: 36px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+    .mobile-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Tip box */
+    .tip {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      margin: 16px 0;
+      color: #1e40af;
+      font-size: 0.92rem;
+    }
+    .tip strong { display: block; margin-bottom: 2px; }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 32px 0;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 20px;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .section { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+      .cover { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Cover -->
+<div class="cover">
+  <img class="logo" src="screenshots/../../src/client/MembershipAdmin/public/assets/logo.png" alt="Лого" onerror="this.style.display='none'" />
+  <h1>Корисничко упутство</h1>
+  <p>Апликација за управљање чланством</p>
+  <span class="version">Верзија 1.0 &nbsp;·&nbsp; Мај 2026.</span>
+</div>
+
+<div class="wrapper">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Садржај</h2>
+    <ol>
+      <li><a href="#prijava">Пријава у систем</a></li>
+      <li><a href="#pocetna">Почетна страна</a></li>
+      <li><a href="#clanovi-lista">Листа чланова</a></li>
+      <li><a href="#clan-dodavanje">Додавање члана</a></li>
+      <li><a href="#clan-detalji">Детаљи члана</a></li>
+      <li><a href="#clan-izmena">Измена члана</a></li>
+      <li><a href="#obrasci-lista">Листа образаца</a></li>
+      <li><a href="#telefon-qr">Слање са телефона — QR код</a></li>
+      <li><a href="#mobilni">Мобилни унос фотографија</a></li>
+      <li><a href="#obrazac-dodavanje">Додавање обрасца</a></li>
+      <li><a href="#obrazac-detalji">Детаљи обрасца</a></li>
+      <li><a href="#org-jedinice">Организационе јединице</a></li>
+      <li><a href="#funkcije">Функције</a></li>
+      <li><a href="#korisnici">Корисници</a></li>
+      <li><a href="#profil">Профил</a></li>
+    </ol>
+  </div>
+
+  <!-- 1. Prijava -->
+  <div class="section" id="prijava">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2>Пријава у систем</h2>
+    </div>
+    <p>Приступ апликацији је заштићен корисничким налогом. Унесите своју е-адресу и лозинку и кликните <strong>Пријави се</strong>.</p>
+    <ul>
+      <li>Уколико унесете погрешне податке, приказаће се порука о грешци.</li>
+      <li>Сесија остаје активна у прегледачу. Одјавите се кликом на дугме <em>Одјава</em> у горњем десном углу.</li>
+    </ul>
+    <div class="screenshot-wrap">
+      <img src="screenshots/01-login.png" alt="Екран за пријаву" />
+      <div class="screenshot-caption">Слика 1 — Екран за пријаву</div>
+    </div>
+  </div>
+
+  <!-- 2. Pocetna -->
+  <div class="section" id="pocetna">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2>Почетна страна</h2>
+    </div>
+    <p>Почетна страна приказује преглед кључних показатеља чланства у реалном времену.</p>
+    <ul>
+      <li><strong>Статистике</strong> — укупан број чланова, образаца, организационих јединица и функција.</li>
+      <li><strong>Обрасци по статусу</strong> — графикон са бројем образаца у стању На чекању, Верификовано и Одбијено.</li>
+      <li><strong>Табела организационих јединица</strong> — преглед јединица са бројем чланова и процентом чланства.</li>
+    </ul>
+    <div class="screenshot-wrap">
+      <img src="screenshots/02-dashboard.png" alt="Почетна страна" />
+      <div class="screenshot-caption">Слика 2 — Почетна страна са статистикама</div>
+    </div>
+  </div>
+
+  <!-- 3. Clanovi lista -->
+  <div class="section" id="clanovi-lista">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2>Листа чланова</h2>
+    </div>
+    <p>Страница <strong>Чланови</strong> приказује пагинирану листу свих чланова са могућношћу претраге и филтрирања.</p>
+    <ul>
+      <li>Претражујте по имену, презимену или ЈМБГ-у.</li>
+      <li>Филтрирајте по организационој јединици.</li>
+      <li>Кликом на ред отварате детаљни приказ члана.</li>
+      <li>Дугме <em>Додај члана</em> отвара форму за унос новог члана.</li>
+    </ul>
+    <div class="screenshot-wrap">
+      <img src="screenshots/03-members-list.png" alt="Листа чланова" />
+      <div class="screenshot-caption">Слика 3 — Листа чланова</div>
+    </div>
+  </div>
+
+  <!-- 4. Dodavanje clana -->
+  <div class="section" id="clan-dodavanje">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <h2>Додавање члана</h2>
+    </div>
+    <p>Форма за унос новог члана садржи све потребне податке груписане у тематске секције.</p>
+    <ul>
+      <li><strong>Лични подаци</strong> — ime, презиме, ЈМБГ, датум рођења, пол, брачни статус.</li>
+      <li><strong>Контакт</strong> — adresa, град, е-адреса и телефони.</li>
+      <li><strong>Чланство</strong> — організациона јединица, датум учлањења, функције.</li>
+      <li><strong>Запослење</strong> — назив предузећа, радно место, занимање.</li>
+    </ul>
+    <div class="tip"><strong>Напомена:</strong> ЈМБГ мора бити јединствен у систему. Уколико унесете ЈМБГ који већ постоји, систем ће вас обавестити.</div>
+    <div class="screenshot-wrap">
+      <img src="screenshots/04-member-create.png" alt="Форма за додавање члана" />
+      <div class="screenshot-caption">Слика 4 — Форма за додавање новог члана</div>
+    </div>
+  </div>
+
+  <!-- 5. Detalji clana -->
+  <div class="section" id="clan-detalji">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <h2>Детаљи члана</h2>
+    </div>
+    <p>Страница детаља приказује све информације о члану подељене у секције. Са ове странице можете измeнити или обрисати члана, као и прегледати повезане обрасце.</p>
+    <ul>
+      <li>Одељак <strong>Повезани обрасци</strong> приказује листу образаца овог члана са статусима.</li>
+      <li>Кликом на образац отварате детаљни приказ тог обрасца.</li>
+      <li>Брисање члана је трајно — потврдите акцију у дијалогу.</li>
+    </ul>
+    <div class="screenshot-wrap">
+      <img src="screenshots/05-member-details.png" alt="Детаљи члана" />
+      <div class="screenshot-caption">Слика 5 — Детаљни приказ члана</div>
+    </div>
+  </div>
+
+  <!-- 6. Izmena clana -->
+  <div class="section" id="clan-izmena">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <h2>Измена члана</h2>
+    </div>
+    <p>Форма за измену члана идентична је форми за додавање — сви подаци су учитани и могу се уредити.</p>
+    <ul>
+      <li>Телефони се додају и уклањају директно у форми.</li>
+      <li>Функције се такође могу додавати и уклањати.</li>
+      <li>Кликните <em>Сачувај</em> да потврдите измене или <em>Откажи</em> за повратак.</li>
+    </ul>
+    <div class="screenshot-wrap">
+      <img src="screenshots/06-member-edit.png" alt="Измена члана" />
+      <div class="screenshot-caption">Слика 6 — Форма за измену члана</div>
+    </div>
+  </div>
+
+  <!-- 7. Obrasci lista -->
+  <div class="section" id="obrasci-lista">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <h2>Листа образаца</h2>
+    </div>
+    <p>Страница <strong>Обрасци</strong> приказује све скениране приступнице са могућношћу филтрирања по броју обрасца, статусу, организационој јединици и имену члана.</p>
+    <ul>
+      <li>Статуси: <em>На чекању</em>, <em>Верификовано</em>, <em>Одбијено</em>.</li>
+      <li>Дугме <em>Слање са телефона</em> отвара QR код за брзо слање са мобилног уређаја.</li>
+      <li>Дугме <em>Додај образац</em> отвара форму за ручни унос.</li>
+    </ul>
+    <div class="screenshot-wrap">
+      <img src="screenshots/07-forms-list.png" alt="Листа образаца" />
+      <div class="screenshot-caption">Слика 7 — Листа образаца</div>
+    </div>
+  </div>
+
+  <!-- 8. QR popup -->
+  <div class="section" id="telefon-qr">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <h2>Слање са телефона — QR код</h2>
+    </div>
+    <p>Кликом на дугме <strong>Слање са телефона</strong> на страници образаца отвара се искачући прозор са QR кодом.</p>
+    <ul>
+      <li>Скенирајте QR код камером телефона.</li>
+      <li>Отвориће се мобилна страница за слање фотографија (описана у поглављу 9).</li>
+      <li>QR код је везан за вашу сесију и важи до одјаве.</li>
+    </ul>
+    <div class="tip"><strong>Савет:</strong> Користите ову функцију када желите брзо да фотографишете попуњену приступницу директно телефоном без ручног преноса фајлова.</div>
+    <div class="screenshot-wrap">
+      <img src="screenshots/08-forms-qr-popup.png" alt="QR код за слање са телефона" />
+      <div class="screenshot-caption">Слика 8 — Искачући прозор са QR кодом</div>
+    </div>
+  </div>
+
+  <!-- 9. Mobilni -->
+  <div class="section" id="mobilni">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <h2>Мобилни унос фотографија</h2>
+    </div>
+    <p>Скенирањем QR кода из апликације (поглавље 8) отвара се ова страница на телефону. Намењена је брзом слању фотографија попуњених приступница.</p>
+    <ul>
+      <li>Тапните на поље са иконом камере да одаберете фотографије из галерије или да сликате.</li>
+      <li>Можете одабрати више фотографија одједном.</li>
+      <li>Кликните <em>Upload</em> да пошаљете фотографије у систем.</li>
+      <li>По успешном слању приказује се порука потврде — страницу можете затворити.</li>
+    </ul>
+    <div class="tip"><strong>Напомена:</strong> Веза са QR кода важи до одјаве са десктоп апликације. Ако линк не ради, генеришите нови QR код.</div>
+    <div class="mobile-wrap">
+      <div class="mobile-frame">
+        <img src="screenshots/15-mobile-upload.png" alt="Мобилни унос" />
+      </div>
+    </div>
+    <p style="text-align:center; margin-top:12px; font-size:0.88rem; color:#94a3b8;">Слика 9 — Мобилна страница за слање фотографија</p>
+  </div>
+
+  <!-- 10. Dodavanje obrasca -->
+  <div class="section" id="obrazac-dodavanje">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <h2>Додавање обрасца</h2>
+    </div>
+    <p>Форма за унос обрасца омогућава учитавање скенираних приступница са рачунара.</p>
+    <ul>
+      <li>Унесите број обрасца, датум и општински одбор.</li>
+      <li>Опционо повежите образац са постојећим чланом претрагом по имену.</li>
+      <li>Превуците и пустите фотографије или кликните зону за одабир фајлова.</li>
+      <li>Подржани формати: JPG, PNG, WEBP, PDF — максимум 10 MB по фајлу.</li>
+      <li>Редослед слика можете променити превлачењем.</li>
+    </ul>
+    <div class="screenshot-wrap">
+      <img src="screenshots/09-form-upload.png" alt="Додавање обрасца" />
+      <div class="screenshot-caption">Слика 10 — Форма за додавање обрасца</div>
+    </div>
+  </div>
+
+  <!-- 11. Detalji obrasca -->
+  <div class="section" id="obrazac-detalji">
+    <div class="section-header">
+      <div class="section-num">11</div>
+      <h2>Детаљи обрасца</h2>
+    </div>
+    <p>Страница детаља обрасца приказује метаподатке, галерију слика и повезаног члана.</p>
+    <ul>
+      <li><strong>Верификација / Одбијање</strong> — администратори могу изменити статус обрасца.</li>
+      <li><strong>Галерија</strong> — кликом на слику отвара се приказ преко целог екрана са навигацијом стрелицама.</li>
+      <li><strong>Повезани члан</strong> — у десном панелу видите члана или можете да повежете/промените члана.</li>
+      <li>Администратори могу додавати и брисати слике.</li>
+    </ul>
+    <div class="screenshot-wrap">
+      <img src="screenshots/10-form-details.png" alt="Детаљи обрасца" />
+      <div class="screenshot-caption">Слика 11 — Детаљни приказ обрасца</div>
+    </div>
+  </div>
+
+  <!-- 12. Org jedinice -->
+  <div class="section" id="org-jedinice">
+    <div class="section-header">
+      <div class="section-num">12</div>
+      <h2>Организационе јединице</h2>
+    </div>
+    <p>Страница <strong>Орг. јединице</strong> приказује хијерархијску структуру организације у облику стабла.</p>
+    <ul>
+      <li>Јединице су организоване по нивоима: <em>Град</em> → <em>Општини</em>.</li>
+      <li>SuperAdmin може додавати, уређивати и брисати јединице.</li>
+      <li>Поље <em>Број гласача</em> служи за израчунавање процента чланства на почетној страни.</li>
+    </ul>
+    <div class="screenshot-wrap">
+      <img src="screenshots/11-org-units.png" alt="Организационе јединице" />
+      <div class="screenshot-caption">Слика 12 — Стабло организационих јединица</div>
+    </div>
+  </div>
+
+  <!-- 13. Funkcije -->
+  <div class="section" id="funkcije">
+    <div class="section-header">
+      <div class="section-num">13</div>
+      <h2>Функције</h2>
+    </div>
+    <p>Страница <strong>Функције</strong> омогућава управљање листом функција које се додељују члановима.</p>
+    <ul>
+      <li>Унесите назив функције у поље на врху табеле и кликните <em>Додај</em>.</li>
+      <li>Кликните <em>Измени</em> на реду да промените назив функције.</li>
+      <li>Функција која је додељена члановима не може се обрисати.</li>
+    </ul>
+    <div class="screenshot-wrap">
+      <img src="screenshots/12-functions.png" alt="Функције" />
+      <div class="screenshot-caption">Слика 13 — Управљање функцијама</div>
+    </div>
+  </div>
+
+  <!-- 14. Korisnici -->
+  <div class="section" id="korisnici">
+    <div class="section-header">
+      <div class="section-num">14</div>
+      <h2>Корисници</h2>
+    </div>
+    <p>Страница <strong>Корисници</strong> доступна је само SuperAdmin-у и омогућава управљање корисничким налозима.</p>
+    <ul>
+      <li>Додавање нових корисника са е-адресом, улогом и организационом јединицом.</li>
+      <li>Доступне улоге: <em>Admin</em>, <em>LocalAdmin</em>, <em>Operator</em>, <em>Viewer</em>.</li>
+      <li>Измена улоге и org. јединице постојећих корисника.</li>
+      <li>Брисање корисничких налога.</li>
+    </ul>
+    <div class="screenshot-wrap">
+      <img src="screenshots/13-users.png" alt="Корисници" />
+      <div class="screenshot-caption">Слика 14 — Управљање корисницима</div>
+    </div>
+  </div>
+
+  <!-- 15. Profil -->
+  <div class="section" id="profil">
+    <div class="section-header">
+      <div class="section-num">15</div>
+      <h2>Профил</h2>
+    </div>
+    <p>Страница <strong>Профил</strong> приказује информације о тренутно пријављеном кориснику.</p>
+    <ul>
+      <li>Приказује е-адресу, улогу и организациону јединицу налога.</li>
+      <li>Омогућава промену лозинке.</li>
+    </ul>
+    <div class="screenshot-wrap">
+      <img src="screenshots/14-profile.png" alt="Профил" />
+      <div class="screenshot-caption">Слика 15 — Страница профила</div>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2026 Чланство &nbsp;·&nbsp; Корисничко упутство верзија 1.0
+  </footer>
+
+</div>
+</body>
+</html>

@@ -154,14 +154,14 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseCors("AllowFrontend");
+
 app.UseHttpsRedirection();
 
 // --- File storage (issue #8) ---
 // Serves uploaded form scans from wwwroot/uploads/forms/... at /uploads/forms/...
 app.UseStaticFiles();
 // --- end file storage ---
-
-app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();

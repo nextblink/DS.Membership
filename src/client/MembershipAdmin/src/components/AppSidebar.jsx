@@ -121,9 +121,12 @@ export default function AppSidebar() {
       >
         {showLabels ? (
           <>
-            <span className="text-xl font-semibold text-gray-900 dark:text-white">
-              Membership
-            </span>
+            <div className="flex items-center gap-2">
+              <img src="/assets/logo.png" alt="Logo" className="size-8 object-contain" />
+              <span className="text-xl font-semibold text-gray-900 dark:text-white">
+                {t('appName')}
+              </span>
+            </div>
             <button
               className="block lg:hidden p-1 text-gray-500 hover:text-gray-900 dark:hover:text-white"
               onClick={toggleMobileSidebar}
@@ -135,9 +138,7 @@ export default function AppSidebar() {
             </button>
           </>
         ) : (
-          <span className="flex size-8 items-center justify-center rounded-lg bg-brand-500 text-sm font-bold text-white">
-            M
-          </span>
+          <img src="/assets/logo.png" alt="Logo" className="size-8 object-contain" />
         )}
       </div>
 

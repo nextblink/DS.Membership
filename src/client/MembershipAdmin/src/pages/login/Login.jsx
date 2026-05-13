@@ -35,9 +35,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 py-12">
       <div className="w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-theme-md">
         <div className="mb-8 text-center">
-          <span className="inline-flex size-12 items-center justify-center rounded-xl bg-brand-500 text-xl font-bold text-white mb-4">
-            M
-          </span>
+          <img src="/assets/logo.png" alt="Logo" className="mx-auto mb-4 size-16 object-contain" />
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
           <p className="mt-1 text-theme-sm text-gray-500 dark:text-gray-400">{t('subtitle')}</p>
         </div>

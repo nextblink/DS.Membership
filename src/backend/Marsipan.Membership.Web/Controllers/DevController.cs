@@ -1,5 +1,6 @@
 using Marsipan.Membership.Middleware.Data;
 using Marsipan.Membership.Middleware.Entities;
+using Marsipan.Membership.Middleware.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -158,5 +159,76 @@ public class DevController : ControllerBase
         }
 
         return Ok(new { created, existed });
+    }
+
+    /// <summary>
+    /// Seed realistic Serbian demo members, phones, member-functions, and forms.
+    /// Idempotent — skips members whose JMBG already exists. Dev-only.
+    /// </summary>
+    [HttpPost("seed-demo-data")]
+    public async Task<IActionResult> SeedDemoData()
+    {
+        if (!_env.IsDevelopment()) return NotFound();
+
+        var adminUser = await _userManager.FindByEmailAsync(DevSuperAdminEmail);
+        if (adminUser is null) return Problem("Dev SuperAdmin not found.");
+
+        var now = DateTime.UtcNow;
+        var today = DateOnly.FromDateTime(now);
+
+        var members = new[]
+        {
+            new { FirstName = "Милан",     LastName = "Петровић",   Parent = "Јован",   Dob = new DateOnly(1985, 3, 14), JMBG = "1403985710123", Gender = Gender.Male,   City = "Београд",   Postal = "11000", Email = "milan.petrovic@gmail.com",   Marital = MaritalStatus.Married,  Edu = EducationLevel.University, Job = "Инжењер", Company = "Телеком Србија", CompanyCity = "Београд", IsPublic = true,  Occupation = "Инжењерство", OrgUnit = 2, Phone = "0641234567", PhoneType = PhoneType.Mobile, FuncId = 2, MemberDate = new DateOnly(2019, 6, 1) },
+            new { FirstName = "Јелена",    LastName = "Николић",    Parent = "Петар",   Dob = new DateOnly(1990, 7, 22), JMBG = "2207990715234", Gender = Gender.Female, City = "Нови Сад",  Postal = "21000", Email = "jelena.nikolic@yahoo.com",    Marital = MaritalStatus.Single,   Edu = EducationLevel.Masters,    Job = "Правник", Company = "ПКБ Корпорација", CompanyCity = "Нови Сад", IsPublic = false, Occupation = "Право",        OrgUnit = 3, Phone = "0652345678", PhoneType = PhoneType.Mobile, FuncId = 4, MemberDate = new DateOnly(2020, 2, 15) },
+            new { FirstName = "Драган",    LastName = "Јовановић",  Parent = "Миломир", Dob = new DateOnly(1978, 11, 5), JMBG = "0511978710345", Gender = Gender.Male,   City = "Лазаревац", Postal = "11550", Email = (string?)null,                  Marital = MaritalStatus.Married,  Edu = EducationLevel.Secondary,  Job = "Возач",   Company = "ЈКП Паркинг сервис", CompanyCity = "Лазаревац", IsPublic = true, Occupation = "Саобраћај",   OrgUnit = 2, Phone = "0113456789", PhoneType = PhoneType.Landline, FuncId = 1, MemberDate = new DateOnly(2018, 9, 10) },
+            new { FirstName = "Снежана",   LastName = "Марковић",   Parent = "Радован", Dob = new DateOnly(1993, 4, 18), JMBG = "1804993714456", Gender = Gender.Female, City = "Београд",   Postal = "11070", Email = "snezana.markovic@hotmail.com", Marital = MaritalStatus.Divorced, Edu = EducationLevel.University, Job = "Економиста", Company = "НИС", CompanyCity = "Нови Сад", IsPublic = true, Occupation = "Финансије",    OrgUnit = 3, Phone = "0664567890", PhoneType = PhoneType.Mobile, FuncId = 5, MemberDate = new DateOnly(2021, 1, 20) },
+            new { FirstName = "Немања",    LastName = "Стојановић", Parent = "Слободан",Dob = new DateOnly(1982, 8, 30), JMBG = "3008982710567", Gender = Gender.Male,   City = "Земун",     Postal = "11080", Email = "nemanja.stojanovic@gmail.com", Marital = MaritalStatus.Married,  Edu = EducationLevel.Higher,     Job = "Техничар", Company = "Застава аутомобили", CompanyCity = "Крагујевац", IsPublic = false, Occupation = "Техника",    OrgUnit = 2, Phone = "0675678901", PhoneType = PhoneType.Mobile, FuncId = 3, MemberDate = new DateOnly(2017, 5, 5) },
+            new { FirstName = "Тамара",    LastName = "Лазић",      Parent = "Зоран",   Dob = new DateOnly(1988, 1, 12), JMBG = "1201988715678", Gender = Gender.Female, City = "Нови Сад",  Postal = "21000", Email = "tamara.lazic@outlook.com",    Marital = MaritalStatus.Single,   Edu = EducationLevel.University, Job = "Архитекта", Company = "Урбанизам Нови Сад", CompanyCity = "Нови Сад", IsPublic = true, Occupation = "Архитектура", OrgUnit = 3, Phone = "0686789012", PhoneType = PhoneType.Mobile, FuncId = 1, MemberDate = new DateOnly(2022, 3, 8) },
+            new { FirstName = "Александар",LastName = "Ђорђевић",   Parent = "Бранко",  Dob = new DateOnly(1975, 5, 25), JMBG = "2505975710789", Gender = Gender.Male,   City = "Панчево",   Postal = "26000", Email = (string?)null,                  Marital = MaritalStatus.Married,  Edu = EducationLevel.Doctorate,  Job = "Професор", Company = "Универзитет у Београду", CompanyCity = "Београд", IsPublic = true, Occupation = "Образовање",OrgUnit = 2, Phone = "0697890123", PhoneType = PhoneType.Mobile, FuncId = 2, MemberDate = new DateOnly(2016, 11, 30) },
+            new { FirstName = "Ивана",     LastName = "Поповић",    Parent = "Миодраг", Dob = new DateOnly(1995, 9, 8),  JMBG = "0809995714890", Gender = Gender.Female, City = "Суботица",  Postal = "24000", Email = "ivana.popovic@gmail.com",     Marital = MaritalStatus.Single,   Edu = EducationLevel.University, Job = "Маркетинг менаџер", Company = "Делта холдинг", CompanyCity = "Београд", IsPublic = false, Occupation = "Маркетинг",  OrgUnit = 3, Phone = "0608901234", PhoneType = PhoneType.Mobile, FuncId = 4, MemberDate = new DateOnly(2023, 7, 14) },
+            new { FirstName = "Бојан",     LastName = "Вуковић",    Parent = "Горан",   Dob = new DateOnly(1980, 12, 3), JMBG = "0312980710901", Gender = Gender.Male,   City = "Крагујевац",Postal = "34000", Email = "bojan.vukovic@gmail.com",     Marital = MaritalStatus.Married,  Edu = EducationLevel.Secondary,  Job = "Монтер",  Company = "ЕПС",              CompanyCity = "Крагујевац", IsPublic = true, Occupation = "Електроника", OrgUnit = 2, Phone = "0619012345", PhoneType = PhoneType.Landline, FuncId = 1, MemberDate = new DateOnly(2015, 4, 22) },
+            new { FirstName = "Милица",    LastName = "Станојевић", Parent = "Драгиша", Dob = new DateOnly(1997, 6, 17), JMBG = "1706997715012", Gender = Gender.Female, City = "Ниш",       Postal = "18000", Email = "milica.stanojevic@yahoo.com", Marital = MaritalStatus.Single,   Edu = EducationLevel.Masters,    Job = "Лекар",   Company = "КБЦ Звездара",     CompanyCity = "Београд", IsPublic = true, Occupation = "Медицина",    OrgUnit = 3, Phone = "0620123456", PhoneType = PhoneType.Mobile, FuncId = 5, MemberDate = new DateOnly(2024, 1, 3) },
+        };
+
+        var seeded = 0;
+        foreach (var m in members)
+        {
+            if (await _db.Members.IgnoreQueryFilters().AnyAsync(x => x.JMBG == m.JMBG))
+                continue;
+
+            var member = new Member
+            {
+                FirstName = m.FirstName, LastName = m.LastName, ParentName = m.Parent,
+                DateOfBirth = m.Dob, JMBG = m.JMBG, Gender = m.Gender,
+                City = m.City, PostalCode = m.Postal, Email = m.Email,
+                MaritalStatus = m.Marital, EducationLevel = m.Edu,
+                JobTitle = m.Job, CompanyName = m.Company, CompanyCity = m.CompanyCity,
+                IsPublicCompany = m.IsPublic, Occupation = m.Occupation,
+                MembershipDate = m.MemberDate, OrgUnitId = m.OrgUnit,
+                CreatedDate = now, CreatedByUserId = adminUser.Id,
+            };
+            _db.Members.Add(member);
+            await _db.SaveChangesAsync();
+
+            _db.Add(new Phone { Number = m.Phone, Type = m.PhoneType, MemberId = member.Id, CreatedDate = now, CreatedByUserId = adminUser.Id });
+            _db.Add(new MemberFunction { MemberId = member.Id, FunctionId = m.FuncId, AssignedDate = m.MemberDate, CreatedDate = now, CreatedByUserId = adminUser.Id });
+
+            var form = new Form
+            {
+                FormNumber = $"OB-{2024}-{member.Id:D4}",
+                FormDate = m.MemberDate,
+                MunicipalBoard = m.City,
+                MemberId = member.Id,
+                Status = seeded % 3 == 0 ? FormStatus.Verified : seeded % 3 == 1 ? FormStatus.Pending : FormStatus.Rejected,
+                CreatedByUserId = adminUser.Id,
+                CreatedDate = now,
+            };
+            _db.Add(form);
+            await _db.SaveChangesAsync();
+
+            seeded++;
+        }
+
+        return Ok(new { seeded });
     }
 }

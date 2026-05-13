@@ -1,6 +1,18 @@
 import { useTranslation } from 'react-i18next'
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
+function SliceLabel({ cx, cy, midAngle, innerRadius, outerRadius, value }) {
+  const RADIAN = Math.PI / 180
+  const r = innerRadius + (outerRadius - innerRadius) * 0.5
+  const x = cx + r * Math.cos(-midAngle * RADIAN)
+  const y = cy + r * Math.sin(-midAngle * RADIAN)
+  return (
+    <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={600}>
+      {value}
+    </text>
+  )
+}
+
 const COLORS = {
   Pending: '#f79009',
   Verified: '#12b76a',
@@ -37,6 +49,8 @@ export default function FormsStatusDonut({ formsByStatus = {} }) {
                 outerRadius={90}
                 paddingAngle={3}
                 dataKey="value"
+                labelLine={false}
+                label={<SliceLabel />}
               >
                 {data.map((entry) => (
                   <Cell key={entry.key} fill={COLORS[entry.key] ?? '#98a2b3'} />
