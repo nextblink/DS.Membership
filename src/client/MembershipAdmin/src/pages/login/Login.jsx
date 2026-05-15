@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import auth from '../../framework/auth'
+import { version } from '../../../package.json'
 
 /*
   Brand palette extracted from marcipanoLogo.png:
@@ -15,7 +16,7 @@ import auth from '../../framework/auth'
 */
 
 const css = `
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; }
 
@@ -147,7 +148,7 @@ const css = `
   }
 
   .lp-headline {
-    font-family: 'Playfair Display', serif;
+    font-family: 'DM Sans', sans-serif;
     font-size: clamp(2rem, 3vw, 3rem);
     font-weight: 700;
     color: #ffffff;
@@ -183,7 +184,7 @@ const css = `
 
   .lp-stat-num {
     display: block;
-    font-family: 'Playfair Display', serif;
+    font-family: 'DM Sans', sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
     color: #fff;
@@ -257,7 +258,7 @@ const css = `
   }
 
   .lp-form-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'DM Sans', sans-serif;
     font-size: 1.9rem;
     font-weight: 700;
     color: var(--navy);
@@ -410,7 +411,7 @@ const SILS = [
 ]
 
 export default function Login() {
-  const { t } = useTranslation('auth')
+  const { t } = useTranslation('auth', { lng: 'sr' })
   const navigate = useNavigate()
   const location = useLocation()
   const [submitError, setSubmitError] = useState(null)
@@ -439,6 +440,12 @@ export default function Login() {
       <style>{css}</style>
       <div className="lp-root">
 
+        {/* ── TOP-RIGHT LOGO ── */}
+        <div style={{ position: 'fixed', top: '1.25rem', right: '1.5rem', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
+          <img src="/assets/marcipanoLogo.png" alt="Marcipano" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: '0.95rem', color: '#1B4F8A', letterSpacing: '0.05em' }}>Marcipano</span>
+        </div>
+
         {/* ── LEFT BRAND PANEL ── */}
         <div className="lp-brand">
           <div className="lp-orb-1" />
@@ -461,10 +468,7 @@ export default function Login() {
             ))}
           </div>
 
-          <div className="lp-brand-top" style={{ position: 'relative', zIndex: 2 }}>
-            <img src="/assets/marcipanoLogo.png" alt="Marcipano" />
-            <span className="lp-brand-name">Marcipano</span>
-          </div>
+          <div style={{ position: 'relative', zIndex: 2, height: '2rem' }} />
 
           <div className="lp-brand-mid">
             <div className="lp-eyebrow">Платформа за чланство</div>
@@ -547,6 +551,9 @@ export default function Login() {
 
           <div className="lp-form-footer">
             © 2025 Marcipano · Систем за управљање чланством
+            <div style={{ marginTop: '0.3rem', color: '#2E6BAD', fontWeight: 500 }}>
+              v{version} · {__BUILD_DATE__}
+            </div>
           </div>
         </div>
 

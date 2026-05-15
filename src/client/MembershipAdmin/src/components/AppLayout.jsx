@@ -15,7 +15,7 @@ function LayoutContent() {
       </div>
       <div
         className={`flex-1 transition-all duration-300 ease-in-out ${
-          isExpanded || isHovered ? 'lg:ml-[290px]' : 'lg:ml-[90px]'
+          isExpanded || isHovered ? 'lg:ml-[240px]' : 'lg:ml-[90px]'
         }`}
       >
         <AppHeader />

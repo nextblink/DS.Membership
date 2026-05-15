@@ -107,7 +107,7 @@ export default function AppSidebar() {
   return (
     <aside
       className={`fixed top-0 left-0 z-[99999] flex h-screen flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 transition-all duration-300 ease-in-out
-        ${isExpanded || isHovered ? 'w-[290px]' : 'w-[90px]'}
+        ${isExpanded || isHovered ? 'w-[240px]' : 'w-[90px]'}
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
@@ -121,8 +121,9 @@ export default function AppSidebar() {
       >
         {showLabels ? (
           <>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <img src="/assets/marcipanoLogo.png" alt="Logo" className="h-14 w-auto object-contain" />
+              <span className="text-lg font-bold tracking-wide text-brand-600 dark:text-brand-400">Marcipano</span>
             </div>
             <button
               className="block lg:hidden p-1 text-gray-500 hover:text-gray-900 dark:hover:text-white"
