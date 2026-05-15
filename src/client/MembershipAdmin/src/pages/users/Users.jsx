@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+﻿import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
@@ -97,22 +97,25 @@ export default function Users() {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('users:title')}</h1>
-          <p className="mt-1 text-theme-sm text-gray-500 dark:text-gray-400">{t('users:subtitle')}</p>
+    <div>
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+          <div>
+            <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('users:title')}</h1>
+            <p className="mt-0.5 text-theme-xs text-gray-500 dark:text-gray-400">{t('users:subtitle')}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setCreateOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            {t('users:addUser')}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => setCreateOpen(true)}
-          className="cursor-pointer rounded-lg border border-brand-500 bg-brand-500 hover:bg-brand-600 py-2 px-4 text-theme-sm font-medium text-white transition"
-        >
-          {t('users:addUser')}
-        </button>
-      </div>
 
-      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm">
         {loading ? (
           <div className="p-6 text-theme-sm text-gray-500 dark:text-gray-400">{t('common:state.loading')}</div>
         ) : loadError ? (
@@ -215,7 +218,7 @@ function ModalShell({ title, onClose, children }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4 py-8">
       <div className="w-full max-w-lg rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-xl">
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-          <h2 className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>
+          <h2 className="text-base font-semibold text-brand-500 dark:text-brand-400">{title}</h2>
           <button
             type="button"
             onClick={onClose}

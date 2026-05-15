@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
@@ -85,7 +85,7 @@ export default function MemberEdit() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+      <h1 className="text-2xl font-semibold text-brand-500 dark:text-brand-400 mb-4">
         {t('members:editMember')}
         {member?.firstName ? ` — ${member.firstName} ${member.lastName ?? ''}` : ''}
       </h1>

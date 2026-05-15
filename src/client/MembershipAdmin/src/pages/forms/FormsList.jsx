@@ -1,4 +1,4 @@
-// Forms list page — filters (URL-driven), paged table.
+﻿// Forms list page — filters (URL-driven), paged table.
 // Operator scope is enforced server-side; UI is identical for all roles.
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -156,15 +156,15 @@ export default function FormsList() {
   }, [page, totalPages])
 
   return (
-    <div className="rounded-sm border border-stroke bg-white shadow-default overflow-hidden">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
       {/* Card header */}
-      <div className="flex items-center justify-between border-b border-stroke px-5 pt-6 pb-4">
-        <h1 className="text-xl font-semibold text-black">{t('forms:title')}</h1>
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('forms:title')}</h1>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={openQr}
-            className="inline-flex items-center gap-2 rounded-md border border-stroke px-3 py-2 text-sm font-medium text-body hover:text-primary"
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-theme-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             title="Upload from Phone"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -175,7 +175,7 @@ export default function FormsList() {
           </button>
           <Link
             to="/forms/new"
-            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -189,26 +189,26 @@ export default function FormsList() {
       <form
         data-testid="forms-filter-form"
         onSubmit={applyFilters}
-        className="border-b border-stroke bg-gray-2 px-5 py-4"
+        className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-4"
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <div>
-            <label className="mb-1 block text-xs font-medium text-body">{t('forms:filter.formNumber')}</label>
+            <label className="mb-1 block text-theme-xs font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.formNumber')}</label>
             <input
               data-testid="filter-formNumber"
               type="text"
               value={draft.formNumber}
               onChange={(e) => setDraft({ ...draft, formNumber: e.target.value })}
-              className="w-full rounded-sm border border-stroke bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
               placeholder={t('forms:filter.placeholderFormNumber')}
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-body">{t('forms:filter.orgUnit')}</label>
+            <label className="mb-1 block text-theme-xs font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.orgUnit')}</label>
             <select
               value={draft.orgUnitId}
               onChange={(e) => setDraft({ ...draft, orgUnitId: e.target.value })}
-              className="w-full rounded-sm border border-stroke bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
             >
               <option value="">{t('enums:all')}</option>
               {orgUnits.map((u) => (
@@ -219,12 +219,12 @@ export default function FormsList() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-body">{t('forms:filter.status')}</label>
+            <label className="mb-1 block text-theme-xs font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.status')}</label>
             <select
               data-testid="filter-status"
               value={draft.status}
               onChange={(e) => setDraft({ ...draft, status: e.target.value })}
-              className="w-full rounded-sm border border-stroke bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
             >
               <option value="">{t('enums:all')}</option>
               {STATUSES.map((s) => (
@@ -235,12 +235,12 @@ export default function FormsList() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-body">{t('forms:filter.memberName')}</label>
+            <label className="mb-1 block text-theme-xs font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.memberName')}</label>
             <input
               type="text"
               value={draft.memberName}
               onChange={(e) => setDraft({ ...draft, memberName: e.target.value })}
-              className="w-full rounded-sm border border-stroke bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
               placeholder={t('forms:filter.placeholderMemberName')}
             />
           </div>
@@ -248,14 +248,14 @@ export default function FormsList() {
             <button
               type="submit"
               data-testid="filter-search-btn"
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+              className="rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
             >
               {t('common:button.search')}
             </button>
             <button
               type="button"
               onClick={clearFilters}
-              className="rounded-md border border-stroke bg-white px-4 py-2 text-sm font-medium text-body hover:bg-gray-2"
+              className="rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               {t('common:button.clear')}
             </button>
@@ -266,7 +266,7 @@ export default function FormsList() {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="bg-gray-2 text-xs uppercase text-body">
+          <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
             <tr>
               <th className="px-4 py-3">{t('forms:table.formNumber')}</th>
               <th className="px-4 py-3">{t('forms:table.memberName')}</th>
@@ -278,21 +278,21 @@ export default function FormsList() {
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-body">
+                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
                   {t('common:state.loading')}
                 </td>
               </tr>
             )}
             {!loading && error && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-red-600">
+                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-error-500">
                   {error}
                 </td>
               </tr>
             )}
             {!loading && !error && items.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-body">
+                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
                   {t('forms:state.noForms')}
                 </td>
               </tr>
@@ -307,18 +307,18 @@ export default function FormsList() {
                 const orgUnitName = f.orgUnitName || f.member?.orgUnit?.name || f.member?.orgUnitName || '—'
                 const uploadedBy = f.createdByEmail || f.uploadedBy || f.createdBy?.email || '—'
                 return (
-                  <tr key={f.id} data-testid="forms-row" className="border-t border-stroke hover:bg-gray-2">
-                    <td className="px-4 py-3">
-                      <Link to={`/forms/${f.id}`} className="text-primary hover:underline">
+                  <tr key={f.id} data-testid="forms-row" className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30 cursor-pointer">
+                    <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">
+                      <Link to={`/forms/${f.id}`} className="text-brand-500 hover:underline font-medium">
                         {f.formNumber || `#${f.id}`}
                       </Link>
                     </td>
-                    <td className="px-4 py-3">{memberName}</td>
-                    <td className="px-4 py-3">{orgUnitName}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{memberName}</td>
+                    <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{orgUnitName}</td>
+                    <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">
                       <StatusBadge status={f.status} />
                     </td>
-                    <td className="px-4 py-3 text-body">{uploadedBy}</td>
+                    <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{uploadedBy}</td>
                   </tr>
                 )
               })}
@@ -327,8 +327,8 @@ export default function FormsList() {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between border-t border-stroke px-5 py-4 text-sm">
-        <div className="text-xs text-body">
+      <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-6 py-4">
+        <div className="text-theme-xs text-gray-500 dark:text-gray-400">
           {t('forms:pagination.showing', { page, total: totalPages, count: totalCount })}
         </div>
         <div className="flex gap-1">
@@ -336,7 +336,7 @@ export default function FormsList() {
             type="button"
             disabled={page <= 1}
             onClick={() => goToPage(page - 1)}
-            className="rounded-md border border-stroke px-3 py-1 disabled:opacity-50 hover:bg-gray-2"
+            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             {t('common:button.prev')}
           </button>
@@ -345,10 +345,10 @@ export default function FormsList() {
               key={p}
               type="button"
               onClick={() => goToPage(p)}
-              className={`rounded-md border px-3 py-1 ${
+              className={`rounded-lg border px-3 py-1.5 text-theme-xs ${
                 p === page
-                  ? 'border-primary bg-primary text-white'
-                  : 'border-stroke text-body hover:bg-gray-2'
+                  ? 'border-brand-500 bg-brand-500 text-white'
+                  : 'border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
             >
               {p}
@@ -358,7 +358,7 @@ export default function FormsList() {
             type="button"
             disabled={page >= totalPages}
             onClick={() => goToPage(page + 1)}
-            className="rounded-md border border-stroke px-3 py-1 disabled:opacity-50 hover:bg-gray-2"
+            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             {t('common:button.next')}
           </button>
@@ -366,19 +366,19 @@ export default function FormsList() {
       </div>
 
       {qrOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="relative w-full max-w-sm rounded-sm border border-stroke bg-white p-8 shadow-default">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4">
+          <div className="relative w-full max-w-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-theme-xl">
             <button
               type="button"
               onClick={() => setQrOpen(false)}
-              className="absolute right-4 top-4 text-body hover:text-black"
+              className="absolute right-4 top-4 text-gray-500 hover:text-gray-900 dark:hover:text-white"
               aria-label="Close"
             >
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <h3 className="mb-4 text-lg font-semibold text-black">Upload from Phone</h3>
+            <h3 className="mb-4 text-lg font-semibold text-brand-500">Upload from Phone</h3>
             {qrToken && (
               <>
                 <div className="flex justify-center mb-4">
@@ -388,7 +388,7 @@ export default function FormsList() {
                     level="M"
                   />
                 </div>
-                <p className="text-center text-xs text-body">Scan with your phone to upload photos.</p>
+                <p className="text-center text-theme-xs text-gray-500 dark:text-gray-400">Scan with your phone to upload photos.</p>
               </>
             )}
           </div>

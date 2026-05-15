@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 
@@ -119,9 +119,34 @@ export default function Functions() {
       )}
 
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
-        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-5 pt-6 pb-4">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('title')}</h2>
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+          <h2 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('title')}</h2>
         </div>
+
+        {/* Add bar */}
+        <form data-testid="functions-add-row" onSubmit={handleAdd} className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-3">
+          <input
+            data-testid="functions-add-input"
+            type="text"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder={t('placeholder')}
+            className="flex-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
+            disabled={adding}
+          />
+          <button
+            data-testid="functions-add-btn"
+            type="submit"
+            disabled={adding || !newName.trim()}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2 text-theme-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            {adding ? t('adding') : t('add')}
+          </button>
+        </form>
+
         <div className="overflow-x-auto">
           <table className="w-full table-auto">
             <thead>
@@ -133,33 +158,6 @@ export default function Functions() {
               </tr>
             </thead>
             <tbody>
-              {/* Inline add row */}
-              <tr data-testid="functions-add-row" className="border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                <td className="px-4 py-3">
-                  <form onSubmit={handleAdd}>
-                    <input
-                      data-testid="functions-add-input"
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      placeholder={t('placeholder')}
-                      className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
-                      disabled={adding}
-                    />
-                  </form>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <button
-                    data-testid="functions-add-btn"
-                    type="button"
-                    onClick={handleAdd}
-                    disabled={adding || !newName.trim()}
-                    className="inline-flex items-center rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2 text-theme-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {adding ? t('adding') : t('add')}
-                  </button>
-                </td>
-              </tr>
 
               {loading && (
                 <tr className="border-t border-gray-200 dark:border-gray-800">

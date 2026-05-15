@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
@@ -117,7 +117,7 @@ export default function MemberDetails() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{fullName}</h1>
+          <h1 className="text-2xl font-semibold text-brand-500 dark:text-brand-400">{fullName}</h1>
           <p className="text-theme-sm text-gray-500 dark:text-gray-400">JMBG {member.jmbg}</p>
         </div>
         <div className="flex gap-2">

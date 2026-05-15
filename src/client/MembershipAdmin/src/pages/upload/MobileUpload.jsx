@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+﻿import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7226'
@@ -72,7 +72,7 @@ export default function MobileUpload() {
 
   return (
     <Shell>
-      <h1 className="text-xl font-semibold text-black mb-6 text-center">Upload Photos</h1>
+      <h1 className="text-xl font-semibold text-brand-500 mb-6 text-center">Upload Photos</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <button

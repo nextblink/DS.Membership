@@ -115,17 +115,14 @@ export default function AppSidebar() {
     >
       {/* Logo row */}
       <div
-        className={`flex h-16 shrink-0 items-center border-b border-gray-200 dark:border-gray-800 px-5 ${
+        className={`flex h-20 shrink-0 items-center border-b border-gray-200 dark:border-gray-800 px-4 ${
           !showLabels ? 'justify-center' : 'justify-between'
         }`}
       >
         {showLabels ? (
           <>
             <div className="flex items-center gap-2">
-              <img src="/assets/logo.png" alt="Logo" className="size-8 object-contain" />
-              <span className="text-xl font-semibold text-gray-900 dark:text-white">
-                {t('appName')}
-              </span>
+              <img src="/assets/marcipanoLogo.png" alt="Logo" className="h-14 w-auto object-contain" />
             </div>
             <button
               className="block lg:hidden p-1 text-gray-500 hover:text-gray-900 dark:hover:text-white"
@@ -138,7 +135,7 @@ export default function AppSidebar() {
             </button>
           </>
         ) : (
-          <img src="/assets/logo.png" alt="Logo" className="size-8 object-contain" />
+          <img src="/assets/marcipanoLogo.png" alt="Logo" className="size-10 object-contain" />
         )}
       </div>
 

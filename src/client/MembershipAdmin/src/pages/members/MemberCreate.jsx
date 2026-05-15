@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
@@ -32,7 +32,7 @@ export default function MemberCreate() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">{t('members:newMember')}</h1>
+      <h1 className="text-2xl font-semibold text-brand-500 dark:text-brand-400 mb-4">{t('members:newMember')}</h1>
       <MemberForm
         mode="create"
         onSubmit={onSubmit}

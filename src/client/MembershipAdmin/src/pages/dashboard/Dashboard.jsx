@@ -1,4 +1,4 @@
-// Dashboard page: total members, sortable org-unit table, and forms-status donut.
+﻿// Dashboard page: total members, sortable org-unit table, and forms-status donut.
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
@@ -108,7 +108,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div>
-        <h2 className="mb-6 text-2xl font-semibold text-black dark:text-white">{t('title')}</h2>
+        <h2 className="mb-6 text-2xl font-semibold text-brand-500 dark:text-brand-400">{t('title')}</h2>
         <LoadingState />
       </div>
     )
@@ -117,7 +117,7 @@ export default function Dashboard() {
   if (error) {
     return (
       <div>
-        <h2 className="mb-6 text-2xl font-semibold text-black dark:text-white">{t('title')}</h2>
+        <h2 className="mb-6 text-2xl font-semibold text-brand-500 dark:text-brand-400">{t('title')}</h2>
         <ErrorState
           message={error}
           onRetry={() => setReloadKey((k) => k + 1)}
@@ -141,7 +141,7 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h2 className="mb-6 text-2xl font-semibold text-black dark:text-white">{t('title')}</h2>
+      <h2 className="mb-6 text-2xl font-semibold text-brand-500 dark:text-brand-400">{t('title')}</h2>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
         <StatsCard

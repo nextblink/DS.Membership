@@ -1,4 +1,4 @@
-// Org Units tree page — SuperAdmin only (route enforces role).
+﻿// Org Units tree page — SuperAdmin only (route enforces role).
 //
 // Renders the OrgUnit hierarchy (City -> Municipal) from GET /api/orgunits.
 // Supports inline VoterCount edit, add-root, add-child, and leaf delete.
@@ -116,7 +116,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4" data-testid="add-unit-modal">
       <div className="w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-xl">
         <div className="border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-          <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-base font-semibold text-brand-500 dark:text-brand-400">
             {parent ? t('modal.addChildTitle', { parentName: parent.name }) : t('modal.addRootTitle')}
           </h3>
         </div>
@@ -448,25 +448,29 @@ export default function OrgUnits() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('orgUnits:title')}</h2>
-        <button
-          type="button"
-          onClick={handleAddRoot}
-          className="rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
-          data-testid="add-root-unit-btn"
-        >
-          {t('action.addRoot')}
-        </button>
-      </div>
-
-      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm">
-        {deleteError && (
-          <p className="mb-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
-            {deleteError}
-          </p>
-        )}
-        {content}
+      <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+          <h2 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('orgUnits:title')}</h2>
+          <button
+            type="button"
+            onClick={handleAddRoot}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
+            data-testid="add-root-unit-btn"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            {t('action.addRoot')}
+          </button>
+        </div>
+        <div className="p-6">
+          {deleteError && (
+            <p className="mb-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
+              {deleteError}
+            </p>
+          )}
+          {content}
+        </div>
       </div>
 
       <AddUnitModal

@@ -1,4 +1,4 @@
-// Members list with filters, query-string state, paged table.
+﻿// Members list with filters, query-string state, paged table.
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -145,8 +145,8 @@ export default function MembersList() {
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
       {/* Card header */}
-      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 pt-6 pb-4">
-        <h1 className="text-xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('title')}</h1>
         <button
           type="button"
           onClick={() => navigate('/members/new')}
@@ -160,7 +160,7 @@ export default function MembersList() {
       </div>
 
       {/* Filter row */}
-      <form onSubmit={applyFilters} className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 px-6 py-4">
+      <form onSubmit={applyFilters} className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-4">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
           <div>
             <label className={labelClass}>{t('filter.firstName')}</label>

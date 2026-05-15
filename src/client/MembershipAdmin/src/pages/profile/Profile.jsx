@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
@@ -89,11 +89,11 @@ export default function Profile() {
 
   return (
     <div className="p-6">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">{t('title')}</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-brand-500 dark:text-brand-400">{t('title')}</h1>
 
       {/* Current user info card */}
       <div className="mb-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">{t('account')}</h2>
+        <h2 className="mb-4 text-lg font-semibold text-brand-500 dark:text-brand-400">{t('account')}</h2>
 
         {loading && <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('state.loading')}</p>}
 
@@ -129,7 +129,7 @@ export default function Profile() {
 
       {/* Change password card */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">{t('changePassword.title')}</h2>
+        <h2 className="mb-4 text-lg font-semibold text-brand-500 dark:text-brand-400">{t('changePassword.title')}</h2>
 
         <form onSubmit={handleSubmit(onChangePassword)} noValidate className="max-w-md">
           <div className="mb-4">

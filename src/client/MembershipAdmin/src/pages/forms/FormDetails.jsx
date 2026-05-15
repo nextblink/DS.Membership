@@ -1,4 +1,4 @@
-// Form details page — metadata, image gallery with fullscreen viewer,
+﻿// Form details page — metadata, image gallery with fullscreen viewer,
 // status actions (Verify/Reject) for admin roles, linked member card,
 // add/delete image actions for admin roles.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -233,7 +233,7 @@ export default function FormDetails() {
   return (
     <div className="p-6">
       <div className="mb-4 flex items-center justify-between">
-        <h1 data-testid="form-title" className="text-2xl font-semibold text-gray-900 dark:text-white">
+        <h1 data-testid="form-title" className="text-2xl font-semibold text-brand-500 dark:text-brand-400">
           {t('forms:detail.formLabel')} {form.formNumber || `#${form.id}`}
         </h1>
         <div className="flex gap-2">

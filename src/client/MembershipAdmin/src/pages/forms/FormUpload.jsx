@@ -1,4 +1,4 @@
-// Form upload page — metadata inputs, member typeahead, multi-image upload
+﻿// Form upload page — metadata inputs, member typeahead, multi-image upload
 // with drag-and-drop reordering. POST as multipart/form-data to /api/forms.
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -181,7 +181,7 @@ export default function FormUpload() {
 
   return (
     <div className="p-6">
-      <h1 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">{t('forms:upload.title')}</h1>
+      <h1 className="mb-4 text-2xl font-semibold text-brand-500 dark:text-brand-400">{t('forms:upload.title')}</h1>
 
       <form onSubmit={submit} className="space-y-6">
         <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm p-4">

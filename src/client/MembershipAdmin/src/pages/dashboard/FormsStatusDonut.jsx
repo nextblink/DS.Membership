@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next'
+﻿import { useTranslation } from 'react-i18next'
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 function SliceLabel({ cx, cy, midAngle, innerRadius, outerRadius, value }) {
@@ -33,7 +33,7 @@ export default function FormsStatusDonut({ formsByStatus = {} }) {
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm h-full">
       <div className="border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-        <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('donut.title')}</h3>
+        <h3 className="text-base font-semibold text-brand-500 dark:text-brand-400">{t('donut.title')}</h3>
       </div>
       <div className="px-6 py-6">
         {total === 0 ? (

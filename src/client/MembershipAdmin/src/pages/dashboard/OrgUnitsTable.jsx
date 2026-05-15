@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 function computePercentage(row) {
@@ -60,7 +60,7 @@ export default function OrgUnitsTable({ rows }) {
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 pb-2.5 pt-6 shadow-theme-sm sm:px-7">
-      <h4 className="mb-6 text-xl font-semibold text-gray-900 dark:text-white">
+      <h4 className="mb-6 text-xl font-semibold text-brand-500 dark:text-brand-400">
         {t('orgTable.title')}
       </h4>
       <div className="max-w-full overflow-x-auto">
