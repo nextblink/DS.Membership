@@ -5,7 +5,10 @@
     "verifiedForms": "Верификовани обрасци",
     "pendingForms": "Обрасци на чекању",
     "orgUnits": "Орг. јединице",
-    "formsTotal": "{{count}} образаца укупно"
+    "formsTotal": "{{count}} образаца укупно",
+    "avgMembership": "Просечно чланство",
+    "orgUnitsCount": "{{count}} јединица",
+    "pendingNote": "Чека обраду"
   },
   "orgTable": {
     "title": "Чланови по орг. јединицама",
@@ -13,7 +16,8 @@
     "members": "Чланови",
     "voters": "Бирачи",
     "percentage": "%",
-    "noData": "Нема података"
+    "noData": "Нема података",
+    "units": "јединица"
   },
   "chart": {
     "title": "Обрасци по статусу",
@@ -21,7 +25,8 @@
   },
   "donut": {
     "title": "Обрасци по статусу",
-    "noData": "Нема образаца"
+    "noData": "Нема образаца",
+    "total": "укупно"
   },
   "error": {
     "loadFailed": "Учитавање почетне странице није успело"

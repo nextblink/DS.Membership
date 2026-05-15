@@ -5,7 +5,10 @@
     "verifiedForms": "Verified Forms",
     "pendingForms": "Pending Forms",
     "orgUnits": "Org Units",
-    "formsTotal": "{{count}} forms total"
+    "formsTotal": "{{count}} forms total",
+    "avgMembership": "Avg Membership",
+    "orgUnitsCount": "{{count}} units",
+    "pendingNote": "Awaiting review"
   },
   "orgTable": {
     "title": "Members by Org Unit",
@@ -13,7 +16,8 @@
     "members": "Members",
     "voters": "Voters",
     "percentage": "%",
-    "noData": "No data"
+    "noData": "No data",
+    "units": "units"
   },
   "chart": {
     "title": "Forms by Status",
@@ -21,7 +25,8 @@
   },
   "donut": {
     "title": "Forms by Status",
-    "noData": "No forms yet"
+    "noData": "No forms yet",
+    "total": "total"
   },
   "error": {
     "loadFailed": "Failed to load dashboard"
