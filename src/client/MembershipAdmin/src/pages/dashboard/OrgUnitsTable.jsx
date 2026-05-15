@@ -1,21 +1,23 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-function computePercentage(row) {
-  if (typeof row.percentage === 'number') return row.percentage
-  if (row.voterCount > 0) return (row.memberCount / row.voterCount) * 100
+function computePromille(row) {
+  if (row.voterCount > 0) return (row.memberCount / row.voterCount) * 1000
+  // API may return percentage (0-100); convert to promille
+  if (typeof row.percentage === 'number') return row.percentage * 10
   return 0
 }
 
-function barColor(pct) {
-  if (pct >= 70) return '#4ABEA0'
-  if (pct >= 40) return '#2E6BAD'
-  return '#f79009'
+function barColor(pm) {
+  if (pm >= 1)   return '#4ABEA0' // green
+  if (pm >= 0.8) return '#f79009' // orange
+  return '#f04438'                 // red
 }
 
-function PercentBar({ pct }) {
-  const clamped = Math.min(100, Math.max(0, pct))
-  const color = barColor(pct)
+function PromilleBar({ pm }) {
+  // Scale bar: treat 2‰ as 100% full for visual purposes
+  const clamped = Math.min(100, (pm / 2) * 100)
+  const color = barColor(pm)
   return (
     <div className="flex items-center justify-end gap-2">
       <div className="h-1.5 w-20 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
@@ -24,8 +26,8 @@ function PercentBar({ pct }) {
           style={{ width: `${clamped}%`, background: color }}
         />
       </div>
-      <span className="w-12 text-right text-theme-xs font-semibold" style={{ color }}>
-        {pct.toFixed(1)}%
+      <span className="w-14 text-right text-theme-xs font-semibold tabular-nums" style={{ color }}>
+        {pm.toFixed(2)}‰
       </span>
     </div>
   )
@@ -37,7 +39,7 @@ export default function OrgUnitsTable({ rows }) {
     { key: 'name',        label: t('orgTable.orgUnit'),    numeric: false },
     { key: 'memberCount', label: t('orgTable.members'),    numeric: true  },
     { key: 'voterCount',  label: t('orgTable.voters'),     numeric: true  },
-    { key: 'percentage',  label: t('orgTable.percentage'), numeric: true  },
+    { key: 'promille',  label: t('orgTable.promille'), numeric: true  },
   ]
   const [sortKey, setSortKey] = useState('memberCount')
   const [sortDir, setSortDir] = useState('desc')
@@ -49,7 +51,7 @@ export default function OrgUnitsTable({ rows }) {
         name:        r.name,
         memberCount: r.memberCount ?? 0,
         voterCount:  r.voterCount  ?? 0,
-        percentage:  computePercentage(r),
+        promille:    computePromille(r),
       })),
     [rows],
   )
@@ -133,7 +135,7 @@ export default function OrgUnitsTable({ rows }) {
                     {row.voterCount.toLocaleString()}
                   </td>
                   <td className="px-4 py-3">
-                    <PercentBar pct={row.percentage} />
+                    <PromilleBar pm={row.promille} />
                   </td>
                 </tr>
               ))

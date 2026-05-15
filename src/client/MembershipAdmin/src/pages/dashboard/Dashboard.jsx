@@ -5,9 +5,9 @@ import StatsCard from './StatsCard'
 import OrgUnitsTable from './OrgUnitsTable'
 import FormsStatusDonut from './FormsStatusDonut'
 
-function computePercentage(row) {
-  if (typeof row.percentage === 'number') return row.percentage
-  if (row.voterCount > 0) return (row.memberCount / row.voterCount) * 100
+function computePromille(row) {
+  if (row.voterCount > 0) return (row.memberCount / row.voterCount) * 1000
+  if (typeof row.percentage === 'number') return row.percentage * 10
   return 0
 }
 
@@ -93,7 +93,7 @@ export default function Dashboard() {
   const orgUnitCount    = membersByOrgUnit.length
 
   const avgMembership = orgUnitCount > 0
-    ? membersByOrgUnit.reduce((s, r) => s + computePercentage(r), 0) / orgUnitCount
+    ? membersByOrgUnit.reduce((s, r) => s + computePromille(r), 0) / orgUnitCount
     : 0
 
   const iconProps = (color) => ({
@@ -150,7 +150,7 @@ export default function Dashboard() {
           delay="240ms"
           accent="#3E8DC4"
           label={t('stats.avgMembership')}
-          value={`${avgMembership.toFixed(1)}%`}
+          value={`${avgMembership.toFixed(2)}‰`}
           sublabel={t('stats.orgUnitsCount', { count: orgUnitCount })}
           icon={
             <svg {...iconProps('#3E8DC4')}>
