@@ -70,6 +70,18 @@ function removeNode(tree, id) {
     .map((n) => ({ ...n, children: removeNode(n.children, id) }))
 }
 
+function filterTree(nodes, query) {
+  if (!query) return nodes
+  const q = query.toLowerCase()
+  return nodes.reduce((acc, node) => {
+    const filteredChildren = filterTree(node.children, q)
+    if (node.name.toLowerCase().includes(q) || filteredChildren.length > 0) {
+      acc.push({ ...node, children: filteredChildren })
+    }
+    return acc
+  }, [])
+}
+
 function AddUnitModal({ open, parent, onClose, onSubmit }) {
   const { t } = useTranslation('orgUnits')
   const [name, setName] = useState('')
@@ -269,10 +281,12 @@ function TreeNode({
   onAddChild,
   onSaveVoterCount,
   onDelete,
+  forceExpand = false,
 }) {
   const { t } = useTranslation('orgUnits')
   const [expanded, setExpanded] = useState(true)
   const hasChildren = node.children && node.children.length > 0
+  const isExpanded = forceExpand || expanded
   const memberCount = node.memberCount ?? node.members?.length ?? 0
 
   return (
@@ -286,9 +300,9 @@ function TreeNode({
           onClick={() => setExpanded((v) => !v)}
           className="flex h-6 w-6 items-center justify-center rounded text-theme-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30"
           disabled={!hasChildren}
-          aria-label={expanded ? 'Collapse' : 'Expand'}
+          aria-label={isExpanded ? 'Collapse' : 'Expand'}
         >
-          {hasChildren ? (expanded ? '▾' : '▸') : '•'}
+          {hasChildren ? (isExpanded ? '▾' : '▸') : '•'}
         </button>
 
         <span className="font-medium text-gray-900 dark:text-white" data-testid={`node-name-${node.id}`}>{node.name}</span>
@@ -326,7 +340,7 @@ function TreeNode({
         </div>
       </div>
 
-      {hasChildren && expanded && (
+      {hasChildren && isExpanded && (
         <ul className="mt-2 flex flex-col gap-2">
           {node.children.map((child) => (
             <TreeNode
@@ -336,6 +350,7 @@ function TreeNode({
               onAddChild={onAddChild}
               onSaveVoterCount={onSaveVoterCount}
               onDelete={onDelete}
+              forceExpand={forceExpand}
             />
           ))}
         </ul>
@@ -351,6 +366,7 @@ export default function OrgUnits() {
   const [error, setError] = useState(null)
   const [deleteError, setDeleteError] = useState(null)
   const [modal, setModal] = useState({ open: false, parent: null })
+  const [filterName, setFilterName] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -420,6 +436,8 @@ export default function OrgUnits() {
     }
   }, [t])
 
+  const visibleTree = useMemo(() => filterTree(tree, filterName.trim()), [tree, filterName])
+
   const content = useMemo(() => {
     if (loading) {
       return <p className="text-theme-sm text-gray-500 dark:text-gray-400" data-testid="org-units-loading">{t('common:state.loading')}</p>
@@ -430,9 +448,12 @@ export default function OrgUnits() {
     if (tree.length === 0) {
       return <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('orgUnits:state.noOrgUnits')}</p>
     }
+    if (visibleTree.length === 0) {
+      return <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('orgUnits:filter.noResults')}</p>
+    }
     return (
       <ul className="flex flex-col gap-2" data-testid="org-units-tree">
-        {tree.map((node) => (
+        {visibleTree.map((node) => (
           <TreeNode
             key={node.id}
             node={node}
@@ -440,11 +461,12 @@ export default function OrgUnits() {
             onAddChild={handleAddChild}
             onSaveVoterCount={handleSaveVoterCount}
             onDelete={handleDelete}
+            forceExpand={!!filterName.trim()}
           />
         ))}
       </ul>
     )
-  }, [loading, error, tree, handleAddChild, handleSaveVoterCount, handleDelete, t])
+  }, [loading, error, tree, visibleTree, filterName, handleAddChild, handleSaveVoterCount, handleDelete, t])
 
   return (
     <div>
@@ -463,6 +485,35 @@ export default function OrgUnits() {
             {t('action.addRoot')}
           </button>
         </div>
+
+        {/* Filter bar */}
+        <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-3">
+          <div className="relative max-w-sm">
+            <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+            </svg>
+            <input
+              type="text"
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
+              placeholder={t('orgUnits:filter.namePlaceholder')}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2 pl-9 pr-9 text-theme-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/10"
+            />
+            {filterName && (
+              <button
+                type="button"
+                onClick={() => setFilterName('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                aria-label="Clear filter"
+              >
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+
         <div className="p-6">
           {deleteError && (
             <p className="mb-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">

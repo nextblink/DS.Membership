@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 270" role="img" aria-label="Marcipano">
+  <defs>
+    <linearGradient id="mg" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#1B4F8A"/>
+      <stop offset="45%"  stop-color="#2E6BAD"/>
+      <stop offset="100%" stop-color="#4ABEA0"/>
+    </linearGradient>
+    <linearGradient id="ag" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#3E8DC4"/>
+      <stop offset="100%" stop-color="#6FCFB8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ═══════════════════════════════════════════
+       Three figures forming an M-shape.
+       Stroked outlines, filled circle heads.
+       Left figure sweeps wide; center is tallest.
+  ═══════════════════════════════════════════ -->
+
+  <!-- Outer-left sweep (large arc — left arm of M) -->
+  <path d="M 18 195
+           C 18 140  38 100  68 78
+           C 92  60  108 72  108 98
+           C 108 118  94 128  82 150
+           C 72  168  68 182  68 195"
+        fill="none" stroke="url(#mg)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Head of left outer figure -->
+  <circle cx="76" cy="62" r="13" fill="url(#mg)"/>
+
+  <!-- Inner-left figure (second person, shorter) -->
+  <path d="M 88 195
+           C 88 168  100 148  118 130
+           C 136 112  148 122  148 142
+           C 148 160  138 172  128 188
+           C 122 196  114 195  104 195"
+        fill="none" stroke="url(#mg)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Head of inner-left figure -->
+  <circle cx="130" cy="115" r="12" fill="url(#mg)"/>
+
+  <!-- Center figure (tallest, peak of M) -->
+  <path d="M 118 195
+           C 118 158  132 115  158 78
+           C 184 115  198 158  198 195"
+        fill="none" stroke="url(#mg)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Head of center figure -->
+  <circle cx="158" cy="58" r="15" fill="url(#mg)"/>
+
+  <!-- Right figure (partially overlapped by arrow) -->
+  <path d="M 178 195
+           C 178 168  190 148  206 132
+           C 222 116  234 124  234 144
+           C 234 162  224 174  214 188
+           C 208 196  200 195  192 195"
+        fill="none" stroke="url(#mg)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Head of right figure -->
+  <circle cx="210" cy="116" r="12" fill="url(#mg)"/>
+
+  <!-- Outer-right sweep (right arm of M) -->
+  <path d="M 222 195
+           C 222 182  218 168  208 150
+           C 196 128  182 118  182 98
+           C 182 72   198 60   222 78
+           C 252 100  272 140  272 195"
+        fill="none" stroke="url(#mg)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Head of outer-right figure -->
+  <circle cx="214" cy="62" r="13" fill="url(#mg)"/>
+
+  <!-- ═══════════════════════════════════════════
+       Upward arrow (growth indicator)
+       Runs diagonally from lower-center to upper-right,
+       crossing through the right portion of the M.
+  ═══════════════════════════════════════════ -->
+
+  <!-- Arrow shaft -->
+  <path d="M 200 185 L 306 42"
+        fill="none" stroke="url(#ag)" stroke-width="11" stroke-linecap="round"/>
+
+  <!-- Arrowhead -->
+  <polygon points="312,22  288,58  330,52" fill="url(#ag)"/>
+
+  <!-- ═══════════════════════════════════════════
+       Wordmark
+  ═══════════════════════════════════════════ -->
+  <text
+    x="165" y="248"
+    font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-weight="700"
+    font-size="40"
+    fill="#1B4F8A"
+    text-anchor="middle"
+    letter-spacing="1.2"
+  >Marcipano</text>
+</svg>

@@ -1,6 +1,13 @@
 {
   "title": "Functions",
-  "placeholder": "New function name",
+  "placeholder": "Function name",
+  "form": {
+    "name": "Name"
+  },
+  "modal": {
+    "addTitle": "Add Function",
+    "editTitle": "Edit Function"
+  },
   "adding": "Adding…",
   "add": "Add",
   "saving": "Saving…",
