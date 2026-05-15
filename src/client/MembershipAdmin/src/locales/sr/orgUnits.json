@@ -46,6 +46,7 @@
   },
   "modal": {
     "addChildTitle": "Додај потчињену јединицу под \"{{parentName}}\"",
-    "addRootTitle": "Додај нову јединицу"
+    "addRootTitle": "Додај нову јединицу",
+    "editTitle": "Измени орг. јединицу"
   }
 }

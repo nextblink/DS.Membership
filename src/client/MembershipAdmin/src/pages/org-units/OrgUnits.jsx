@@ -197,6 +197,73 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
   )
 }
 
+function EditUnitModal({ node, onClose, onSubmit }) {
+  const { t } = useTranslation('orgUnits')
+  const [name, setName] = useState(node.name ?? '')
+  const [type, setType] = useState(node.type ?? TYPE_CITY)
+  const [voterCount, setVoterCount] = useState(node.voterCount ?? 0)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState(null)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!name.trim()) { setError(t('form.nameRequired')); return }
+    setSubmitting(true)
+    setError(null)
+    try {
+      await onSubmit({ id: node.id, name: name.trim(), type, voterCount: Number(voterCount) || 0, parentId: node.parentId ?? null })
+      onClose()
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.message || t('error.saveFailed'))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4">
+      <div className="w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-xl">
+        <div className="border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+          <h3 className="text-base font-semibold text-brand-500 dark:text-brand-400">{t('modal.editTitle')}</h3>
+        </div>
+        <form onSubmit={handleSubmit} className="px-6 py-4">
+          <div className="mb-4">
+            <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('form.name')}</label>
+            <input
+              type="text" value={name} onChange={(e) => setName(e.target.value)} autoFocus
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('form.type')}</label>
+            <select value={type} onChange={(e) => setType(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20">
+              <option value={TYPE_CITY}>{t('type.city')}</option>
+              <option value={TYPE_MUNICIPAL}>{t('type.municipal')}</option>
+            </select>
+          </div>
+          <div className="mb-4">
+            <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('form.voterCount')}</label>
+            <input type="number" min="0" value={voterCount} onChange={(e) => setVoterCount(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20" />
+          </div>
+          {error && <p className="mb-3 text-theme-sm text-error-500">{error}</p>}
+          <div className="flex justify-end gap-2">
+            <button type="button" onClick={onClose} disabled={submitting}
+              className="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-theme-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+              {t('action.cancel')}
+            </button>
+            <button type="submit" disabled={submitting}
+              className="rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white disabled:opacity-50">
+              {submitting ? t('action.saving') : t('action.save')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 function VoterCountEditor({ node, onSave }) {
   const { t } = useTranslation('orgUnits')
   const [editing, setEditing] = useState(false)
@@ -279,6 +346,7 @@ function TreeNode({
   node,
   depth,
   onAddChild,
+  onEdit,
   onSaveVoterCount,
   onDelete,
   forceExpand = false,
@@ -321,6 +389,14 @@ function TreeNode({
         <div className="ml-auto flex items-center gap-2">
           <button
             type="button"
+            onClick={() => onEdit(node)}
+            className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-theme-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+            data-testid={`edit-btn-${node.id}`}
+          >
+            {t('action.edit')}
+          </button>
+          <button
+            type="button"
             onClick={() => onAddChild(node)}
             className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             data-testid={`add-child-btn-${node.id}`}
@@ -348,6 +424,7 @@ function TreeNode({
               node={child}
               depth={depth + 1}
               onAddChild={onAddChild}
+              onEdit={onEdit}
               onSaveVoterCount={onSaveVoterCount}
               onDelete={onDelete}
               forceExpand={forceExpand}
@@ -366,6 +443,7 @@ export default function OrgUnits() {
   const [error, setError] = useState(null)
   const [deleteError, setDeleteError] = useState(null)
   const [modal, setModal] = useState({ open: false, parent: null })
+  const [editModal, setEditModal] = useState(null) // node | null
   const [filterName, setFilterName] = useState('')
 
   const load = useCallback(async () => {
@@ -387,6 +465,17 @@ export default function OrgUnits() {
 
   const handleAddChild = useCallback((parent) => {
     setModal({ open: true, parent })
+  }, [])
+
+  const handleEdit = useCallback((node) => {
+    setEditModal(node)
+  }, [])
+
+  const handleSaveEdit = useCallback(async (payload) => {
+    await api.put(`/api/orgunits/${payload.id}`, payload)
+    setTree((prev) =>
+      updateNode(prev, payload.id, (n) => ({ ...n, name: payload.name, type: payload.type, voterCount: payload.voterCount }))
+    )
   }, [])
 
   const handleAddRoot = useCallback(() => {
@@ -459,6 +548,7 @@ export default function OrgUnits() {
             node={node}
             depth={0}
             onAddChild={handleAddChild}
+            onEdit={handleEdit}
             onSaveVoterCount={handleSaveVoterCount}
             onDelete={handleDelete}
             forceExpand={!!filterName.trim()}
@@ -466,7 +556,7 @@ export default function OrgUnits() {
         ))}
       </ul>
     )
-  }, [loading, error, tree, visibleTree, filterName, handleAddChild, handleSaveVoterCount, handleDelete, t])
+  }, [loading, error, tree, visibleTree, filterName, handleAddChild, handleEdit, handleSaveVoterCount, handleDelete, t])
 
   return (
     <div>
@@ -530,6 +620,14 @@ export default function OrgUnits() {
         onClose={() => setModal({ open: false, parent: null })}
         onSubmit={handleCreate}
       />
+
+      {editModal && (
+        <EditUnitModal
+          node={editModal}
+          onClose={() => setEditModal(null)}
+          onSubmit={handleSaveEdit}
+        />
+      )}
     </div>
   )
 }

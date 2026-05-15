@@ -115,14 +115,14 @@ export default function AppSidebar() {
     >
       {/* Logo row */}
       <div
-        className={`flex h-20 shrink-0 items-center border-b border-gray-200 dark:border-gray-800 px-4 ${
+        className={`flex h-16 shrink-0 items-center border-b border-gray-200 dark:border-gray-800 px-4 ${
           !showLabels ? 'justify-center' : 'justify-between'
         }`}
       >
         {showLabels ? (
           <>
             <div className="flex items-center gap-2.5">
-              <img src="/assets/marcipanoLogo.png" alt="Logo" className="h-14 w-auto object-contain" />
+              <img src="/assets/marcipanoLogo.png" alt="Logo" className="h-10 w-auto object-contain" />
               <span className="text-lg font-bold tracking-wide text-brand-600 dark:text-brand-400">Marcipano</span>
             </div>
             <button
