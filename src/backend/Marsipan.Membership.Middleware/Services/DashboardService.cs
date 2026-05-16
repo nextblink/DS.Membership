@@ -56,6 +56,8 @@ public class DashboardService : IDashboardService
 
         // Members count (soft-delete filtered automatically by query filter).
         var totalMembers = await membersQuery.CountAsync(ct);
+        var femaleCount = await membersQuery.CountAsync(m => m.Gender == Gender.Female, ct);
+        var maleCount = await membersQuery.CountAsync(m => m.Gender == Gender.Male, ct);
 
         // Members-per-OrgUnit. Use a left-join shape so units with zero members
         // still appear, then map to DTO with the percentage rule.
@@ -99,6 +101,8 @@ public class DashboardService : IDashboardService
         return new DashboardStatsDto
         {
             TotalMembers = totalMembers,
+            FemaleCount = femaleCount,
+            MaleCount = maleCount,
             MembersByOrgUnit = membersByOrgUnit,
             FormsByStatus = formsByStatus,
         };

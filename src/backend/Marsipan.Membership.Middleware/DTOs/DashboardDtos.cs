@@ -15,6 +15,8 @@ namespace Marsipan.Membership.Middleware.DTOs;
 public class DashboardStatsDto
 {
     public int TotalMembers { get; set; }
+    public int FemaleCount { get; set; }
+    public int MaleCount { get; set; }
     public List<OrgUnitMembershipDto> MembersByOrgUnit { get; set; } = new();
     public FormStatusCountsDto FormsByStatus { get; set; } = new();
 }
