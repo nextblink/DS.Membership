@@ -41,8 +41,9 @@ export default function OrgUnitsTable({ rows }) {
     { key: 'voterCount',  label: t('orgTable.voters'),     numeric: true  },
     { key: 'promille',  label: t('orgTable.promille'), numeric: true  },
   ]
-  const [sortKey, setSortKey] = useState('memberCount')
+  const [sortKey, setSortKey] = useState('promille')
   const [sortDir, setSortDir] = useState('desc')
+  const [search, setSearch] = useState('')
 
   const normalized = useMemo(
     () =>
@@ -56,9 +57,21 @@ export default function OrgUnitsTable({ rows }) {
     [rows],
   )
 
-  const sorted = useMemo(() => {
-    const arr = [...normalized]
+  // Top 10 by percentage (promille) descending — used when there is no search query
+  const top10 = useMemo(() => {
+    const sorted = [...normalized].sort((a, b) => b.promille - a.promille)
+    return sorted.slice(0, 10)
+  }, [normalized])
+
+  // When searching, filter the FULL list (not just top-10) by name
+  const displayed = useMemo(() => {
+    const trimmed = search.trim().toLowerCase()
+    const base = trimmed
+      ? normalized.filter((r) => r.name.toLowerCase().includes(trimmed))
+      : top10
+
     const col = columns.find((c) => c.key === sortKey)
+    const arr = [...base]
     arr.sort((a, b) => {
       const av = a[sortKey], bv = b[sortKey]
       const cmp = col?.numeric
@@ -67,7 +80,7 @@ export default function OrgUnitsTable({ rows }) {
       return sortDir === 'asc' ? cmp : -cmp
     })
     return arr
-  }, [normalized, sortKey, sortDir])
+  }, [normalized, top10, search, sortKey, sortDir])
 
   function toggleSort(key) {
     if (key === sortKey) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
@@ -79,6 +92,8 @@ export default function OrgUnitsTable({ rows }) {
     return <span className="ml-1 text-brand-500">{sortDir === 'asc' ? '▲' : '▼'}</span>
   }
 
+  const isSearching = search.trim().length > 0
+
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden h-full">
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
@@ -86,8 +101,43 @@ export default function OrgUnitsTable({ rows }) {
           {t('orgTable.title')}
         </h4>
         <span className="rounded-full bg-brand-50 dark:bg-brand-500/10 px-2.5 py-0.5 text-theme-xs font-medium text-brand-600 dark:text-brand-400">
-          {sorted.length} {t('orgTable.units')}
+          {isSearching ? displayed.length : Math.min(normalized.length, 10)} {t('orgTable.units')}
         </span>
+      </div>
+
+      {/* Search box */}
+      <div className="px-6 py-3 border-b border-gray-100 dark:border-gray-800">
+        <div className="relative">
+          <svg
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+          </svg>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('orgTable.searchPlaceholder', { defaultValue: 'Search org units…' })}
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 py-2 pl-9 pr-3 text-theme-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              aria-label="Clear search"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -108,14 +158,14 @@ export default function OrgUnitsTable({ rows }) {
             </tr>
           </thead>
           <tbody>
-            {sorted.length === 0 ? (
+            {displayed.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-8 text-center text-theme-sm text-gray-400 dark:text-gray-500">
                   {t('orgTable.noData')}
                 </td>
               </tr>
             ) : (
-              sorted.map((row, i) => (
+              displayed.map((row, i) => (
                 <tr
                   key={row.orgUnitId}
                   className="border-t border-gray-100 dark:border-gray-800 hover:bg-brand-50/40 dark:hover:bg-brand-500/[0.04] transition-colors"

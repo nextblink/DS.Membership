@@ -114,6 +114,7 @@ export default function Dashboard() {
           accent="#2E6BAD"
           label={t('stats.totalMembers')}
           value={totalMembers.toLocaleString()}
+          to="/members"
           icon={
             <svg {...iconProps('#2E6BAD')}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -126,6 +127,7 @@ export default function Dashboard() {
           accent="#4ABEA0"
           label={t('stats.verifiedForms')}
           value={verifiedForms.toLocaleString()}
+          to="/forms?status=Verified"
           icon={
             <svg {...iconProps('#4ABEA0')}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -139,6 +141,7 @@ export default function Dashboard() {
           label={t('stats.pendingForms')}
           value={pendingForms.toLocaleString()}
           sublabel={pendingForms > 0 ? t('stats.pendingNote') : undefined}
+          to="/forms?status=Pending"
           icon={
             <svg {...iconProps('#f79009')}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
