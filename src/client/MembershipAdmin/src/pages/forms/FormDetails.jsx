@@ -6,6 +6,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import auth from '../../framework/auth'
+import { useToast, ToastContainer } from '../../components/Toast'
 
 const ADMIN_ROLES = new Set(['SuperAdmin', 'Admin', 'LocalAdmin'])
 
@@ -54,6 +55,7 @@ export default function FormDetails() {
   const navigate = useNavigate()
   const role = auth.getRole()
   const isAdmin = ADMIN_ROLES.has(role)
+  const toast = useToast()
 
   const [form, setForm] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -121,9 +123,12 @@ export default function FormDetails() {
       setLinkingMember(false)
       setSelectedMember(null)
       setMemberQuery('')
+      toast.success(t('forms:toast.memberLinked'))
       await load()
     } catch (err) {
-      alert(err?.response?.data?.message || err.message || t('forms:detail.linkFailed'))
+      const msg = err?.response?.data?.message || err.message || t('forms:detail.linkFailed')
+      alert(msg)
+      toast.error(msg)
     } finally {
       setLinkBusy(false)
     }
@@ -175,9 +180,12 @@ export default function FormDetails() {
     setBusy(true)
     try {
       await api.patch(`/api/forms/${id}/status`, { status: statusToInt(status) })
+      toast.success(status === 'Verified' ? t('forms:toast.statusVerified') : t('forms:toast.statusRejected'))
       await load()
     } catch (err) {
-      alert(err?.response?.data?.message || err.message || t('forms:detail.statusUpdateFailed'))
+      const msg = err?.response?.data?.message || err.message || t('forms:detail.statusUpdateFailed')
+      alert(msg)
+      toast.error(msg)
     } finally {
       setBusy(false)
     }
@@ -194,9 +202,12 @@ export default function FormDetails() {
       await api.post(`/api/forms/${id}/images`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
+      toast.success(t('forms:toast.imageAdded'))
       await load()
     } catch (err) {
-      alert(err?.response?.data?.message || err.message || t('forms:detail.imageUploadFailed'))
+      const msg = err?.response?.data?.message || err.message || t('forms:detail.imageUploadFailed')
+      alert(msg)
+      toast.error(msg)
     } finally {
       setBusy(false)
     }
@@ -208,9 +219,12 @@ export default function FormDetails() {
     setBusy(true)
     try {
       await api.delete(`/api/forms/${id}/images/${imageId}`)
+      toast.success(t('forms:toast.imageRemoved'))
       await load()
     } catch (err) {
-      alert(err?.response?.data?.message || err.message || t('forms:detail.imageDeleteFailed'))
+      const msg = err?.response?.data?.message || err.message || t('forms:detail.imageDeleteFailed')
+      alert(msg)
+      toast.error(msg)
     } finally {
       setBusy(false)
     }
@@ -232,6 +246,7 @@ export default function FormDetails() {
 
   return (
     <div className="p-6">
+      <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
       <div className="mb-4 flex items-center justify-between">
         <h1 data-testid="form-title" className="text-2xl font-semibold text-brand-500 dark:text-brand-400">
           {t('forms:detail.formLabel')} {form.formNumber || `#${form.id}`}
@@ -247,9 +262,12 @@ export default function FormDetails() {
                 setBusy(true)
                 try {
                   await api.delete(`/api/forms/${id}`)
+                  toast.success(t('forms:toast.deleted'))
                   navigate('/forms')
                 } catch (err) {
-                  alert(err?.response?.data?.message || err.message || t('forms:detail.deleteFailed'))
+                  const msg = err?.response?.data?.message || err.message || t('forms:detail.deleteFailed')
+                  alert(msg)
+                  toast.error(msg)
                 } finally {
                   setBusy(false)
                 }

@@ -77,5 +77,14 @@
     "validation": {
       "imagesRequired": "Потребна је барем једна слика."
     }
+  },
+  "toast": {
+    "created": "Образац је успешно отпремљен.",
+    "deleted": "Образац је обрисан.",
+    "statusVerified": "Образац је верификован.",
+    "statusRejected": "Образац је одбијен.",
+    "imageAdded": "Слика је додата.",
+    "imageRemoved": "Слика је уклоњена.",
+    "memberLinked": "Члан је повезан."
   }
 }
