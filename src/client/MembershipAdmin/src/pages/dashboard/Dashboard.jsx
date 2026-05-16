@@ -117,6 +117,9 @@ export default function Dashboard() {
             <div className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
               {totalMembers.toLocaleString()}
             </div>
+            <div className="mt-0.5 text-theme-xs font-medium uppercase tracking-widest text-gray-400 dark:text-gray-500">
+              {t('stats.totalMembers')}
+            </div>
             <div className="mt-3 flex gap-4">
               <a href="/members" className="flex items-center gap-2 hover:opacity-70 transition-opacity">
                 <svg className="h-4 w-4 text-pink-500" fill="currentColor" viewBox="0 0 24 24">
