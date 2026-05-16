@@ -42,6 +42,17 @@
   },
   "modal": {
     "addChildTitle": "Add child unit under \"{{parentName}}\"",
-    "addRootTitle": "Add root unit"
+    "addRootTitle": "Add root unit",
+    "editTitle": "Edit org unit"
+  },
+  "filter": {
+    "namePlaceholder": "Search by name…",
+    "noResults": "No results for the given name."
+  },
+  "toast": {
+    "created": "Org unit created.",
+    "saved": "Changes saved.",
+    "deleted": "Org unit deleted.",
+    "voterCountSaved": "Voter count updated."
   }
 }
