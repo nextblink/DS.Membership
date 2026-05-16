@@ -9,6 +9,10 @@ namespace Marsipan.Membership.Middleware.Entities;
 /// </summary>
 public class ApplicationUser : IdentityUser
 {
+    public string? FirstName { get; set; }
+
+    public string? LastName { get; set; }
+
     public int? OrgUnitId { get; set; }
 
     [ForeignKey(nameof(OrgUnitId))]

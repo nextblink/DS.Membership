@@ -3,12 +3,18 @@
   "subtitle": "Управљање налозима администратора и оператера.",
   "addUser": "Додај корисника",
   "table": {
+    "name": "Ime",
     "email": "Имејл",
     "role": "Улога",
     "orgUnit": "Орг. јединица",
     "actions": "Акције"
   },
+  "filter": {
+    "namePlaceholder": "Filtrirati po imenu…"
+  },
   "form": {
+    "firstName": "Ime",
+    "lastName": "Prezime",
     "email": "Имејл",
     "password": "Лозинка",
     "role": "Улога",

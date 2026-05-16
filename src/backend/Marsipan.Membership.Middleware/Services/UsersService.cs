@@ -45,17 +45,28 @@ public class UsersService : IUsersService
         _db = db;
     }
 
-    public async Task<List<UserDto>> ListAsync(CancellationToken ct)
+    public async Task<List<UserDto>> ListAsync(string? name, CancellationToken ct)
     {
         // Pull users + their org-unit name in a single query, then resolve role
         // server-side via UserManager (Identity doesn't expose role names on
         // the user row directly).
-        var users = await _db.Users
-            .AsNoTracking()
+        var query = _db.Users.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            var term = name.Trim();
+            query = query.Where(u =>
+                (u.FirstName != null && u.FirstName.Contains(term)) ||
+                (u.LastName != null && u.LastName.Contains(term)));
+        }
+
+        var users = await query
             .Select(u => new
             {
                 u.Id,
                 u.Email,
+                u.FirstName,
+                u.LastName,
                 u.OrgUnitId,
                 OrgUnitName = u.OrgUnit != null ? u.OrgUnit.Name : null,
             })
@@ -74,6 +85,8 @@ public class UsersService : IUsersService
             {
                 Id = u.Id,
                 Email = u.Email ?? string.Empty,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
                 Role = role,
                 OrgUnitId = u.OrgUnitId,
                 OrgUnitName = u.OrgUnitName,
@@ -100,6 +113,8 @@ public class UsersService : IUsersService
         {
             Id = user.Id,
             Email = user.Email ?? string.Empty,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
             Role = role,
             OrgUnitId = user.OrgUnitId,
             OrgUnitName = user.OrgUnit?.Name,
@@ -120,6 +135,8 @@ public class UsersService : IUsersService
         {
             UserName = dto.Email,
             Email = dto.Email,
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
             OrgUnitId = dto.OrgUnitId,
         };
 
@@ -161,6 +178,8 @@ public class UsersService : IUsersService
         {
             Id = user.Id,
             Email = user.Email ?? string.Empty,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
             Role = dto.Role,
             OrgUnitId = user.OrgUnitId,
             OrgUnitName = orgUnitName,
@@ -192,6 +211,8 @@ public class UsersService : IUsersService
             throw new UserValidationException(
                 string.Join("; ", addResult.Errors.Select(e => e.Description)));
 
+        user.FirstName = dto.FirstName;
+        user.LastName = dto.LastName;
         user.OrgUnitId = dto.OrgUnitId;
         var updateResult = await _userManager.UpdateAsync(user);
         if (!updateResult.Succeeded)

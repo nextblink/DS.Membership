@@ -9,6 +9,8 @@ public class UserDto
 {
     public string Id { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
     public string Role { get; set; } = string.Empty;
     public int? OrgUnitId { get; set; }
     public string? OrgUnitName { get; set; }
@@ -25,6 +27,10 @@ public class CreateUserDto
     [Required]
     public string Password { get; set; } = string.Empty;
 
+    public string? FirstName { get; set; }
+
+    public string? LastName { get; set; }
+
     [Required]
     public string Role { get; set; } = string.Empty;
 
@@ -36,6 +42,10 @@ public class CreateUserDto
 /// </summary>
 public class UpdateUserDto
 {
+    public string? FirstName { get; set; }
+
+    public string? LastName { get; set; }
+
     [Required]
     public string Role { get; set; } = string.Empty;
 

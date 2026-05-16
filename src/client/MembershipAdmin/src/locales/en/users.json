@@ -3,12 +3,18 @@
   "subtitle": "Manage admin and operator accounts.",
   "addUser": "Create User",
   "table": {
+    "name": "Name",
     "email": "Email",
     "role": "Role",
     "orgUnit": "Org Unit",
     "actions": "Actions"
   },
+  "filter": {
+    "namePlaceholder": "Filter by name…"
+  },
   "form": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
     "email": "Email",
     "password": "Password",
     "role": "Role",

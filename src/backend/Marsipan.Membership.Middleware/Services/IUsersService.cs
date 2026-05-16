@@ -9,7 +9,11 @@ namespace Marsipan.Membership.Middleware.Services;
 /// </summary>
 public interface IUsersService
 {
-    Task<List<UserDto>> ListAsync(CancellationToken ct);
+    /// <summary>
+    /// List users, optionally filtered by a name fragment that matches
+    /// <c>FirstName</c> or <c>LastName</c> (case-insensitive, contains).
+    /// </summary>
+    Task<List<UserDto>> ListAsync(string? name, CancellationToken ct);
 
     Task<UserDto?> GetByIdAsync(string id, CancellationToken ct);
 

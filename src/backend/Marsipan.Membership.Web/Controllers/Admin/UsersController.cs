@@ -23,9 +23,9 @@ public class UsersController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(List<UserDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<UserDto>>> List(CancellationToken ct)
+    public async Task<ActionResult<List<UserDto>>> List([FromQuery] string? name, CancellationToken ct)
     {
-        var users = await _usersService.ListAsync(ct);
+        var users = await _usersService.ListAsync(name, ct);
         return Ok(users);
     }
 
