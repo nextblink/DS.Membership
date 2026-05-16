@@ -29,6 +29,14 @@
     "noData": "No forms yet",
     "total": "total"
   },
+  "engagementChart": {
+    "title": "Org Units by Engagement Level"
+  },
+  "engagement": {
+    "high": "High (≥1‰)",
+    "medium": "Medium (0.8-1‰)",
+    "low": "Low (<0.8‰)"
+  },
   "error": {
     "loadFailed": "Failed to load dashboard"
   }

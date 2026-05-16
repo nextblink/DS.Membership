@@ -170,7 +170,7 @@ export default function Dashboard() {
           <OrgUnitsTable rows={membersByOrgUnit} />
         </div>
         <div className="xl:col-span-5">
-          <FormsStatusDonut formsByStatus={formsByStatus} />
+          <FormsStatusDonut membersByOrgUnit={membersByOrgUnit} />
         </div>
       </div>
     </div>

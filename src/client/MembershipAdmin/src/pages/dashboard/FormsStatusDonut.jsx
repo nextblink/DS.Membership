@@ -1,15 +1,22 @@
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 
-const COLORS = {
-  Pending:  '#f79009',
-  Verified: '#4ABEA0',
-  Rejected: '#f04438',
-}
-
 const RADIAN = Math.PI / 180
 
-function SliceLabel({ cx, cy, midAngle, innerRadius, outerRadius, name, value, fill }) {
+function computePromille(row) {
+  if (row.voterCount > 0) return (row.memberCount / row.voterCount) * 1000
+  if (typeof row.percentage === 'number') return row.percentage * 10
+  return 0
+}
+
+function barColor(pm) {
+  if (pm >= 1)   return '#4ABEA0' // green
+  if (pm >= 0.8) return '#f79009' // orange
+  return '#f04438'                 // red
+}
+
+function SliceLabel({ cx, cy, midAngle, innerRadius, outerRadius, name, value, fill, total }) {
   const radius = outerRadius + 36
   const x = cx + radius * Math.cos(-midAngle * RADIAN)
   const y = cy + radius * Math.sin(-midAngle * RADIAN)
@@ -22,6 +29,8 @@ function SliceLabel({ cx, cy, midAngle, innerRadius, outerRadius, name, value, f
   const y1 = cy + lineR1 * Math.sin(-midAngle * RADIAN)
   const x2 = cx + lineR2 * Math.cos(-midAngle * RADIAN)
   const y2 = cy + lineR2 * Math.sin(-midAngle * RADIAN)
+
+  const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0
 
   return (
     <g>
@@ -48,27 +57,40 @@ function SliceLabel({ cx, cy, midAngle, innerRadius, outerRadius, name, value, f
         fontSize={15}
         fontWeight={700}
       >
-        {value}
+        {value} <tspan fontSize={12} fontWeight={600} opacity={0.75}>{percentage}%</tspan>
       </text>
     </g>
   )
 }
 
-export default function FormsStatusDonut({ formsByStatus = {} }) {
-  const { t } = useTranslation(['dashboard', 'enums'])
+export default function FormsStatusDonut({ membersByOrgUnit = [] }) {
+  const { t } = useTranslation('dashboard')
 
-  const data = [
-    { name: t('enums:formStatus.pending'),  value: formsByStatus.pending  ?? 0, key: 'Pending'  },
-    { name: t('enums:formStatus.verified'), value: formsByStatus.verified ?? 0, key: 'Verified' },
-    { name: t('enums:formStatus.rejected'), value: formsByStatus.rejected ?? 0, key: 'Rejected' },
-  ].filter((d) => d.value > 0)
+  const data = useMemo(() => {
+    let highCount = 0  // ≥1‰ (green)
+    let midCount = 0   // 0.8-1‰ (orange)
+    let lowCount = 0   // <0.8‰ (red)
+
+    membersByOrgUnit.forEach((org) => {
+      const pm = computePromille(org)
+      if (pm >= 1) highCount++
+      else if (pm >= 0.8) midCount++
+      else lowCount++
+    })
+
+    return [
+      { name: t('engagement.high'),   value: highCount, key: 'high',   color: '#4ABEA0' },
+      { name: t('engagement.medium'), value: midCount,  key: 'medium', color: '#f79009' },
+      { name: t('engagement.low'),    value: lowCount,  key: 'low',    color: '#f04438' },
+    ].filter((d) => d.value > 0)
+  }, [membersByOrgUnit])
 
   const total = data.reduce((s, d) => s + d.value, 0)
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm h-full">
       <div className="border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-        <h3 className="text-base font-semibold text-brand-500 dark:text-brand-400">{t('donut.title')}</h3>
+        <h3 className="text-base font-semibold text-brand-500 dark:text-brand-400">{t('engagementChart.title')}</h3>
       </div>
 
       <div className="px-4 py-5">
@@ -92,10 +114,10 @@ export default function FormsStatusDonut({ formsByStatus = {} }) {
                   endAngle={-270}
                   strokeWidth={0}
                   labelLine={false}
-                  label={<SliceLabel />}
+                  label={(props) => <SliceLabel {...props} total={total} />}
                 >
                   {data.map((entry) => (
-                    <Cell key={entry.key} fill={COLORS[entry.key] ?? '#98a2b3'} />
+                    <Cell key={entry.key} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip
