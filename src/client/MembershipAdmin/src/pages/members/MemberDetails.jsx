@@ -2,6 +2,7 @@
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
+import { useToast, ToastContainer } from '../../components/Toast'
 
 const labelClass = 'text-theme-xs uppercase font-medium text-gray-500 dark:text-gray-400'
 const valueClass = 'text-theme-sm text-gray-900 dark:text-white mt-0.5'
@@ -28,6 +29,7 @@ export default function MemberDetails() {
   const [forms, setForms] = useState([])
   const [formsLoaded, setFormsLoaded] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const toast = useToast()
 
   useEffect(() => {
     let cancelled = false
@@ -80,9 +82,12 @@ export default function MemberDetails() {
     setDeleting(true)
     try {
       await api.delete(`/api/members/${id}`)
+      toast.success(t('members:toast.deleted'))
       navigate('/members')
     } catch (err) {
-      setError(err?.response?.data?.message || t('members:error.deleteFailed'))
+      const msg = err?.response?.data?.message || t('members:error.deleteFailed')
+      setError(msg)
+      toast.error(msg)
       setDeleting(false)
     }
   }
@@ -115,6 +120,7 @@ export default function MemberDetails() {
 
   return (
     <div className="p-6">
+      <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div>
           <h1 className="text-2xl font-semibold text-brand-500 dark:text-brand-400">{fullName}</h1>
