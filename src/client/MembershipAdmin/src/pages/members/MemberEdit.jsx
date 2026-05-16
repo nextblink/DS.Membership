@@ -47,22 +47,17 @@ export default function MemberEdit() {
       // surfacing the first error to the user.
       for (const pid of diff.removedPhoneIds) {
         await api.delete(`/api/members/${id}/phones/${pid}`)
-        toast.success(t('members:toast.phoneRemoved'))
       }
       for (const p of diff.addedPhones) {
         await api.post(`/api/members/${id}/phones`, p)
-        toast.success(t('members:toast.phoneAdded'))
       }
       for (const fid of diff.removedFunctionIds) {
         await api.delete(`/api/members/${id}/functions/${fid}`)
-        toast.success(t('members:toast.functionRemoved'))
       }
       for (const f of diff.addedFunctions) {
         await api.post(`/api/members/${id}/functions`, f)
-        toast.success(t('members:toast.functionAdded'))
       }
-      toast.success(t('members:toast.saved'))
-      navigate(`/members/${id}`)
+      navigate(`/members/${id}`, { state: { toast: 'saved' } })
     } catch (err) {
       const status = err?.response?.status
       if (status === 409) {

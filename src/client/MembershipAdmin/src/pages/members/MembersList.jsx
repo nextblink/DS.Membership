@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import { EDUCATION_LEVEL_OPTIONS, GENDER_OPTIONS } from './enums'
+import { formatDate } from '../../services/dateUtils'
 
 const PAGE_SIZE_DEFAULT = 20
 
@@ -364,7 +365,7 @@ export default function MembersList() {
                   <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.jmbg}</td>
                   <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.orgUnit?.name ?? m.orgUnitName ?? ''}</td>
                   <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{renderFunctions(m)}</td>
-                  <td className="px-4 py-3 w-36 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">{m.membershipDate ?? ''}</td>
+                  <td className="px-4 py-3 w-36 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">{formatDate(m.membershipDate)}</td>
                   <td className="px-4 py-3 w-32">
                     <MembershipBar date={m.membershipDate} />
                   </td>

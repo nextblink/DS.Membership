@@ -6,6 +6,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import auth from '../../framework/auth'
+import { formatDate } from '../../services/dateUtils'
 import { useToast, ToastContainer } from '../../components/Toast'
 
 const ADMIN_ROLES = new Set(['SuperAdmin', 'Admin', 'LocalAdmin'])
@@ -298,7 +299,7 @@ export default function FormDetails() {
               </div>
               <div>
                 <dt className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.formDate')}</dt>
-                <dd className="text-theme-sm text-gray-900 dark:text-white">{form.formDate ? String(form.formDate).slice(0, 10) : '—'}</dd>
+                <dd className="text-theme-sm text-gray-900 dark:text-white">{formatDate(form.formDate)}</dd>
               </div>
               <div>
                 <dt className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.municipalBoard')}</dt>

@@ -4,10 +4,10 @@
     "female": "Женски"
   },
   "maritalStatus": {
-    "single": "Неожењен/Неудата",
-    "married": "Ожењен/Удата",
+    "single": "Неожењен/а",
+    "married": "Ожењен/а",
     "divorced": "Разведен/а",
-    "widowed": "Удовац/Удовица"
+    "widowed": "Удовац/а"
   },
   "educationLevel": {
     "primary": "Основна школа",

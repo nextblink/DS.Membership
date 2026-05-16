@@ -18,8 +18,7 @@ export default function MemberCreate() {
     try {
       const res = await api.post('/api/members', payload)
       const id = res?.data?.id
-      toast.success(t('members:toast.created'))
-      if (id) navigate(`/members/${id}`)
+      if (id) navigate(`/members/${id}`, { state: { toast: 'created' } })
       else navigate('/members')
     } catch (err) {
       const status = err?.response?.status

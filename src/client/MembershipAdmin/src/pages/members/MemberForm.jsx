@@ -21,10 +21,10 @@ import {
 
 const sectionClass = 'rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm mb-6'
 const sectionTitleClass = 'text-base font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-800 pb-3'
-const labelClass = 'block text-theme-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5'
+const labelClass = 'block text-[11px] font-medium text-gray-700 dark:text-gray-300 mb-1'
 const inputClass =
-  'w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500'
-const errorClass = 'text-theme-xs text-error-500 mt-1'
+  'w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-theme-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500'
+const errorClass = 'text-[11px] text-error-500 mt-0.5'
 const gridClass = 'grid grid-cols-1 md:grid-cols-2 gap-4'
 
 function emptyDefaults() {
@@ -162,6 +162,8 @@ export default function MemberForm({
     handleSubmit,
     control,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm({ defaultValues: toFormValues(initialMember) })
 
@@ -221,10 +223,10 @@ export default function MemberForm({
         </div>
       )}
 
-      {/* Personal */}
+      {/* Personal + Contact */}
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>{t('members:form.personal')}</h2>
-        <div className={gridClass}>
+        <h2 className={sectionTitleClass}>{t('members:form.personal')} / {t('members:form.contact')}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <Field label={t('members:form.firstName')} required error={errors.firstName?.message}>
             <input
               className={inputClass}
@@ -240,6 +242,8 @@ export default function MemberForm({
           <Field label={t('members:form.parentName')} error={errors.parentName?.message}>
             <input className={inputClass} {...register('parentName')} />
           </Field>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Field label={t('members:form.dateOfBirth')} required error={errors.dateOfBirth?.message}>
             <input
               type="date"
@@ -250,47 +254,74 @@ export default function MemberForm({
           <Field label={t('members:form.jmbg')} required error={errors.jmbg?.message}>
             <input
               className={inputClass}
+              inputMode="numeric"
+              pattern="[0-9]*"
               {...register('jmbg', {
                 required: t('members:validation.jmbgRequired'),
                 minLength: { value: 13, message: t('members:validation.jmbgLength') },
                 maxLength: { value: 13, message: t('members:validation.jmbgLength') },
+                onChange: (e) => { e.target.value = e.target.value.replace(/\D/g, '') },
               })}
             />
           </Field>
-          <Field label={t('members:form.gender')} required error={errors.gender?.message}>
-            <select className={inputClass} {...register('gender', { required: true })}>
-              {GENDER_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {t(`enums:gender.${o.value.toLowerCase()}`)}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label={t('members:form.maritalStatus')} required error={errors.maritalStatus?.message}>
-            <select
-              className={inputClass}
-              {...register('maritalStatus', { required: true })}
-            >
-              {MARITAL_STATUS_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {t(`enums:maritalStatus.${o.value.toLowerCase()}`)}
-                </option>
-              ))}
-            </select>
-          </Field>
+          <div className="col-span-2 flex gap-4">
+            <Field label={t('members:form.gender')} required error={errors.gender?.message}>
+              <div className="flex gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
+                {GENDER_OPTIONS.map((o) => (
+                  <button
+                    key={o.value}
+                    type="button"
+                    onClick={() => setValue('gender', o.value)}
+                    className={`rounded-md px-2.5 py-1 text-theme-xs font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
+                      watch('gender') === o.value
+                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs'
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`}
+                  >
+                    {t(`enums:gender.${o.value.toLowerCase()}`)}
+                  </button>
+                ))}
+              </div>
+            </Field>
+            <Field label={t('members:form.maritalStatus')} required error={errors.maritalStatus?.message}>
+              <div className="flex flex-wrap gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
+                {MARITAL_STATUS_OPTIONS.map((o) => (
+                  <button
+                    key={o.value}
+                    type="button"
+                    onClick={() => setValue('maritalStatus', o.value)}
+                    className={`rounded-md px-2.5 py-1 text-theme-xs font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
+                      watch('maritalStatus') === o.value
+                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs'
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`}
+                  >
+                    {t(`enums:maritalStatus.${o.value.toLowerCase()}`)}
+                  </button>
+                ))}
+              </div>
+            </Field>
+          </div>
         </div>
-      </section>
-
-      {/* Contact */}
-      <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>{t('members:form.contact')}</h2>
-        <div className={gridClass}>
-          <Field label={t('members:form.postalCode')}>
-            <input className={inputClass} {...register('postalCode')} />
-          </Field>
+        <div className="grid grid-cols-4 gap-4 mt-4">
           <Field label={t('members:form.city')}>
             <input className={inputClass} {...register('city')} />
           </Field>
+          <Field label={t('members:form.postalCode')}>
+            <input className={inputClass} {...register('postalCode')} />
+          </Field>
+          <Field label={t('members:form.votingPlaceNumber')}>
+            <input
+              className={inputClass}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              {...register('votingPlaceNumber', {
+                onChange: (e) => { e.target.value = e.target.value.replace(/\D/g, '') },
+              })}
+            />
+          </Field>
+        </div>
+        <div className="grid grid-cols-4 gap-4 mt-3">
           <Field label={t('members:form.email')} error={errors.email?.message}>
             <input
               type="email"
@@ -306,52 +337,68 @@ export default function MemberForm({
         </div>
 
         <div className="mt-4">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3 mb-2">
             <label className={labelClass}>{t('members:form.phones')}</label>
             <button
               type="button"
-              className="text-theme-sm text-brand-500 hover:underline"
               onClick={() => phones.append({ number: '', type: 'Mobile' })}
+              className="inline-flex items-center gap-1 rounded-md border border-brand-300 dark:border-brand-700 px-2.5 py-1 text-theme-xs font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10"
             >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 4v16m8-8H4"/>
+              </svg>
               {t('members:form.addPhone')}
             </button>
           </div>
           {phones.fields.length === 0 && (
             <p className="text-xs text-gray-500 dark:text-gray-400">{t('members:form.noPhones')}</p>
           )}
+          <div className="flex flex-wrap gap-3">
           {phones.fields.map((f, idx) => (
-            <div key={f.id} className="flex gap-2 mb-2 items-start">
+            <div key={f.id} className="flex gap-2 items-center">
               <input
-                className={`${inputClass} flex-1`}
+                className={`${inputClass.replace('w-full', '')} w-1/3`}
                 placeholder={t('members:form.phoneNumber')}
+                inputMode="tel"
                 {...register(`phones.${idx}.number`, { required: t('members:validation.phoneRequired') })}
               />
-              <select
-                className={`${inputClass} w-40`}
-                {...register(`phones.${idx}.type`, { required: true })}
-              >
+              <div className="flex gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5">
                 {PHONE_TYPE_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
+                  <button
+                    key={o.value}
+                    type="button"
+                    onClick={() => setValue(`phones.${idx}.type`, o.value)}
+                    className={`rounded-md px-2.5 py-1 text-theme-xs font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
+                      watch(`phones.${idx}.type`) === o.value
+                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs'
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`}
+                  >
                     {t(`enums:phoneType.${o.value.toLowerCase()}`)}
-                  </option>
+                  </button>
                 ))}
-              </select>
+              </div>
               <button
                 type="button"
-                className="px-3 py-2 text-theme-sm text-error-500 hover:underline"
+                className="inline-flex items-center gap-1 rounded-md border border-error-200 dark:border-error-700 px-2.5 py-1 text-theme-xs font-medium text-error-600 dark:text-error-400 hover:bg-error-50 dark:hover:bg-error-500/10"
                 onClick={() => phones.remove(idx)}
               >
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 18L18 6M6 6l12 12"/>
+                </svg>
                 {t('members:form.removePhone')}
               </button>
             </div>
           ))}
+          </div>
         </div>
       </section>
 
       {/* Membership */}
+
       <section className={sectionClass}>
         <h2 className={sectionTitleClass}>{t('members:form.membership')}</h2>
-        <div className={gridClass}>
+        <div className="grid grid-cols-4 gap-4">
           <Field label={t('members:form.orgUnit')} required error={errors.orgUnitId?.message}>
             <select
               className={inputClass}
@@ -372,28 +419,19 @@ export default function MemberForm({
               {...register('membershipDate', { required: t('members:validation.membershipDateRequired') })}
             />
           </Field>
-          <Field label={t('members:form.votingPlaceNumber')}>
-            <input
-              type="number"
-              className={inputClass}
-              {...register('votingPlaceNumber')}
-            />
-          </Field>
         </div>
 
         <div className="mt-4">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3 mb-2">
             <label className={labelClass}>{t('members:form.functions')}</label>
             <button
               type="button"
-              className="text-theme-sm text-brand-500 hover:underline"
-              onClick={() =>
-                fns.append({
-                  functionId: functionsList[0] ? String(functionsList[0].id) : '',
-                  assignedDate: '',
-                })
-              }
+              onClick={() => fns.append({ functionId: functionsList[0] ? String(functionsList[0].id) : '', assignedDate: '' })}
+              className="inline-flex items-center gap-1 rounded-md border border-brand-300 dark:border-brand-700 px-2.5 py-1 text-theme-xs font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10"
             >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 4v16m8-8H4"/>
+              </svg>
               {t('members:form.addFunction')}
             </button>
           </div>
@@ -401,9 +439,9 @@ export default function MemberForm({
             <p className="text-xs text-gray-500 dark:text-gray-400">{t('members:form.noFunctions')}</p>
           )}
           {fns.fields.map((f, idx) => (
-            <div key={f.id} className="flex gap-2 mb-2 items-start">
+            <div key={f.id} className="flex gap-2 mb-2 items-center">
               <select
-                className={`${inputClass} flex-1`}
+                className={`${inputClass.replace('w-full', '')} w-1/6`}
                 {...register(`memberFunctions.${idx}.functionId`, { required: true })}
               >
                 <option value="">{t('members:form.selectFunction')}</option>
@@ -415,14 +453,17 @@ export default function MemberForm({
               </select>
               <input
                 type="date"
-                className={`${inputClass} w-48`}
+                className={`${inputClass.replace('w-full', '')} w-1/6`}
                 {...register(`memberFunctions.${idx}.assignedDate`, { required: true })}
               />
               <button
                 type="button"
-                className="px-3 py-2 text-theme-sm text-error-500 hover:underline"
+                className="inline-flex items-center gap-1 rounded-md border border-error-200 dark:border-error-700 px-2.5 py-1 text-theme-xs font-medium text-error-600 dark:text-error-400 hover:bg-error-50 dark:hover:bg-error-500/10"
                 onClick={() => fns.remove(idx)}
               >
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 18L18 6M6 6l12 12"/>
+                </svg>
                 {t('members:form.removeFunction')}
               </button>
             </div>
@@ -432,11 +473,37 @@ export default function MemberForm({
 
       {/* Employment */}
       <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>{t('members:form.employment')}</h2>
-        <div className={gridClass}>
+        <h2 className={sectionTitleClass}>{t('members:form.employment')} / {t('members:form.education')}</h2>
+
+        {/* Row 1: Occupation + Education Level */}
+        <div className="grid grid-cols-4 gap-4 mb-4">
           <Field label={t('members:form.occupation')}>
             <input className={inputClass} {...register('occupation')} />
           </Field>
+          <div className="col-span-3">
+          <Field label={t('members:form.educationLevel')} required>
+            <div className="flex flex-wrap gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
+              {EDUCATION_LEVEL_OPTIONS.map((o) => (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => setValue('educationLevel', o.value)}
+                  className={`rounded-md px-2.5 py-1 text-theme-xs font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
+                    watch('educationLevel') === o.value
+                      ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {t(`enums:educationLevel.${o.value.toLowerCase()}`)}
+                </button>
+              ))}
+            </div>
+          </Field>
+          </div>
+        </div>
+
+        {/* Row 2: Job Title + Company Name + Company City + Is Public */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
           <Field label={t('members:form.jobTitle')}>
             <input className={inputClass} {...register('jobTitle')} />
           </Field>
@@ -446,26 +513,25 @@ export default function MemberForm({
           <Field label={t('members:form.companyCity')}>
             <input className={inputClass} {...register('companyCity')} />
           </Field>
-          <label className="flex items-center gap-2 mt-2">
-            <input type="checkbox" {...register('isPublicCompany')} />
-            <span className="text-theme-sm text-gray-900 dark:text-white">{t('members:form.isPublicCompany')}</span>
-          </label>
-        </div>
-      </section>
-
-      {/* Education */}
-      <section className={sectionClass}>
-        <h2 className={sectionTitleClass}>{t('members:form.education')}</h2>
-        <div className={gridClass}>
-          <Field label={t('members:form.educationLevel')} required>
-            <select className={inputClass} {...register('educationLevel', { required: true })}>
-              {EDUCATION_LEVEL_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {t(`enums:educationLevel.${o.value.toLowerCase()}`)}
-                </option>
+          <div>
+            <label className={labelClass}>{t('members:form.isPublicCompany')}</label>
+            <div className="flex gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
+              {[{ value: false, label: t('common:bool.no') }, { value: true, label: t('common:bool.yes') }].map((o) => (
+                <button
+                  key={String(o.value)}
+                  type="button"
+                  onClick={() => setValue('isPublicCompany', o.value)}
+                  className={`rounded-md px-2.5 py-1 text-theme-xs font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
+                    watch('isPublicCompany') === o.value
+                      ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {o.label}
+                </button>
               ))}
-            </select>
-          </Field>
+            </div>
+          </div>
         </div>
       </section>
 
