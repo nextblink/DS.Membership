@@ -11,8 +11,8 @@ function computePromille(row) {
 }
 
 function barColor(pm) {
-  if (pm >= 1)   return '#4ABEA0' // green
-  if (pm >= 0.8) return '#f79009' // orange
+  if (pm > 1.1)  return '#4ABEA0' // green
+  if (pm >= 0.9) return '#f79009' // orange
   return '#f04438'                 // red
 }
 
@@ -67,14 +67,14 @@ export default function FormsStatusDonut({ membersByOrgUnit = [] }) {
   const { t } = useTranslation('dashboard')
 
   const data = useMemo(() => {
-    let highCount = 0  // ≥1‰ (green)
-    let midCount = 0   // 0.8-1‰ (orange)
-    let lowCount = 0   // <0.8‰ (red)
+    let highCount = 0  // >1.1‰ (green)
+    let midCount = 0   // 0.9-1.1‰ (orange)
+    let lowCount = 0   // <0.9‰ (red)
 
     membersByOrgUnit.forEach((org) => {
       const pm = computePromille(org)
-      if (pm >= 1) highCount++
-      else if (pm >= 0.8) midCount++
+      if (pm > 1.1) highCount++
+      else if (pm >= 0.9) midCount++
       else lowCount++
     })
 

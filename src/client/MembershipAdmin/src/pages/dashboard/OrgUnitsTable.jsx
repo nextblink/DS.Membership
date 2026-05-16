@@ -9,8 +9,8 @@ function computePromille(row) {
 }
 
 function barColor(pm) {
-  if (pm >= 1)   return '#4ABEA0' // green
-  if (pm >= 0.8) return '#f79009' // orange
+  if (pm > 1.1)  return '#4ABEA0' // green
+  if (pm >= 0.9) return '#f79009' // orange
   return '#f04438'                 // red
 }
 
