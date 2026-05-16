@@ -19,7 +19,8 @@
     "jmbg": "ЈМБГ",
     "orgUnit": "Орг. јединица",
     "membershipDate": "Датум чланства",
-    "functions": "Функције"
+    "functions": "Функције",
+    "seniority": "Стаж"
   },
   "state": {
     "noMembers": "Нема чланова.",

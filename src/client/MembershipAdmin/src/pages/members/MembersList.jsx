@@ -8,8 +8,8 @@ import { EDUCATION_LEVEL_OPTIONS, GENDER_OPTIONS } from './enums'
 const PAGE_SIZE_DEFAULT = 20
 
 const inputClass =
-  'w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500'
-const labelClass = 'block text-theme-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5'
+  'w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-theme-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500'
+const labelClass = 'block text-[11px] font-medium text-gray-600 dark:text-gray-400 mb-1'
 
 function flattenOrgUnits(data) {
   const out = []
@@ -245,7 +245,7 @@ export default function MembersList() {
                   key={o.value}
                   type="button"
                   onClick={() => update('educationLevel', o.value)}
-                  className={`rounded-md px-3 py-1.5 text-theme-sm font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
+                  className={`rounded-md px-2.5 py-1 text-theme-xs font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
                     draft.educationLevel === o.value
                       ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs'
                       : 'text-gray-500 dark:text-gray-400'
@@ -258,7 +258,7 @@ export default function MembersList() {
           </div>
 
           {/* 7. Gender — segmented button group */}
-          <div className="col-span-2 md:col-span-2">
+          <div className="col-span-2 md:col-span-1">
             <label className={labelClass}>{t('filter.gender')}</label>
             <div className="flex gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
               {[{ value: '', label: t('enums:all') }, ...GENDER_OPTIONS.map((o) => ({ value: o.value, label: t(`enums:gender.${o.value.toLowerCase()}`) }))].map((o) => (
@@ -266,7 +266,7 @@ export default function MembersList() {
                   key={o.value}
                   type="button"
                   onClick={() => update('gender', o.value)}
-                  className={`rounded-md px-3 py-1.5 text-theme-sm font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
+                  className={`rounded-md px-2.5 py-1 text-theme-xs font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
                     draft.gender === o.value
                       ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs'
                       : 'text-gray-500 dark:text-gray-400'
@@ -277,21 +277,28 @@ export default function MembersList() {
               ))}
             </div>
           </div>
-        </div>
-        <div className="mt-3 flex gap-2">
-          <button
-            type="submit"
-            className="rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
-          >
-            {t('common:button.apply')}
-          </button>
-          <button
-            type="button"
-            onClick={clearFilters}
-            className="rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
-            {t('common:button.clear')}
-          </button>
+          {/* 8. Apply / Clear buttons — end of second row */}
+          <div className="col-span-2 md:col-span-1 flex items-end gap-1.5">
+            <button
+              type="submit"
+              className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 hover:bg-brand-600 px-3 py-1.5 text-theme-xs font-medium text-white"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              {t('common:button.search')}
+            </button>
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-theme-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+              {t('common:button.clear')}
+            </button>
+          </div>
         </div>
       </form>
 
@@ -303,28 +310,29 @@ export default function MembersList() {
               <th className="px-4 py-3">{t('table.fullName')}</th>
               <th className="px-4 py-3">{t('table.jmbg')}</th>
               <th className="px-4 py-3">{t('table.orgUnit')}</th>
-              <th className="px-4 py-3">{t('table.membershipDate')}</th>
               <th className="px-4 py-3">{t('table.functions')}</th>
+              <th className="px-4 py-3 w-36 whitespace-nowrap">{t('table.membershipDate')}</th>
+              <th className="px-4 py-3 w-32 whitespace-nowrap">{t('table.seniority')}</th>
             </tr>
           </thead>
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
+                <td colSpan={6} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
                   {t('common:state.loading')}
                 </td>
               </tr>
             )}
             {!loading && error && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-error-500">
+                <td colSpan={6} className="px-4 py-6 text-center text-theme-sm text-error-500">
                   {error}
                 </td>
               </tr>
             )}
             {!loading && !error && data.items.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
+                <td colSpan={6} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
                   {t('state.noMembers')}
                 </td>
               </tr>
@@ -355,8 +363,11 @@ export default function MembersList() {
                   </td>
                   <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.jmbg}</td>
                   <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.orgUnit?.name ?? m.orgUnitName ?? ''}</td>
-                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.membershipDate ?? ''}</td>
                   <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{renderFunctions(m)}</td>
+                  <td className="px-4 py-3 w-36 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">{m.membershipDate ?? ''}</td>
+                  <td className="px-4 py-3 w-32">
+                    <MembershipBar date={m.membershipDate} />
+                  </td>
                 </tr>
               ))}
           </tbody>
@@ -386,6 +397,48 @@ export default function MembersList() {
             {t('common:button.next')}
           </button>
         </div>
+      </div>
+    </div>
+  )
+}
+
+const MAX_MONTHS = 15 * 12 // 180 months = 15 years
+
+function memberDuration(dateStr) {
+  if (!dateStr) return ''
+  const months = calcMonths(dateStr)
+  if (months < 1) return '< 1 mo'
+  if (months < 24) return `${months} mo`
+  return `${Math.floor(months / 12)} yr`
+}
+
+function calcMonths(dateStr) {
+  const start = new Date(dateStr)
+  const now = new Date()
+  return (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth())
+}
+
+function MembershipBar({ date }) {
+  if (!date) return null
+  const months = calcMonths(date)
+  const pct = Math.min(100, Math.round((months / MAX_MONTHS) * 100))
+  const label = memberDuration(date)
+
+  const color =
+    pct >= 75 ? '#4ABEA0' :
+    pct >= 40 ? '#2e6bad' :
+    '#f79009'
+
+  return (
+    <div className="flex flex-col gap-1 min-w-[110px]">
+      <span className="text-[11px] font-semibold tabular-nums" style={{ color }}>
+        {label}
+      </span>
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${pct}%`, background: color }}
+        />
       </div>
     </div>
   )

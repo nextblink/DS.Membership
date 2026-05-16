@@ -32,5 +32,10 @@
   "table": {
     "name": "Name",
     "actions": "Actions"
+  },
+  "toast": {
+    "created": "Function created.",
+    "saved": "Changes saved.",
+    "deleted": "Function deleted."
   }
 }

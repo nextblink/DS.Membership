@@ -587,7 +587,7 @@ export default function OrgUnits() {
               value={filterName}
               onChange={(e) => setFilterName(e.target.value)}
               placeholder={t('orgUnits:filter.namePlaceholder')}
-              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2 pl-9 pr-9 text-theme-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/10"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-1.5 pl-9 pr-9 text-theme-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/10"
             />
             {filterName && (
               <button

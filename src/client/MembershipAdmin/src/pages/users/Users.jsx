@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
+import { useToast, ToastContainer } from '../../components/Toast'
 
 const ROLES = ['SuperAdmin', 'Admin', 'LocalAdmin', 'Operator', 'Viewer']
 const ROLES_REQUIRING_ORG_UNIT = ['LocalAdmin', 'Operator', 'Viewer']
@@ -43,6 +44,7 @@ function extractErrorMessages(err) {
 
 export default function Users() {
   const { t } = useTranslation(['users', 'enums', 'common'])
+  const toast = useToast()
   const [users, setUsers] = useState([])
   const [orgUnits, setOrgUnits] = useState([])
   const [loading, setLoading] = useState(true)
@@ -99,9 +101,12 @@ export default function Users() {
     try {
       await api.delete(`/api/users/${deleteTarget.id}`)
       setDeleteTarget(null)
+      toast.success(t('users:toast.deleted'))
       await loadUsers(nameFilter)
     } catch (err) {
-      setDeleteError(extractErrorMessages(err).join(' '))
+      const msg = extractErrorMessages(err).join(' ')
+      setDeleteError(msg)
+      toast.error(msg)
     } finally {
       setDeleting(false)
     }
@@ -109,6 +114,7 @@ export default function Users() {
 
   return (
     <div>
+      <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
           <div>
@@ -128,14 +134,35 @@ export default function Users() {
         </div>
 
         {/* Name filter */}
-        <div className="border-b border-gray-200 dark:border-gray-800 px-6 py-3">
-          <input
-            type="search"
-            value={nameFilter}
-            onChange={(e) => setNameFilter(e.target.value)}
-            placeholder={t('users:filter.namePlaceholder')}
-            className="w-full max-w-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
-          />
+        <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-4">
+          <div className="flex items-end gap-3">
+            <div className="w-64">
+              <div className="relative">
+                <svg className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input
+                  type="text"
+                  value={nameFilter}
+                  onChange={(e) => setNameFilter(e.target.value)}
+                  placeholder={t('users:filter.namePlaceholder')}
+                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-1.5 pl-8 pr-3 text-theme-xs text-gray-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+                />
+              </div>
+            </div>
+            {nameFilter && (
+              <button
+                type="button"
+                onClick={() => setNameFilter('')}
+                className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-theme-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                {t('common:button.clear')}
+              </button>
+            )}
+          </div>
         </div>
 
         {loading ? (
@@ -173,24 +200,29 @@ export default function Users() {
                     <td className="py-3 px-4 text-theme-sm text-gray-900 dark:text-white">
                       {u.orgUnitId ? orgUnitNameById.get(u.orgUnitId) || `#${u.orgUnitId}` : '—'}
                     </td>
-                    <td className="py-3 px-4 text-right text-theme-sm">
-                      <button
-                        type="button"
-                        onClick={() => setEditTarget(u)}
-                        className="mr-3 cursor-pointer text-brand-500 hover:underline"
-                      >
-                        {t('users:action.edit')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDeleteError(null)
-                          setDeleteTarget(u)
-                        }}
-                        className="cursor-pointer text-error-500 hover:underline"
-                      >
-                        {t('users:action.delete')}
-                      </button>
+                    <td className="py-3 px-4 text-right">
+                      <div className="inline-flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setEditTarget(u)}
+                          className="inline-flex items-center gap-1 rounded-md border border-gray-200 dark:border-gray-700 px-2.5 py-1 text-theme-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                          {t('users:action.edit')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setDeleteError(null); setDeleteTarget(u) }}
+                          className="inline-flex items-center gap-1 rounded-md border border-error-200 dark:border-error-700 px-2.5 py-1 text-theme-xs font-medium text-error-600 dark:text-error-400 hover:bg-error-50 dark:hover:bg-error-500/10"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                          </svg>
+                          {t('users:action.delete')}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -206,8 +238,10 @@ export default function Users() {
           onClose={() => setCreateOpen(false)}
           onCreated={async () => {
             setCreateOpen(false)
+            toast.success(t('users:toast.created'))
             await loadUsers(nameFilter)
           }}
+          onError={(msg) => toast.error(msg)}
         />
       )}
 
@@ -218,8 +252,10 @@ export default function Users() {
           onClose={() => setEditTarget(null)}
           onSaved={async () => {
             setEditTarget(null)
+            toast.success(t('users:toast.saved'))
             await loadUsers(nameFilter)
           }}
+          onError={(msg) => toast.error(msg)}
         />
       )}
 
@@ -262,7 +298,7 @@ function ModalShell({ title, onClose, children }) {
   )
 }
 
-function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
+function CreateUserModal({ orgUnitOptions, onClose, onCreated, onError }) {
   const { t } = useTranslation(['users', 'enums'])
   const [serverErrors, setServerErrors] = useState([])
   const {
@@ -290,14 +326,9 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
       await api.post('/api/users', payload)
       await onCreated()
     } catch (err) {
-      const status = err?.response?.status
-      if (status === 409) {
-        setServerErrors([t('users:error.emailTaken')])
-      } else if (status === 400) {
-        setServerErrors(extractErrorMessages(err))
-      } else {
-        setServerErrors(extractErrorMessages(err))
-      }
+      const msgs = extractErrorMessages(err)
+      setServerErrors(msgs)
+      onError?.(msgs.join(' '))
     }
   }
 
@@ -431,7 +462,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
   )
 }
 
-function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
+function EditUserModal({ user, orgUnitOptions, onClose, onSaved, onError }) {
   const { t } = useTranslation(['users', 'enums'])
   const [serverErrors, setServerErrors] = useState([])
   const {
@@ -462,12 +493,9 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
       await api.put(`/api/users/${user.id}`, payload)
       await onSaved()
     } catch (err) {
-      const status = err?.response?.status
-      if (status === 409) {
-        setServerErrors([t('users:error.saveFailed')])
-      } else {
-        setServerErrors(extractErrorMessages(err))
-      }
+      const msgs = extractErrorMessages(err)
+      setServerErrors(msgs)
+      onError?.(msgs.join(' '))
     }
   }
 

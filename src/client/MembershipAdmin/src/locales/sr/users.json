@@ -10,7 +10,8 @@
     "actions": "Акције"
   },
   "filter": {
-    "namePlaceholder": "Filtrirati po imenu…"
+    "name": "Ime",
+    "namePlaceholder": "Претражи по имену…"
   },
   "form": {
     "firstName": "Ime",
@@ -49,6 +50,11 @@
     "cancel": "Откажи",
     "saving": "Чување…",
     "deleting": "Брисање…"
+  },
+  "toast": {
+    "created": "Корисник је успешно креиран.",
+    "saved": "Измене су сачуване.",
+    "deleted": "Корисник је обрисан."
   },
   "modal": {
     "addTitle": "Додај корисника",

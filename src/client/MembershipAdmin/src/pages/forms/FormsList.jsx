@@ -175,7 +175,7 @@ export default function FormsList() {
           </button>
           <Link
             to="/forms/new"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
+            className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 hover:bg-brand-600 px-3 py-1.5 text-theme-xs font-medium text-white"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -193,22 +193,22 @@ export default function FormsList() {
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <div>
-            <label className="mb-1 block text-theme-xs font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.formNumber')}</label>
+            <label className="mb-1 block text-[11px] font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.formNumber')}</label>
             <input
               data-testid="filter-formNumber"
               type="text"
               value={draft.formNumber}
               onChange={(e) => setDraft({ ...draft, formNumber: e.target.value })}
-              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-theme-xs text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
               placeholder={t('forms:filter.placeholderFormNumber')}
             />
           </div>
           <div>
-            <label className="mb-1 block text-theme-xs font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.orgUnit')}</label>
+            <label className="mb-1 block text-[11px] font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.orgUnit')}</label>
             <select
               value={draft.orgUnitId}
               onChange={(e) => setDraft({ ...draft, orgUnitId: e.target.value })}
-              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-theme-xs text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
             >
               <option value="">{t('enums:all')}</option>
               {orgUnits.map((u) => (
@@ -219,12 +219,12 @@ export default function FormsList() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-theme-xs font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.status')}</label>
+            <label className="mb-1 block text-[11px] font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.status')}</label>
             <select
               data-testid="filter-status"
               value={draft.status}
               onChange={(e) => setDraft({ ...draft, status: e.target.value })}
-              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-theme-xs text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
             >
               <option value="">{t('enums:all')}</option>
               {STATUSES.map((s) => (
@@ -235,12 +235,12 @@ export default function FormsList() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-theme-xs font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.memberName')}</label>
+            <label className="mb-1 block text-[11px] font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.memberName')}</label>
             <input
               type="text"
               value={draft.memberName}
               onChange={(e) => setDraft({ ...draft, memberName: e.target.value })}
-              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-theme-xs text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
               placeholder={t('forms:filter.placeholderMemberName')}
             />
           </div>
@@ -248,15 +248,21 @@ export default function FormsList() {
             <button
               type="submit"
               data-testid="filter-search-btn"
-              className="rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
+              className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 hover:bg-brand-600 px-3 py-1.5 text-theme-xs font-medium text-white"
             >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
               {t('common:button.search')}
             </button>
             <button
               type="button"
               onClick={clearFilters}
-              className="rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-theme-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 18L18 6M6 6l12 12"/>
+              </svg>
               {t('common:button.clear')}
             </button>
           </div>

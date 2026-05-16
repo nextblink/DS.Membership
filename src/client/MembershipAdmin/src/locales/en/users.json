@@ -10,6 +10,7 @@
     "actions": "Actions"
   },
   "filter": {
+    "name": "Name",
     "namePlaceholder": "Filter by name…"
   },
   "form": {
@@ -52,6 +53,11 @@
     "cancel": "Cancel",
     "saving": "Saving…",
     "deleting": "Deleting…"
+  },
+  "toast": {
+    "created": "User created successfully.",
+    "saved": "Changes saved.",
+    "deleted": "User deleted."
   },
   "modal": {
     "addTitle": "Create User",

@@ -19,7 +19,8 @@
     "jmbg": "JMBG",
     "orgUnit": "Org Unit",
     "membershipDate": "Membership Date",
-    "functions": "Functions"
+    "functions": "Functions",
+    "seniority": "Seniority"
   },
   "state": {
     "noMembers": "No members found.",

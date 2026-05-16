@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
+import { useToast, ToastContainer } from '../../components/Toast'
 
 function extractError(e) {
   return (
@@ -12,7 +13,7 @@ function extractError(e) {
   )
 }
 
-function FunctionModal({ item, onClose, onSaved }) {
+function FunctionModal({ item, onClose, onSaved, onSuccess }) {
   const { t } = useTranslation(['functions', 'common'])
   const [name, setName] = useState(item?.name ?? '')
   const [saving, setSaving] = useState(false)
@@ -32,6 +33,7 @@ function FunctionModal({ item, onClose, onSaved }) {
         await api.post('/api/functions', { name: trimmed })
       }
       await onSaved()
+      onSuccess(isEdit ? t('toast.saved') : t('toast.created'))
       onClose()
     } catch (err) {
       setError(extractError(err) || t(isEdit ? 'error.updateFailed' : 'error.createFailed'))
@@ -99,6 +101,7 @@ function FunctionModal({ item, onClose, onSaved }) {
 
 export default function Functions() {
   const { t } = useTranslation(['functions', 'common'])
+  const toast = useToast()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -128,8 +131,10 @@ export default function Functions() {
     try {
       await api.delete(`/api/functions/${item.id}`)
       await load()
+      toast.success(t('toast.deleted'))
     } catch (e) {
       setError(extractError(e) || (e?.response?.status === 409 ? t('error.deleteInUse') : t('error.deleteFailed')))
+      toast.error(extractError(e) || (e?.response?.status === 409 ? t('error.deleteInUse') : t('error.deleteFailed')))
     } finally {
       setDeletingId(null)
     }
@@ -137,6 +142,7 @@ export default function Functions() {
 
   return (
     <div>
+      <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
       {error && (
         <div data-testid="functions-error" className="mb-4 rounded-lg border border-error-300 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-500">
           {error}
@@ -224,6 +230,7 @@ export default function Functions() {
           item={modal === 'add' ? null : modal}
           onClose={() => setModal(null)}
           onSaved={load}
+          onSuccess={(msg) => toast.success(msg)}
         />
       )}
     </div>
