@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
-import { EDUCATION_LEVEL_OPTIONS } from './enums'
+import { EDUCATION_LEVEL_OPTIONS, GENDER_OPTIONS } from './enums'
 
 const PAGE_SIZE_DEFAULT = 20
 
@@ -37,6 +37,7 @@ export default function MembersList() {
     orgUnitId: searchParams.get('orgUnitId') ?? '',
     functionId: searchParams.get('functionId') ?? '',
     educationLevel: searchParams.get('educationLevel') ?? '',
+    gender: searchParams.get('gender') ?? '',
     occupation: searchParams.get('occupation') ?? '',
   }))
 
@@ -127,6 +128,7 @@ export default function MembersList() {
       orgUnitId: '',
       functionId: '',
       educationLevel: '',
+      gender: '',
       occupation: '',
     })
     const next = new URLSearchParams()
@@ -166,7 +168,7 @@ export default function MembersList() {
 
       {/* Filter row */}
       <form onSubmit={applyFilters} className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {/* 1. Combined Name field (searches firstName + lastName) */}
           <div>
             <label className={labelClass}>{t('filter.name')}</label>
@@ -234,33 +236,44 @@ export default function MembersList() {
             />
           </div>
 
-          {/* 6. Education Level — radio buttons (spans full row for readability) */}
-          <div className="col-span-2">
+          {/* 6. Education Level — segmented button group */}
+          <div className="col-span-2 md:col-span-3">
             <label className={labelClass}>{t('filter.educationLevel')}</label>
-            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-0.5">
-              <label className="flex items-center gap-1.5 cursor-pointer text-theme-sm text-gray-700 dark:text-gray-300">
-                <input
-                  type="radio"
-                  name="educationLevel"
-                  value=""
-                  checked={draft.educationLevel === ''}
-                  onChange={() => update('educationLevel', '')}
-                  className="accent-brand-500"
-                />
-                {t('enums:all')}
-              </label>
-              {EDUCATION_LEVEL_OPTIONS.map((o) => (
-                <label key={o.value} className="flex items-center gap-1.5 cursor-pointer text-theme-sm text-gray-700 dark:text-gray-300">
-                  <input
-                    type="radio"
-                    name="educationLevel"
-                    value={o.value}
-                    checked={draft.educationLevel === o.value}
-                    onChange={() => update('educationLevel', o.value)}
-                    className="accent-brand-500"
-                  />
+            <div className="flex flex-wrap gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
+              {[{ value: '', label: t('enums:all') }, ...EDUCATION_LEVEL_OPTIONS.map((o) => ({ value: o.value, label: t(`enums:educationLevel.${o.value.toLowerCase()}`) }))].map((o) => (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => update('educationLevel', o.value)}
+                  className={`rounded-md px-3 py-1.5 text-theme-sm font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
+                    draft.educationLevel === o.value
+                      ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
                   {o.label}
-                </label>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 7. Gender — segmented button group */}
+          <div className="col-span-2 md:col-span-2">
+            <label className={labelClass}>{t('filter.gender')}</label>
+            <div className="flex gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
+              {[{ value: '', label: t('enums:all') }, ...GENDER_OPTIONS.map((o) => ({ value: o.value, label: t(`enums:gender.${o.value.toLowerCase()}`) }))].map((o) => (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => update('gender', o.value)}
+                  className={`rounded-md px-3 py-1.5 text-theme-sm font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
+                    draft.gender === o.value
+                      ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {o.label}
+                </button>
               ))}
             </div>
           </div>
@@ -325,7 +338,20 @@ export default function MembersList() {
                   onClick={() => navigate(`/members/${m.id}`)}
                 >
                   <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">
-                    {m.fullName ?? [m.firstName, m.lastName].filter(Boolean).join(' ')}
+                    <div className="flex items-center gap-1.5">
+                      {m.gender === 'Male' ? (
+                        <svg className="h-3.5 w-3.5 shrink-0 text-blue-500 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <circle cx="9" cy="15" r="6"/>
+                          <path d="M15 9l6-6M21 3h-5M21 3v5"/>
+                        </svg>
+                      ) : m.gender === 'Female' ? (
+                        <svg className="h-3.5 w-3.5 shrink-0 text-pink-500 dark:text-pink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="9" r="6"/>
+                          <path d="M12 15v6M9 18h6"/>
+                        </svg>
+                      ) : null}
+                      {m.fullName ?? [m.firstName, m.lastName].filter(Boolean).join(' ')}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.jmbg}</td>
                   <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.orgUnit?.name ?? m.orgUnitName ?? ''}</td>
@@ -369,7 +395,7 @@ function renderFunctions(m) {
   const list = m.memberFunctions ?? m.functions ?? []
   if (!list.length) return ''
   return list
-    .map((f) => f.function?.name ?? f.functionName ?? f.name)
+    .map((f) => (typeof f === 'string' ? f : (f.function?.name ?? f.functionName ?? f.name)))
     .filter(Boolean)
     .join(', ')
 }

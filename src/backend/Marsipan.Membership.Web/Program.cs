@@ -154,8 +154,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseCors("AllowFrontend");
-
 app.UseHttpsRedirection();
 
 // --- File storage (issue #8) ---
@@ -163,6 +161,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 // --- end file storage ---
 
+app.UseRouting();
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 

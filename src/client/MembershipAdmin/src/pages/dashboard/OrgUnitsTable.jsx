@@ -96,24 +96,16 @@ export default function OrgUnitsTable({ rows }) {
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden h-full">
-      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-        <h4 className="text-base font-semibold text-brand-500 dark:text-brand-400">
+      <div className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+        <h4 className="shrink-0 text-base font-semibold text-brand-500 dark:text-brand-400">
           {t('orgTable.title')}
         </h4>
-        <span className="rounded-full bg-brand-50 dark:bg-brand-500/10 px-2.5 py-0.5 text-theme-xs font-medium text-brand-600 dark:text-brand-400">
-          {isSearching ? displayed.length : Math.min(normalized.length, 10)} {t('orgTable.units')}
-        </span>
-      </div>
 
-      {/* Search box */}
-      <div className="px-6 py-3 border-b border-gray-100 dark:border-gray-800">
-        <div className="relative">
+        {/* Search box */}
+        <div className="relative flex-1">
           <svg
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
@@ -123,13 +115,13 @@ export default function OrgUnitsTable({ rows }) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('orgTable.searchPlaceholder', { defaultValue: 'Search org units…' })}
-            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 py-2 pl-9 pr-3 text-theme-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 py-1.5 pl-9 pr-8 text-theme-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               aria-label="Clear search"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,6 +130,10 @@ export default function OrgUnitsTable({ rows }) {
             </button>
           )}
         </div>
+
+        <span className="shrink-0 rounded-full bg-brand-50 dark:bg-brand-500/10 px-2.5 py-0.5 text-theme-xs font-medium text-brand-600 dark:text-brand-400">
+          {isSearching ? displayed.length : Math.min(normalized.length, 10)} {t('orgTable.units')}
+        </span>
       </div>
 
       <div className="overflow-x-auto">

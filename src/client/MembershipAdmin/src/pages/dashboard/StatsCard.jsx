@@ -31,24 +31,28 @@ export default function StatsCard({ label, value, sublabel, icon, accent = '#2e6
     </div>
   )
 
+  const cardClass =
+    'db-card relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm'
+  const stripe = <div className="absolute left-0 top-0 h-full w-1" style={{ background: accent }} />
+
   return (
     <>
       <style>{css}</style>
-      <div
-        className="db-card relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm"
-        style={{ animationDelay: delay }}
-      >
-        {/* Left accent stripe */}
-        <div className="absolute left-0 top-0 h-full w-1" style={{ background: accent }} />
-
-        {to ? (
-          <Link to={to} className="block hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
-            {inner}
-          </Link>
-        ) : (
-          inner
-        )}
-      </div>
+      {to ? (
+        <Link
+          to={to}
+          className={`${cardClass} block hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors`}
+          style={{ animationDelay: delay }}
+        >
+          {stripe}
+          {inner}
+        </Link>
+      ) : (
+        <div className={cardClass} style={{ animationDelay: delay }}>
+          {stripe}
+          {inner}
+        </div>
+      )}
     </>
   )
 }

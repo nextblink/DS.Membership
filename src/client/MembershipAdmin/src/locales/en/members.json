@@ -11,6 +11,7 @@
     "orgUnit": "Org Unit",
     "function": "Function",
     "educationLevel": "Education Level",
+    "gender": "Gender",
     "occupation": "Occupation"
   },
   "table": {

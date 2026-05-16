@@ -4,13 +4,14 @@
   "newMember": "Нови члан",
   "editMember": "Измени члана",
   "filter": {
-    "name": "Ime i prezime",
+    "name": "Ime и презиме",
     "firstName": "Име",
     "lastName": "Презиме",
     "jmbg": "ЈМБГ",
     "orgUnit": "Орг. јединица",
     "function": "Функција",
     "educationLevel": "Степен образовања",
+    "gender": "Пол",
     "occupation": "Занимање"
   },
   "table": {

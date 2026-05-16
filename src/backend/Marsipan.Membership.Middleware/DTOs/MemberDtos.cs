@@ -12,6 +12,7 @@ public class MemberListItemDto
     public int OrgUnitId { get; set; }
     public string OrgUnitName { get; set; } = string.Empty;
     public DateOnly MembershipDate { get; set; }
+    public string Gender { get; set; } = string.Empty;
     public List<string> Functions { get; set; } = new();
 }
 

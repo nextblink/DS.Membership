@@ -58,6 +58,10 @@ public class MembersService : IMembersService
         {
             query = query.Where(m => m.EducationLevel == q.EducationLevel.Value);
         }
+        if (q.Gender.HasValue)
+        {
+            query = query.Where(m => m.Gender == q.Gender.Value);
+        }
         if (!string.IsNullOrWhiteSpace(q.Occupation))
         {
             var o = q.Occupation.Trim();
@@ -79,6 +83,7 @@ public class MembersService : IMembersService
                 OrgUnitId = m.OrgUnitId,
                 OrgUnitName = m.OrgUnit.Name,
                 MembershipDate = m.MembershipDate,
+                Gender = m.Gender.ToString(),
                 Functions = m.MemberFunctions
                     .Where(mf => !mf.IsDeleted)
                     .Select(mf => mf.Function.Name)
