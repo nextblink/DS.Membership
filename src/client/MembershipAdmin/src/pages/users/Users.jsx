@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
@@ -47,6 +47,7 @@ export default function Users() {
   const [orgUnits, setOrgUnits] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
+  const [nameFilter, setNameFilter] = useState('')
   const [createOpen, setCreateOpen] = useState(false)
   const [editTarget, setEditTarget] = useState(null) // user object or null
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -60,12 +61,14 @@ export default function Users() {
     return map
   }, [orgUnitOptions])
 
-  const loadUsers = useCallback(async () => {
+  const loadUsers = useCallback(async (name) => {
     setLoading(true)
     setLoadError(null)
     try {
+      const params = {}
+      if (name && name.trim()) params.name = name.trim()
       const [usersRes, orgRes] = await Promise.all([
-        api.get('/api/users'),
+        api.get('/api/users', { params }),
         api.get('/api/orgunits'),
       ])
       setUsers(Array.isArray(usersRes.data) ? usersRes.data : usersRes.data?.items || [])
@@ -78,8 +81,16 @@ export default function Users() {
   }, [])
 
   useEffect(() => {
-    loadUsers()
-  }, [loadUsers])
+    loadUsers(nameFilter)
+  }, [loadUsers]) // Only run on mount; filter changes trigger explicit reload
+
+  // Debounced name filter: reload when user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadUsers(nameFilter)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [nameFilter, loadUsers])
 
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return
@@ -88,7 +99,7 @@ export default function Users() {
     try {
       await api.delete(`/api/users/${deleteTarget.id}`)
       setDeleteTarget(null)
-      await loadUsers()
+      await loadUsers(nameFilter)
     } catch (err) {
       setDeleteError(extractErrorMessages(err).join(' '))
     } finally {
@@ -116,6 +127,17 @@ export default function Users() {
           </button>
         </div>
 
+        {/* Name filter */}
+        <div className="border-b border-gray-200 dark:border-gray-800 px-6 py-3">
+          <input
+            type="search"
+            value={nameFilter}
+            onChange={(e) => setNameFilter(e.target.value)}
+            placeholder={t('users:filter.namePlaceholder')}
+            className="w-full max-w-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
+          />
+        </div>
+
         {loading ? (
           <div className="p-6 text-theme-sm text-gray-500 dark:text-gray-400">{t('common:state.loading')}</div>
         ) : loadError ? (
@@ -129,6 +151,7 @@ export default function Users() {
             <table className="w-full table-auto">
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-800/50 text-left">
+                  <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.name')}</th>
                   <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.email')}</th>
                   <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.role')}</th>
                   <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.orgUnit')}</th>
@@ -138,6 +161,11 @@ export default function Users() {
               <tbody>
                 {users.map((u) => (
                   <tr key={u.id} className="border-t border-gray-200 dark:border-gray-800">
+                    <td className="py-3 px-4 text-theme-sm text-gray-900 dark:text-white">
+                      {u.firstName || u.lastName
+                        ? [u.firstName, u.lastName].filter(Boolean).join(' ')
+                        : '—'}
+                    </td>
                     <td className="py-3 px-4 text-theme-sm text-gray-900 dark:text-white">{u.email}</td>
                     <td className="py-3 px-4 text-theme-sm text-gray-900 dark:text-white">
                       {t(`enums:role.${ROLE_KEY[u.role] || u.role}`)}
@@ -178,7 +206,7 @@ export default function Users() {
           onClose={() => setCreateOpen(false)}
           onCreated={async () => {
             setCreateOpen(false)
-            await loadUsers()
+            await loadUsers(nameFilter)
           }}
         />
       )}
@@ -190,7 +218,7 @@ export default function Users() {
           onClose={() => setEditTarget(null)}
           onSaved={async () => {
             setEditTarget(null)
-            await loadUsers()
+            await loadUsers(nameFilter)
           }}
         />
       )}
@@ -243,7 +271,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
     watch,
     formState: { errors, isSubmitting },
   } = useForm({
-    defaultValues: { email: '', password: '', role: 'Viewer', orgUnitId: '' },
+    defaultValues: { firstName: '', lastName: '', email: '', password: '', role: 'Viewer', orgUnitId: '' },
   })
   const role = watch('role')
   const orgUnitRequired = ROLES_REQUIRING_ORG_UNIT.includes(role)
@@ -251,6 +279,8 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
   const onSubmit = async (values) => {
     setServerErrors([])
     const payload = {
+      firstName: values.firstName || null,
+      lastName: values.lastName || null,
       email: values.email,
       password: values.password,
       role: values.role,
@@ -274,6 +304,29 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated }) {
   return (
     <ModalShell title={t('users:modal.addTitle')} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate data-testid="create-user-form">
+        <div className="mb-4 grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="create-firstName" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('users:form.firstName')}</label>
+            <input
+              id="create-firstName"
+              type="text"
+              autoComplete="given-name"
+              {...register('firstName')}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
+            />
+          </div>
+          <div>
+            <label htmlFor="create-lastName" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('users:form.lastName')}</label>
+            <input
+              id="create-lastName"
+              type="text"
+              autoComplete="family-name"
+              {...register('lastName')}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
+            />
+          </div>
+        </div>
+
         <div className="mb-4">
           <label htmlFor="create-email" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('users:form.email')}</label>
           <input
@@ -388,6 +441,8 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
       role: user.role || 'Viewer',
       orgUnitId: user.orgUnitId != null ? String(user.orgUnitId) : '',
     },
@@ -398,6 +453,8 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
   const onSubmit = async (values) => {
     setServerErrors([])
     const payload = {
+      firstName: values.firstName || null,
+      lastName: values.lastName || null,
       role: values.role,
       orgUnitId: values.orgUnitId ? Number(values.orgUnitId) : null,
     }
@@ -417,6 +474,29 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved }) {
   return (
     <ModalShell title={`${t('users:modal.editTitle')} — ${user.email}`} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate data-testid="edit-user-form">
+        <div className="mb-4 grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="edit-firstName" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('users:form.firstName')}</label>
+            <input
+              id="edit-firstName"
+              type="text"
+              autoComplete="given-name"
+              {...register('firstName')}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
+            />
+          </div>
+          <div>
+            <label htmlFor="edit-lastName" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('users:form.lastName')}</label>
+            <input
+              id="edit-lastName"
+              type="text"
+              autoComplete="family-name"
+              {...register('lastName')}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
+            />
+          </div>
+        </div>
+
         <div className="mb-4">
           <label htmlFor="edit-role" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('users:form.role')}</label>
           <select
