@@ -138,7 +138,7 @@ export default function FormsStatusDonut({ membersByOrgUnit = [] }) {
                 {total}
               </span>
               <span className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
-                {t('donut.total')}
+                {t('engagementChart.total')}
               </span>
             </div>
           </div>

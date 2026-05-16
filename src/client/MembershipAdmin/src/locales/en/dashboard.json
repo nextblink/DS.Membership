@@ -31,7 +31,8 @@
     "total": "total"
   },
   "engagementChart": {
-    "title": "Org Units by Engagement Level"
+    "title": "Org Units by Engagement Level",
+    "total": "Units"
   },
   "engagement": {
     "high": "High (>1.1‰)",
