@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
+import { useToast, ToastContainer } from '../../components/Toast'
 
 const TYPE_CITY = 'City'
 const TYPE_MUNICIPAL = 'Municipal'
@@ -82,7 +83,7 @@ function filterTree(nodes, query) {
   }, [])
 }
 
-function AddUnitModal({ open, parent, onClose, onSubmit }) {
+function AddUnitModal({ open, parent, onClose, onSubmit, onSuccess, onError }) {
   const { t } = useTranslation('orgUnits')
   const [name, setName] = useState('')
   const [type, setType] = useState(parent ? TYPE_MUNICIPAL : TYPE_CITY)
@@ -116,9 +117,12 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
         voterCount: Number(voterCount) || 0,
         parentId: parent ? parent.id : null,
       })
+      onSuccess?.()
       onClose()
     } catch (err) {
-      setError(err?.response?.data?.message || err?.message || t('error.saveFailed'))
+      const msg = err?.response?.data?.message || err?.message || t('error.saveFailed')
+      setError(msg)
+      onError?.(msg)
     } finally {
       setSubmitting(false)
     }
@@ -197,7 +201,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit }) {
   )
 }
 
-function EditUnitModal({ node, onClose, onSubmit }) {
+function EditUnitModal({ node, onClose, onSubmit, onSuccess, onError }) {
   const { t } = useTranslation('orgUnits')
   const [name, setName] = useState(node.name ?? '')
   const [type, setType] = useState(node.type ?? TYPE_CITY)
@@ -212,9 +216,12 @@ function EditUnitModal({ node, onClose, onSubmit }) {
     setError(null)
     try {
       await onSubmit({ id: node.id, name: name.trim(), type, voterCount: Number(voterCount) || 0, parentId: node.parentId ?? null })
+      onSuccess?.()
       onClose()
     } catch (err) {
-      setError(err?.response?.data?.message || err?.message || t('error.saveFailed'))
+      const msg = err?.response?.data?.message || err?.message || t('error.saveFailed')
+      setError(msg)
+      onError?.(msg)
     } finally {
       setSubmitting(false)
     }
@@ -438,6 +445,7 @@ function TreeNode({
 
 export default function OrgUnits() {
   const { t } = useTranslation(['orgUnits', 'common'])
+  const toast = useToast()
   const [tree, setTree] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -508,7 +516,8 @@ export default function OrgUnits() {
     setTree((prev) =>
       updateNode(prev, node.id, (n) => ({ ...n, voterCount: newVoterCount })),
     )
-  }, [])
+    toast.success(t('orgUnits:toast.voterCountSaved'))
+  }, [toast, t])
 
   const handleDelete = useCallback(async (node) => {
     if (!window.confirm(t('orgUnits:action.deleteConfirm'))) return
@@ -516,14 +525,15 @@ export default function OrgUnits() {
     try {
       await api.delete(`/api/orgunits/${node.id}`)
       setTree((prev) => removeNode(prev, node.id))
+      toast.success(t('orgUnits:toast.deleted'))
     } catch (err) {
-      if (err?.response?.status === 409) {
-        setDeleteError(t('orgUnits:error.deleteRestricted'))
-      } else {
-        setDeleteError(err?.response?.data?.message || err?.message || t('orgUnits:error.deleteFailed'))
-      }
+      const msg = err?.response?.status === 409
+        ? t('orgUnits:error.deleteRestricted')
+        : err?.response?.data?.message || err?.message || t('orgUnits:error.deleteFailed')
+      setDeleteError(msg)
+      toast.error(msg)
     }
-  }, [t])
+  }, [t, toast])
 
   const visibleTree = useMemo(() => filterTree(tree, filterName.trim()), [tree, filterName])
 
@@ -560,6 +570,7 @@ export default function OrgUnits() {
 
   return (
     <div>
+      <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
           <h2 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('orgUnits:title')}</h2>
@@ -619,6 +630,8 @@ export default function OrgUnits() {
         parent={modal.parent}
         onClose={() => setModal({ open: false, parent: null })}
         onSubmit={handleCreate}
+        onSuccess={() => toast.success(t('orgUnits:toast.created'))}
+        onError={(msg) => toast.error(msg)}
       />
 
       {editModal && (
@@ -626,6 +639,8 @@ export default function OrgUnits() {
           node={editModal}
           onClose={() => setEditModal(null)}
           onSubmit={handleSaveEdit}
+          onSuccess={() => toast.success(t('orgUnits:toast.saved'))}
+          onError={(msg) => toast.error(msg)}
         />
       )}
     </div>
