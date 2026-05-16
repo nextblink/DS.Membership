@@ -4,6 +4,7 @@
   "newMember": "New Member",
   "editMember": "Edit Member",
   "filter": {
+    "name": "Name",
     "firstName": "First Name",
     "lastName": "Last Name",
     "jmbg": "JMBG",

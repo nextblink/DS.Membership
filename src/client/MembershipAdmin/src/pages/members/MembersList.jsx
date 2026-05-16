@@ -30,9 +30,9 @@ export default function MembersList() {
   const { t } = useTranslation(['members', 'common', 'enums'])
 
   // Local form state mirrors URL params so users can type without firing a request per keystroke.
+  // "name" is a combined first+last search field — sent as both firstName and lastName params.
   const [draft, setDraft] = useState(() => ({
-    firstName: searchParams.get('firstName') ?? '',
-    lastName: searchParams.get('lastName') ?? '',
+    name: searchParams.get('firstName') ?? searchParams.get('lastName') ?? '',
     jmbg: searchParams.get('jmbg') ?? '',
     orgUnitId: searchParams.get('orgUnitId') ?? '',
     functionId: searchParams.get('functionId') ?? '',
@@ -106,7 +106,13 @@ export default function MembersList() {
   function applyFilters(e) {
     e?.preventDefault?.()
     const next = new URLSearchParams()
-    for (const [k, v] of Object.entries(draft)) {
+    // "name" searches both firstName and lastName
+    if (draft.name !== '' && draft.name != null) {
+      next.set('firstName', draft.name)
+      next.set('lastName', draft.name)
+    }
+    const { name: _name, ...rest } = draft
+    for (const [k, v] of Object.entries(rest)) {
       if (v !== '' && v != null) next.set(k, v)
     }
     next.set('page', '1')
@@ -116,8 +122,7 @@ export default function MembersList() {
 
   function clearFilters() {
     setDraft({
-      firstName: '',
-      lastName: '',
+      name: '',
       jmbg: '',
       orgUnitId: '',
       functionId: '',
@@ -161,31 +166,31 @@ export default function MembersList() {
 
       {/* Filter row */}
       <form onSubmit={applyFilters} className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 gap-3">
+          {/* 1. Combined Name field (searches firstName + lastName) */}
           <div>
-            <label className={labelClass}>{t('filter.firstName')}</label>
+            <label className={labelClass}>{t('filter.name')}</label>
             <input
               className={inputClass}
-              value={draft.firstName}
-              onChange={(e) => update('firstName', e.target.value)}
+              value={draft.name}
+              onChange={(e) => update('name', e.target.value)}
+              placeholder={t('filter.namePlaceholder', '')}
             />
           </div>
-          <div>
-            <label className={labelClass}>{t('filter.lastName')}</label>
-            <input
-              className={inputClass}
-              value={draft.lastName}
-              onChange={(e) => update('lastName', e.target.value)}
-            />
-          </div>
+
+          {/* 2. JMBG — numeric only */}
           <div>
             <label className={labelClass}>{t('filter.jmbg')}</label>
             <input
               className={inputClass}
+              inputMode="numeric"
+              pattern="[0-9]*"
               value={draft.jmbg}
-              onChange={(e) => update('jmbg', e.target.value)}
+              onChange={(e) => update('jmbg', e.target.value.replace(/\D/g, ''))}
             />
           </div>
+
+          {/* 3. OrgUnit */}
           <div>
             <label className={labelClass}>{t('filter.orgUnit')}</label>
             <select
@@ -201,6 +206,8 @@ export default function MembersList() {
               ))}
             </select>
           </div>
+
+          {/* 4. Function */}
           <div>
             <label className={labelClass}>{t('filter.function')}</label>
             <select
@@ -216,21 +223,8 @@ export default function MembersList() {
               ))}
             </select>
           </div>
-          <div>
-            <label className={labelClass}>{t('filter.educationLevel')}</label>
-            <select
-              className={inputClass}
-              value={draft.educationLevel}
-              onChange={(e) => update('educationLevel', e.target.value)}
-            >
-              <option value="">{t('enums:all')}</option>
-              {EDUCATION_LEVEL_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </div>
+
+          {/* 5. Occupation */}
           <div>
             <label className={labelClass}>{t('filter.occupation')}</label>
             <input
@@ -238,6 +232,37 @@ export default function MembersList() {
               value={draft.occupation}
               onChange={(e) => update('occupation', e.target.value)}
             />
+          </div>
+
+          {/* 6. Education Level — radio buttons (spans full row for readability) */}
+          <div className="col-span-2">
+            <label className={labelClass}>{t('filter.educationLevel')}</label>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-0.5">
+              <label className="flex items-center gap-1.5 cursor-pointer text-theme-sm text-gray-700 dark:text-gray-300">
+                <input
+                  type="radio"
+                  name="educationLevel"
+                  value=""
+                  checked={draft.educationLevel === ''}
+                  onChange={() => update('educationLevel', '')}
+                  className="accent-brand-500"
+                />
+                {t('enums:all')}
+              </label>
+              {EDUCATION_LEVEL_OPTIONS.map((o) => (
+                <label key={o.value} className="flex items-center gap-1.5 cursor-pointer text-theme-sm text-gray-700 dark:text-gray-300">
+                  <input
+                    type="radio"
+                    name="educationLevel"
+                    value={o.value}
+                    checked={draft.educationLevel === o.value}
+                    onChange={() => update('educationLevel', o.value)}
+                    className="accent-brand-500"
+                  />
+                  {o.label}
+                </label>
+              ))}
+            </div>
           </div>
         </div>
         <div className="mt-3 flex gap-2">
