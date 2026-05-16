@@ -100,5 +100,14 @@
     "create": "Create Member",
     "save": "Save Changes",
     "saving": "Saving..."
+  },
+  "toast": {
+    "created": "Member created successfully.",
+    "saved": "Changes saved.",
+    "deleted": "Member deleted.",
+    "phoneAdded": "Phone added.",
+    "phoneRemoved": "Phone removed.",
+    "functionAdded": "Function assigned.",
+    "functionRemoved": "Function removed."
   }
 }
