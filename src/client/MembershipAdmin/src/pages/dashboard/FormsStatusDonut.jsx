@@ -83,7 +83,7 @@ export default function FormsStatusDonut({ membersByOrgUnit = [] }) {
       { name: t('engagement.medium'), value: midCount,  key: 'medium', color: '#f79009' },
       { name: t('engagement.low'),    value: lowCount,  key: 'low',    color: '#f04438' },
     ].filter((d) => d.value > 0)
-  }, [membersByOrgUnit])
+  }, [membersByOrgUnit, t])
 
   const total = data.reduce((s, d) => s + d.value, 0)
 
