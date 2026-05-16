@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
+import { useToast, ToastContainer } from '../../components/Toast'
 
 const ACCEPTED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf']
 const MAX_SIZE = 10 * 1024 * 1024 // 10 MB
@@ -11,6 +12,7 @@ const MAX_SIZE = 10 * 1024 * 1024 // 10 MB
 export default function FormUpload() {
   const { t } = useTranslation(['forms', 'common'])
   const navigate = useNavigate()
+  const toast = useToast()
 
   const [meta, setMeta] = useState({
     formNumber: '',
@@ -170,10 +172,13 @@ export default function FormUpload() {
       })
       const form = res.data || {}
       const newId = form.id ?? form.Id
+      toast.success(t('forms:toast.created'))
       if (newId) navigate(`/forms/${newId}`)
       else navigate('/forms')
     } catch (err) {
-      setError(err?.response?.data?.message || err?.response?.data?.title || err.message || t('forms:upload.uploadFailed'))
+      const msg = err?.response?.data?.message || err?.response?.data?.title || err.message || t('forms:upload.uploadFailed')
+      setError(msg)
+      toast.error(msg)
     } finally {
       setSubmitting(false)
     }
@@ -181,6 +186,7 @@ export default function FormUpload() {
 
   return (
     <div className="p-6">
+      <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
       <h1 className="mb-4 text-2xl font-semibold text-brand-500 dark:text-brand-400">{t('forms:upload.title')}</h1>
 
       <form onSubmit={submit} className="space-y-6">

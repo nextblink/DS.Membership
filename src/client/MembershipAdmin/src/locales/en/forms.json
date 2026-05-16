@@ -77,5 +77,14 @@
     "validation": {
       "imagesRequired": "At least one image is required."
     }
+  },
+  "toast": {
+    "created": "Form uploaded successfully.",
+    "deleted": "Form deleted.",
+    "statusVerified": "Form verified.",
+    "statusRejected": "Form rejected.",
+    "imageAdded": "Image added.",
+    "imageRemoved": "Image removed.",
+    "memberLinked": "Member linked."
   }
 }
