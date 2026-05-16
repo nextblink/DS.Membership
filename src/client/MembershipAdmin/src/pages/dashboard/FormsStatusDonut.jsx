@@ -41,7 +41,7 @@ function SliceLabel({ cx, cy, midAngle, innerRadius, outerRadius, name, value, f
         textAnchor={anchor}
         dominantBaseline="central"
         fill={fill}
-        fontSize={10}
+        fontSize={12}
         fontWeight={600}
         letterSpacing={0.5}
         style={{ textTransform: 'uppercase' }}
@@ -54,10 +54,10 @@ function SliceLabel({ cx, cy, midAngle, innerRadius, outerRadius, name, value, f
         textAnchor={anchor}
         dominantBaseline="central"
         fill={fill}
-        fontSize={15}
+        fontSize={18}
         fontWeight={700}
       >
-        {value} <tspan fontSize={12} fontWeight={600} opacity={0.75}>{percentage}%</tspan>
+        {value} <tspan fontSize={14.4} fontWeight={600} opacity={0.75}>{percentage}%</tspan>
       </text>
     </g>
   )
