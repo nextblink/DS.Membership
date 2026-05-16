@@ -18,7 +18,8 @@
     "percentage": "%",
     "promille": "‰",
     "noData": "Нема података",
-    "units": "јединица"
+    "units": "јединица",
+    "searchPlaceholder": "Претражите орг. јединице…"
   },
   "chart": {
     "title": "Обрасци по статусу",

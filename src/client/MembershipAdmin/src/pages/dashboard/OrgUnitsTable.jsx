@@ -108,7 +108,7 @@ export default function OrgUnitsTable({ rows }) {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('orgTable.searchPlaceholder', { defaultValue: 'Search org units…' })}
+            placeholder={t('orgTable.searchPlaceholder')}
             className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 py-1.5 pl-9 pr-8 text-theme-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-400"
           />
           {search && (

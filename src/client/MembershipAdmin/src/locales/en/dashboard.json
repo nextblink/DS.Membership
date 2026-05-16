@@ -18,7 +18,8 @@
     "percentage": "%",
     "promille": "‰",
     "noData": "No data",
-    "units": "units"
+    "units": "units",
+    "searchPlaceholder": "Search org units…"
   },
   "chart": {
     "title": "Forms by Status",
