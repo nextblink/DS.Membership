@@ -57,18 +57,12 @@ export default function OrgUnitsTable({ rows }) {
     [rows],
   )
 
-  // Top 10 by percentage (promille) descending — used when there is no search query
-  const top10 = useMemo(() => {
-    const sorted = [...normalized].sort((a, b) => b.promille - a.promille)
-    return sorted.slice(0, 10)
-  }, [normalized])
-
-  // When searching, filter the FULL list (not just top-10) by name
+  // When searching, filter the FULL list by name; otherwise show all sorted by promille
   const displayed = useMemo(() => {
     const trimmed = search.trim().toLowerCase()
     const base = trimmed
       ? normalized.filter((r) => r.name.toLowerCase().includes(trimmed))
-      : top10
+      : normalized
 
     const col = columns.find((c) => c.key === sortKey)
     const arr = [...base]
@@ -80,7 +74,7 @@ export default function OrgUnitsTable({ rows }) {
       return sortDir === 'asc' ? cmp : -cmp
     })
     return arr
-  }, [normalized, top10, search, sortKey, sortDir])
+  }, [normalized, search, sortKey, sortDir])
 
   function toggleSort(key) {
     if (key === sortKey) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
@@ -95,8 +89,8 @@ export default function OrgUnitsTable({ rows }) {
   const isSearching = search.trim().length > 0
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden h-full">
-      <div className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden flex flex-col h-full max-h-[550px]">
+      <div className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 px-6 py-4 shrink-0">
         <h4 className="shrink-0 text-base font-semibold text-brand-500 dark:text-brand-400">
           {t('orgTable.title')}
         </h4>
@@ -132,14 +126,14 @@ export default function OrgUnitsTable({ rows }) {
         </div>
 
         <span className="shrink-0 rounded-full bg-brand-50 dark:bg-brand-500/10 px-2.5 py-0.5 text-theme-xs font-medium text-brand-600 dark:text-brand-400">
-          {isSearching ? displayed.length : Math.min(normalized.length, 10)} {t('orgTable.units')}
+          {displayed.length} {t('orgTable.units')}
         </span>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto flex-1 overflow-y-auto">
         <table className="w-full table-auto">
-          <thead>
-            <tr className="bg-gray-50 dark:bg-gray-800/50 text-left">
+          <thead className="sticky top-0 bg-gray-50 dark:bg-gray-800/50">
+            <tr className="text-left">
               {columns.map((c) => (
                 <th
                   key={c.key}
