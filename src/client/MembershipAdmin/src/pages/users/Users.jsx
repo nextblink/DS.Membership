@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import { useToast, ToastContainer } from '../../components/Toast'
+import { ConfirmModal } from '../../components/ConfirmModal'
 
 const ROLES = ['SuperAdmin', 'Admin', 'LocalAdmin', 'Operator', 'Viewer']
 const ROLES_REQUIRING_ORG_UNIT = ['LocalAdmin', 'Operator', 'Viewer']
@@ -597,33 +598,3 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved, onError }) {
   )
 }
 
-function ConfirmModal({ title, message, confirmLabel, confirmDisabled, onCancel, onConfirm, error, cancelLabel }) {
-  const { t } = useTranslation('users')
-  return (
-    <ModalShell title={title} onClose={onCancel}>
-      <p className="mb-4 text-theme-sm text-gray-900 dark:text-white">{message}</p>
-      {error && (
-        <div className="mb-4 rounded-lg border border-error-300 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-2 text-theme-sm text-error-500">
-          {error}
-        </div>
-      )}
-      <div className="flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="cursor-pointer rounded-lg border border-gray-300 dark:border-gray-700 py-2 px-4 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
-        >
-          {cancelLabel || t('action.cancel')}
-        </button>
-        <button
-          type="button"
-          onClick={onConfirm}
-          disabled={confirmDisabled}
-          className="cursor-pointer rounded-lg border border-error-300 dark:border-error-700 bg-error-500 hover:bg-error-600 py-2 px-4 text-theme-sm text-white disabled:opacity-60"
-        >
-          {confirmLabel}
-        </button>
-      </div>
-    </ModalShell>
-  )
-}

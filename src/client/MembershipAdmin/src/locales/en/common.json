@@ -23,6 +23,8 @@
     "next": "Next",
     "add": "Add",
     "search": "Search",
+    "delete": "Delete",
+    "confirm": "Confirm",
     "back": "Back"
   },
   "state": {

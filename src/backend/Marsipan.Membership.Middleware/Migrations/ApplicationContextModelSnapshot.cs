@@ -433,7 +433,7 @@ namespace Marsipan.Membership.Middleware.Migrations
                     b.ToTable("MemberFunctions");
                 });
 
-            modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.OrgUnit", b =>
+            modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.Municipality", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -447,6 +447,9 @@ namespace Marsipan.Membership.Middleware.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsCity")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -466,6 +469,58 @@ namespace Marsipan.Membership.Middleware.Migrations
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
 
+                    b.Property<int>("VoterCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Municipalities");
+                });
+
+            modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.OrgUnit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsTrustful")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastModifiedByUserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("MunicipalityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TrusteeId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -474,7 +529,11 @@ namespace Marsipan.Membership.Middleware.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MunicipalityId");
+
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("TrusteeId");
 
                     b.ToTable("OrgUnits");
 
@@ -484,6 +543,7 @@ namespace Marsipan.Membership.Middleware.Migrations
                             Id = 1,
                             CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDeleted = false,
+                            IsTrustful = true,
                             Name = "Belgrade",
                             Type = 0,
                             VoterCount = 0
@@ -493,6 +553,7 @@ namespace Marsipan.Membership.Middleware.Migrations
                             Id = 2,
                             CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDeleted = false,
+                            IsTrustful = true,
                             Name = "Lazarevac",
                             ParentId = 1,
                             Type = 1,
@@ -503,6 +564,7 @@ namespace Marsipan.Membership.Middleware.Migrations
                             Id = 3,
                             CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDeleted = false,
+                            IsTrustful = true,
                             Name = "Novi Sad",
                             Type = 0,
                             VoterCount = 0
@@ -789,14 +851,38 @@ namespace Marsipan.Membership.Middleware.Migrations
                     b.Navigation("Member");
                 });
 
-            modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.OrgUnit", b =>
+            modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.Municipality", b =>
                 {
-                    b.HasOne("Marsipan.Membership.Middleware.Entities.OrgUnit", "Parent")
+                    b.HasOne("Marsipan.Membership.Middleware.Entities.Municipality", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.OrgUnit", b =>
+                {
+                    b.HasOne("Marsipan.Membership.Middleware.Entities.Municipality", "Municipality")
+                        .WithMany()
+                        .HasForeignKey("MunicipalityId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Marsipan.Membership.Middleware.Entities.OrgUnit", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Marsipan.Membership.Middleware.Entities.Member", "Trustee")
+                        .WithMany()
+                        .HasForeignKey("TrusteeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Municipality");
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("Trustee");
                 });
 
             modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.Phone", b =>
@@ -878,6 +964,11 @@ namespace Marsipan.Membership.Middleware.Migrations
                     b.Navigation("MemberFunctions");
 
                     b.Navigation("Phones");
+                });
+
+            modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.Municipality", b =>
+                {
+                    b.Navigation("Children");
                 });
 
             modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.OrgUnit", b =>

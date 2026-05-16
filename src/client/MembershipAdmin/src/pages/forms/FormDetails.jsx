@@ -8,6 +8,7 @@ import api from '../../framework/api'
 import auth from '../../framework/auth'
 import { formatDate } from '../../services/dateUtils'
 import { useToast, ToastContainer } from '../../components/Toast'
+import { useConfirm } from '../../components/ConfirmModal'
 
 const ADMIN_ROLES = new Set(['SuperAdmin', 'Admin', 'LocalAdmin'])
 
@@ -57,6 +58,7 @@ export default function FormDetails() {
   const role = auth.getRole()
   const isAdmin = ADMIN_ROLES.has(role)
   const toast = useToast()
+  const { confirm, ConfirmDialog } = useConfirm()
 
   const [form, setForm] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -128,7 +130,6 @@ export default function FormDetails() {
       await load()
     } catch (err) {
       const msg = err?.response?.data?.message || err.message || t('forms:detail.linkFailed')
-      alert(msg)
       toast.error(msg)
     } finally {
       setLinkBusy(false)
@@ -185,7 +186,6 @@ export default function FormDetails() {
       await load()
     } catch (err) {
       const msg = err?.response?.data?.message || err.message || t('forms:detail.statusUpdateFailed')
-      alert(msg)
       toast.error(msg)
     } finally {
       setBusy(false)
@@ -207,7 +207,6 @@ export default function FormDetails() {
       await load()
     } catch (err) {
       const msg = err?.response?.data?.message || err.message || t('forms:detail.imageUploadFailed')
-      alert(msg)
       toast.error(msg)
     } finally {
       setBusy(false)
@@ -216,7 +215,8 @@ export default function FormDetails() {
 
   const onDeleteImage = async (imageId) => {
     if (!isAdmin) return
-    if (!confirm(t('forms:detail.deleteImageConfirm'))) return
+    const ok = await confirm({ title: t('forms:detail.deleteImageTitle', 'Delete Image'), message: t('forms:detail.deleteImageConfirm') })
+    if (!ok) return
     setBusy(true)
     try {
       await api.delete(`/api/forms/${id}/images/${imageId}`)
@@ -224,7 +224,6 @@ export default function FormDetails() {
       await load()
     } catch (err) {
       const msg = err?.response?.data?.message || err.message || t('forms:detail.imageDeleteFailed')
-      alert(msg)
       toast.error(msg)
     } finally {
       setBusy(false)
@@ -248,6 +247,7 @@ export default function FormDetails() {
   return (
     <div className="p-6">
       <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
+      <ConfirmDialog />
       <div className="mb-4 flex items-center justify-between">
         <h1 data-testid="form-title" className="text-2xl font-semibold text-brand-500 dark:text-brand-400">
           {t('forms:detail.formLabel')} {form.formNumber || `#${form.id}`}
@@ -259,7 +259,8 @@ export default function FormDetails() {
               type="button"
               disabled={busy}
               onClick={async () => {
-                if (!confirm(t('forms:detail.deleteFormConfirm'))) return
+                const ok = await confirm({ title: t('forms:detail.deleteFormTitle', 'Delete Form'), message: t('forms:detail.deleteFormConfirm') })
+                if (!ok) return
                 setBusy(true)
                 try {
                   await api.delete(`/api/forms/${id}`)
@@ -267,7 +268,6 @@ export default function FormDetails() {
                   navigate('/forms')
                 } catch (err) {
                   const msg = err?.response?.data?.message || err.message || t('forms:detail.deleteFailed')
-                  alert(msg)
                   toast.error(msg)
                 } finally {
                   setBusy(false)

@@ -7,6 +7,9 @@
     "voterCount": "Број бирача",
     "parent": "Надређена јединица",
     "type": "Врста",
+    "isTrustful": "Одбор",
+    "trustee": "Повереник",
+    "trusteePlaceholder": "Претражи члана…",
     "nameRequired": "Назив је обавезан",
     "typeRequired": "Врста је обавезна",
     "voterCountInvalid": "Неисправан број",
@@ -42,7 +45,8 @@
   },
   "stats": {
     "voters": "Бирачи",
-    "members": "Чланови"
+    "members": "Чланови",
+    "membership": "Чланство"
   },
   "modal": {
     "addChildTitle": "Додај потчињену јединицу под \"{{parentName}}\"",

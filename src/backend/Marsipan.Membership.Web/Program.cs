@@ -55,6 +55,10 @@ builder.Services.AddScoped<IFormImageStorage, FormImageStorage>();
 builder.Services.AddScoped<IOrgUnitsService, OrgUnitsService>();
 // --- end OrgUnits ---
 
+// --- Municipalities ---
+builder.Services.AddScoped<IMunicipalitiesService, MunicipalitiesService>();
+// --- end Municipalities ---
+
 // --- Functions (issue #10) ---
 builder.Services.AddScoped<IFunctionsService, FunctionsService>();
 // --- end Functions ---
@@ -135,6 +139,8 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+
     const string defaultAdminEmail = "admin@local.com";
     const string defaultAdminPassword = "Admin123!";
     if (await userManager.FindByEmailAsync(defaultAdminEmail) is null)
@@ -146,6 +152,15 @@ if (app.Environment.IsDevelopment())
             await userManager.AddToRoleAsync(admin, "SuperAdmin");
         }
     }
+
+    // Seed municipalities from Excel data
+    await MunicipalitiesSeeder.SeedAsync(dbContext);
+
+    // Seed OrgUnits linked to municipalities
+    await OrgUnitsSeeder.SeedAsync(dbContext);
+
+    // Seed members for all OrgUnits
+    await MembersSeeder.SeedAsync(dbContext);
 }
 
 // Configure the HTTP request pipeline.
@@ -154,8 +169,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
 // --- File storage (issue #8) ---
 // Serves uploaded form scans from wwwroot/uploads/forms/... at /uploads/forms/...
 app.UseStaticFiles();
@@ -163,6 +176,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 app.UseCors("AllowFrontend");
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseAuthentication();
 app.UseAuthorization();
 

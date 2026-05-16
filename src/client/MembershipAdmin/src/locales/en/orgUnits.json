@@ -7,6 +7,9 @@
     "voterCount": "Voter Count",
     "parent": "Parent Unit",
     "type": "Type",
+    "isTrustful": "Trustful",
+    "trustee": "Trustee",
+    "trusteePlaceholder": "Search member…",
     "nameRequired": "Name is required",
     "typeRequired": "Type is required",
     "voterCountInvalid": "Invalid number",
@@ -38,7 +41,8 @@
   },
   "stats": {
     "voters": "Voters",
-    "members": "Members"
+    "members": "Members",
+    "membership": "Membership"
   },
   "modal": {
     "addChildTitle": "Add child unit under \"{{parentName}}\"",

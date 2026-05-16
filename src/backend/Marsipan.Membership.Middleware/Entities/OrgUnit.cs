@@ -20,6 +20,18 @@ public class OrgUnit : BaseEntity
 
     public int VoterCount { get; set; }
 
+    public int? MunicipalityId { get; set; }
+
+    [ForeignKey(nameof(MunicipalityId))]
+    public Municipality? Municipality { get; set; }
+
+    public int? TrusteeId { get; set; }
+
+    [ForeignKey(nameof(TrusteeId))]
+    public Member? Trustee { get; set; }
+
+    public bool IsTrustful { get; set; } = true;
+
     public ICollection<OrgUnit> Children { get; set; } = [];
 
     public ICollection<Member> Members { get; set; } = [];

@@ -4,6 +4,7 @@ import { formatDate } from '../../services/dateUtils'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import { useToast, ToastContainer } from '../../components/Toast'
+import { useConfirm } from '../../components/ConfirmModal'
 
 const labelClass = 'text-theme-xs uppercase font-medium text-gray-500 dark:text-gray-400'
 const valueClass = 'text-theme-sm text-gray-900 dark:text-white mt-0.5'
@@ -32,6 +33,7 @@ export default function MemberDetails() {
   const [formsLoaded, setFormsLoaded] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const toast = useToast()
+  const { confirm, ConfirmDialog } = useConfirm()
 
   useEffect(() => {
     if (routeState?.toast === 'saved') toast.success(t('members:toast.saved'))
@@ -85,7 +87,8 @@ export default function MemberDetails() {
   }, [member, formsLoaded, id])
 
   async function handleDelete() {
-    if (!window.confirm(t('members:detail.deleteConfirm'))) return
+    const ok = await confirm({ title: t('members:detail.delete'), message: t('members:detail.deleteConfirm') })
+    if (!ok) return
     setDeleting(true)
     try {
       await api.delete(`/api/members/${id}`)
@@ -128,6 +131,7 @@ export default function MemberDetails() {
   return (
     <div className="p-6">
       <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
+      <ConfirmDialog />
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div>
           <h1 className="text-2xl font-semibold text-brand-500 dark:text-brand-400">
@@ -227,7 +231,7 @@ export default function MemberDetails() {
         <div>
           <section className={sectionClass}>
             <h2 className={sectionTitleClass}>{t('members:form.membership')}</h2>
-            <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-4 gap-4 mb-4">
               <Field label={t('members:form.orgUnit')}>{orgUnitName}</Field>
               <Field label={t('members:form.membershipDate')}>{formatDate(member.membershipDate)}</Field>
             </div>

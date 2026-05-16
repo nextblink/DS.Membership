@@ -2,13 +2,42 @@
 //
 // Renders the OrgUnit hierarchy (City -> Municipal) from GET /api/orgunits.
 // Supports inline VoterCount edit, add-root, add-child, and leaf delete.
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import { useToast, ToastContainer } from '../../components/Toast'
 
 const TYPE_CITY = 'City'
 const TYPE_MUNICIPAL = 'Municipal'
+
+function computePromille(node) {
+  if (node.voterCount > 0) return (node.memberCount / node.voterCount) * 1000
+  return 0
+}
+
+function barColor(pm) {
+  if (pm >= 1) return '#4ABEA0'
+  if (pm >= 0.8) return '#f79009'
+  return '#f04438'
+}
+
+function PromilleBar({ pm }) {
+  const clamped = Math.min(100, (pm / 2) * 100)
+  const color = barColor(pm)
+  return (
+    <div className="flex items-center justify-end gap-2">
+      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${clamped}%`, background: color }}
+        />
+      </div>
+      <span className="w-14 text-right text-theme-xs font-semibold tabular-nums" style={{ color }}>
+        {pm.toFixed(2)}‰
+      </span>
+    </div>
+  )
+}
 
 function typeBadgeClass(type) {
   if (type === TYPE_CITY) {
@@ -83,11 +112,125 @@ function filterTree(nodes, query) {
   }, [])
 }
 
+function TrusteeField({ trusteeId, setTrusteeId, trusteeName, setTrusteeName, label }) {
+  const { t } = useTranslation('orgUnits')
+  const [suggestions, setSuggestions] = useState([])
+  const [highlightedIndex, setHighlightedIndex] = useState(-1)
+  const timer = useRef(null)
+  const inputRef = useRef(null)
+  const inputCls = 'w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20'
+
+  const search = (q) => {
+    setTrusteeName(q)
+    setHighlightedIndex(-1)
+    setTrusteeId(null)
+    if (!q.trim()) { setSuggestions([]); return }
+    clearTimeout(timer.current)
+    timer.current = setTimeout(async () => {
+      try {
+        const res = await api.get('/api/members', { params: { firstName: q, pageSize: 20 } })
+        const items = res.data?.items ?? []
+        // Also search by lastName if firstName didn't yield results
+        if (items.length === 0) {
+          const res2 = await api.get('/api/members', { params: { lastName: q, pageSize: 20 } })
+          setSuggestions(res2.data?.items ?? [])
+        } else {
+          setSuggestions(items)
+        }
+      } catch { setSuggestions([]) }
+    }, 300)
+  }
+
+  const selectMember = (m) => {
+    setTrusteeId(m.id)
+    setTrusteeName(m.fullName ?? [m.firstName, m.lastName].filter(Boolean).join(' '))
+    setSuggestions([])
+    setHighlightedIndex(-1)
+  }
+
+  const handleKeyDown = (e) => {
+    if (!suggestions.length) return
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        setHighlightedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : 0))
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : suggestions.length - 1))
+        break
+      case 'Enter':
+        e.preventDefault()
+        if (highlightedIndex >= 0 && highlightedIndex < suggestions.length) {
+          selectMember(suggestions[highlightedIndex])
+        }
+        break
+      case 'Escape':
+        setSuggestions([])
+        setHighlightedIndex(-1)
+        break
+      default:
+        break
+    }
+  }
+
+  return (
+    <div className="mb-4">
+      <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{label || t('form.trustee', 'Trustee')}</label>
+      <div className="relative">
+        <input
+          ref={inputRef}
+          className={inputCls}
+          value={trusteeName}
+          onChange={(e) => search(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={t('form.trusteePlaceholder', 'Search member…')}
+          onBlur={() => setTimeout(() => setSuggestions([]), 150)}
+        />
+        {suggestions.length > 0 && (
+          <ul className="absolute z-20 left-0 right-0 top-full mt-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-theme-md max-h-48 overflow-y-auto text-theme-sm">
+            {suggestions.map((m, idx) => (
+              <li key={m.id}>
+                <button
+                  type="button"
+                  className={`w-full px-3 py-2 text-left text-gray-900 dark:text-white ${
+                    idx === highlightedIndex
+                      ? 'bg-brand-100 dark:bg-brand-500/20'
+                      : 'hover:bg-brand-50 dark:hover:bg-brand-500/10'
+                  }`}
+                  onMouseDown={() => selectMember(m)}
+                  onMouseEnter={() => setHighlightedIndex(idx)}
+                >
+                  {m.fullName ?? [m.firstName, m.lastName].filter(Boolean).join(' ')}
+                  <span className="ml-2 text-theme-xs text-gray-400">{m.jmbg}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {trusteeId && (
+        <button
+          type="button"
+          className="mt-1 text-theme-xs text-gray-400 hover:text-error-500"
+          onClick={() => { setTrusteeId(null); setTrusteeName('') }}
+        >
+          ✕ Clear trustee
+        </button>
+      )}
+    </div>
+  )
+}
+
 function AddUnitModal({ open, parent, onClose, onSubmit, onSuccess, onError }) {
   const { t } = useTranslation('orgUnits')
   const [name, setName] = useState('')
   const [type, setType] = useState(parent ? TYPE_MUNICIPAL : TYPE_CITY)
   const [voterCount, setVoterCount] = useState(0)
+  const [trusteeId, setTrusteeId] = useState(null)
+  const [trusteeName, setTrusteeName] = useState('')
+  const [isTrustful, setIsTrustful] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
@@ -96,6 +239,9 @@ function AddUnitModal({ open, parent, onClose, onSubmit, onSuccess, onError }) {
       setName('')
       setType(parent ? TYPE_MUNICIPAL : TYPE_CITY)
       setVoterCount(0)
+      setTrusteeId(null)
+      setTrusteeName('')
+      setIsTrustful(true)
       setError(null)
     }
   }, [open, parent])
@@ -116,6 +262,8 @@ function AddUnitModal({ open, parent, onClose, onSubmit, onSuccess, onError }) {
         type,
         voterCount: Number(voterCount) || 0,
         parentId: parent ? parent.id : null,
+        trusteeId: trusteeId ?? null,
+        isTrustful,
       })
       onSuccess?.()
       onClose()
@@ -173,6 +321,18 @@ function AddUnitModal({ open, parent, onClose, onSubmit, onSuccess, onError }) {
               data-testid="modal-voter-count-input"
             />
           </div>
+          <TrusteeField trusteeId={trusteeId} setTrusteeId={setTrusteeId} trusteeName={trusteeName} setTrusteeName={setTrusteeName} />
+          <div className="mb-4">
+            <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('form.isTrustful', 'Trustful')}</label>
+            <div className="flex gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
+              {[{ value: false, label: t('common:bool.no') }, { value: true, label: t('common:bool.yes') }].map((o) => (
+                <button key={String(o.value)} type="button" onClick={() => setIsTrustful(o.value)}
+                  className={`rounded-md px-2.5 py-1 text-theme-xs font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${isTrustful === o.value ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs' : 'text-gray-500 dark:text-gray-400'}`}>
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </div>
           {error && (
             <p className="mb-3 text-theme-sm text-error-500" data-testid="modal-error">{error}</p>
           )}
@@ -206,6 +366,9 @@ function EditUnitModal({ node, onClose, onSubmit, onSuccess, onError }) {
   const [name, setName] = useState(node.name ?? '')
   const [type, setType] = useState(node.type ?? TYPE_CITY)
   const [voterCount, setVoterCount] = useState(node.voterCount ?? 0)
+  const [trusteeId, setTrusteeId] = useState(node.trusteeId ?? null)
+  const [trusteeName, setTrusteeName] = useState(node.trusteeName ?? '')
+  const [isTrustful, setIsTrustful] = useState(node.isTrustful ?? true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
@@ -215,7 +378,7 @@ function EditUnitModal({ node, onClose, onSubmit, onSuccess, onError }) {
     setSubmitting(true)
     setError(null)
     try {
-      await onSubmit({ id: node.id, name: name.trim(), type, voterCount: Number(voterCount) || 0, parentId: node.parentId ?? null })
+      await onSubmit({ id: node.id, name: name.trim(), type, voterCount: Number(voterCount) || 0, parentId: node.parentId ?? null, trusteeId: trusteeId ?? null, trusteeName: trusteeName ?? null, isTrustful })
       onSuccess?.()
       onClose()
     } catch (err) {
@@ -253,6 +416,18 @@ function EditUnitModal({ node, onClose, onSubmit, onSuccess, onError }) {
             <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('form.voterCount')}</label>
             <input type="number" min="0" value={voterCount} onChange={(e) => setVoterCount(e.target.value)}
               className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20" />
+          </div>
+          <TrusteeField trusteeId={trusteeId} setTrusteeId={setTrusteeId} trusteeName={trusteeName} setTrusteeName={setTrusteeName} />
+          <div className="mb-4">
+            <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('form.isTrustful', 'Trustful')}</label>
+            <div className="flex gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
+              {[{ value: false, label: t('common:bool.no') }, { value: true, label: t('common:bool.yes') }].map((o) => (
+                <button key={String(o.value)} type="button" onClick={() => setIsTrustful(o.value)}
+                  className={`rounded-md px-2.5 py-1 text-theme-xs font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${isTrustful === o.value ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs' : 'text-gray-500 dark:text-gray-400'}`}>
+                  {o.label}
+                </button>
+              ))}
+            </div>
           </div>
           {error && <p className="mb-3 text-theme-sm text-error-500">{error}</p>}
           <div className="flex justify-end gap-2">
@@ -349,55 +524,59 @@ function VoterCountEditor({ node, onSave }) {
   )
 }
 
-function TreeNode({
+function TableRow({
   node,
-  depth,
   onAddChild,
   onEdit,
   onSaveVoterCount,
   onDelete,
-  forceExpand = false,
 }) {
-  const { t } = useTranslation('orgUnits')
-  const [expanded, setExpanded] = useState(true)
-  const hasChildren = node.children && node.children.length > 0
-  const isExpanded = forceExpand || expanded
+  const { t, i18n } = useTranslation('orgUnits')
   const memberCount = node.memberCount ?? node.members?.length ?? 0
 
+  const getTrustfulIcon = () => {
+    if (node.isTrustful) {
+      return (
+        <svg className="h-5 w-5 text-success-500 dark:text-success-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-label="Yes">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      )
+    }
+    return (
+      <svg className="h-5 w-5 text-error-500 dark:text-error-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-label="No">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    )
+  }
+
   return (
-    <li data-testid={`org-unit-node-${node.id}`} data-node-name={node.name}>
-      <div
-        className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800/50"
-        style={{ marginLeft: depth * 24 }}
-      >
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="flex h-6 w-6 items-center justify-center rounded text-theme-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30"
-          disabled={!hasChildren}
-          aria-label={isExpanded ? 'Collapse' : 'Expand'}
-        >
-          {hasChildren ? (isExpanded ? '▾' : '▸') : '•'}
-        </button>
-
-        <span className="font-medium text-gray-900 dark:text-white" data-testid={`node-name-${node.id}`}>{node.name}</span>
-        <span className={typeBadgeClass(node.type)}>{node.type}</span>
-
-        <span className="text-theme-sm text-gray-500 dark:text-gray-400">
-          {t('stats.voters')}:{' '}
-          <VoterCountEditor
-            node={node}
-            onSave={(v) => onSaveVoterCount(node, v)}
-          />
-        </span>
-
-        <span className="text-theme-sm text-gray-500 dark:text-gray-400">{t('stats.members')}: {memberCount}</span>
-
-        <div className="ml-auto flex items-center gap-2">
+    <tr data-testid={`org-unit-row-${node.id}`} key={node.id} className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30">
+      <td className="px-4 py-3 text-center w-20">
+        <span className={typeBadgeClass(node.type)}>{t(`type.${node.type.toLowerCase()}`)}</span>
+      </td>
+      <td className="px-4 py-3 text-theme-sm font-medium text-gray-900 dark:text-white">{node.name}</td>
+      <td className="px-4 py-3 flex items-center justify-center">
+        {getTrustfulIcon()}
+      </td>
+      <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">
+        {node.trusteeName ? node.trusteeName : '—'}
+      </td>
+      <td className="px-4 py-3 text-right text-theme-sm text-gray-700 dark:text-gray-300">
+        <VoterCountEditor
+          node={node}
+          onSave={(v) => onSaveVoterCount(node, v)}
+        />
+      </td>
+      <td className="px-4 py-3 text-right text-theme-sm text-gray-700 dark:text-gray-300">{memberCount}</td>
+      <td className="px-4 py-3">
+        <PromilleBar pm={computePromille(node)} />
+      </td>
+      <td className="px-4 py-3 text-right">
+        <div className="flex items-center justify-end gap-1.5">
           <button
             type="button"
             onClick={() => onEdit(node)}
-            className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-theme-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+            className="rounded-md border border-gray-200 dark:border-gray-700 px-2.5 py-1 text-theme-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             data-testid={`edit-btn-${node.id}`}
           >
             {t('action.edit')}
@@ -405,41 +584,24 @@ function TreeNode({
           <button
             type="button"
             onClick={() => onAddChild(node)}
-            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+            className="rounded-md border border-gray-200 dark:border-gray-800 px-2.5 py-1 text-theme-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             data-testid={`add-child-btn-${node.id}`}
           >
             {t('action.addChild')}
           </button>
-          {!hasChildren && (
+          {!node.children?.length && (
             <button
               type="button"
               onClick={() => onDelete(node)}
-              className="rounded-lg border border-error-300 dark:border-error-700 px-3 py-1.5 text-theme-xs font-medium text-error-600 dark:text-error-400 hover:bg-error-500 hover:text-white"
+              className="rounded-md border border-error-200 dark:border-error-700 px-2.5 py-1 text-theme-xs font-medium text-error-600 dark:text-error-400 hover:bg-error-50 dark:hover:bg-error-500/10"
               data-testid={`delete-btn-${node.id}`}
             >
               {t('action.delete')}
             </button>
           )}
         </div>
-      </div>
-
-      {hasChildren && isExpanded && (
-        <ul className="mt-2 flex flex-col gap-2">
-          {node.children.map((child) => (
-            <TreeNode
-              key={child.id}
-              node={child}
-              depth={depth + 1}
-              onAddChild={onAddChild}
-              onEdit={onEdit}
-              onSaveVoterCount={onSaveVoterCount}
-              onDelete={onDelete}
-              forceExpand={forceExpand}
-            />
-          ))}
-        </ul>
-      )}
-    </li>
+      </td>
+    </tr>
   )
 }
 
@@ -482,7 +644,7 @@ export default function OrgUnits() {
   const handleSaveEdit = useCallback(async (payload) => {
     await api.put(`/api/orgunits/${payload.id}`, payload)
     setTree((prev) =>
-      updateNode(prev, payload.id, (n) => ({ ...n, name: payload.name, type: payload.type, voterCount: payload.voterCount }))
+      updateNode(prev, payload.id, (n) => ({ ...n, name: payload.name, type: payload.type, voterCount: payload.voterCount, trusteeId: payload.trusteeId, trusteeName: payload.trusteeName, isTrustful: payload.isTrustful }))
     )
   }, [])
 
@@ -511,6 +673,8 @@ export default function OrgUnits() {
       type: node.type,
       parentId: node.parentId ?? null,
       voterCount: newVoterCount,
+      trusteeId: node.trusteeId ?? null,
+      isTrustful: node.isTrustful ?? true,
     }
     await api.put(`/api/orgunits/${node.id}`, payload)
     setTree((prev) =>
@@ -535,7 +699,24 @@ export default function OrgUnits() {
     }
   }, [t, toast])
 
-  const visibleTree = useMemo(() => filterTree(tree, filterName.trim()), [tree, filterName])
+  // Flatten tree for table display
+  const flattenedRows = useMemo(() => {
+    const rows = []
+    function flatten(nodes) {
+      for (const node of nodes) {
+        rows.push(node)
+        if (node.children?.length) flatten(node.children)
+      }
+    }
+    flatten(tree)
+    return rows
+  }, [tree])
+
+  const visibleRows = useMemo(() => {
+    if (!filterName.trim()) return flattenedRows
+    const q = filterName.toLowerCase()
+    return flattenedRows.filter(n => n.name.toLowerCase().includes(q))
+  }, [flattenedRows, filterName])
 
   const content = useMemo(() => {
     if (loading) {
@@ -547,26 +728,40 @@ export default function OrgUnits() {
     if (tree.length === 0) {
       return <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('orgUnits:state.noOrgUnits')}</p>
     }
-    if (visibleTree.length === 0) {
+    if (visibleRows.length === 0) {
       return <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('orgUnits:filter.noResults')}</p>
     }
     return (
-      <ul className="flex flex-col gap-2" data-testid="org-units-tree">
-        {visibleTree.map((node) => (
-          <TreeNode
-            key={node.id}
-            node={node}
-            depth={0}
-            onAddChild={handleAddChild}
-            onEdit={handleEdit}
-            onSaveVoterCount={handleSaveVoterCount}
-            onDelete={handleDelete}
-            forceExpand={!!filterName.trim()}
-          />
-        ))}
-      </ul>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm" data-testid="org-units-table">
+          <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
+            <tr>
+              <th className="px-4 py-3 text-center w-20">{t('form.type')}</th>
+              <th className="px-4 py-3">{t('form.name')}</th>
+              <th className="px-4 py-3 text-center">{t('form.isTrustful')}</th>
+              <th className="px-4 py-3">{t('form.trustee')}</th>
+              <th className="px-4 py-3 text-right">{t('form.voterCount')}</th>
+              <th className="px-4 py-3 text-right">{t('stats.members')}</th>
+              <th className="px-4 py-3 text-right">{t('stats.membership')}</th>
+              <th className="px-4 py-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visibleRows.map((node) => (
+              <TableRow
+                key={node.id}
+                node={node}
+                onAddChild={handleAddChild}
+                onEdit={handleEdit}
+                onSaveVoterCount={handleSaveVoterCount}
+                onDelete={handleDelete}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     )
-  }, [loading, error, tree, visibleTree, filterName, handleAddChild, handleEdit, handleSaveVoterCount, handleDelete, t])
+  }, [loading, error, tree, visibleRows, handleAddChild, handleEdit, handleSaveVoterCount, handleDelete, t])
 
   return (
     <div>
@@ -615,14 +810,12 @@ export default function OrgUnits() {
           </div>
         </div>
 
-        <div className="p-6">
-          {deleteError && (
-            <p className="mb-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
-              {deleteError}
-            </p>
-          )}
-          {content}
-        </div>
+        {deleteError && (
+          <p className="mb-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400 m-6">
+            {deleteError}
+          </p>
+        )}
+        {content}
       </div>
 
       <AddUnitModal

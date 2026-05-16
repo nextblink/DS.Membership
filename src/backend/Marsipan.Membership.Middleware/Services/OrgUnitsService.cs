@@ -29,7 +29,11 @@ public class OrgUnitsService : IOrgUnitsService
                 o.Name,
                 o.Type,
                 o.ParentId,
+                o.MunicipalityId,
                 o.VoterCount,
+                o.TrusteeId,
+                o.IsTrustful,
+                TrusteeName = o.Trustee != null ? o.Trustee.FirstName + " " + o.Trustee.LastName : null,
                 MemberCount = _db.Members.Count(m => m.OrgUnitId == o.Id),
             })
             .ToListAsync(ct);
@@ -40,7 +44,11 @@ public class OrgUnitsService : IOrgUnitsService
             Id = u.Id,
             Name = u.Name,
             Type = u.Type.ToString(),
+            MunicipalityId = u.MunicipalityId,
             VoterCount = u.VoterCount,
+            TrusteeId = u.TrusteeId,
+            TrusteeName = u.TrusteeName,
+            IsTrustful = u.IsTrustful,
             MemberCount = u.MemberCount,
             Children = new List<OrgUnitTreeDto>(),
         });
@@ -73,7 +81,11 @@ public class OrgUnitsService : IOrgUnitsService
                 Name = o.Name,
                 Type = o.Type,
                 ParentId = o.ParentId,
+                MunicipalityId = o.MunicipalityId,
                 VoterCount = o.VoterCount,
+                TrusteeId = o.TrusteeId,
+                TrusteeName = o.Trustee != null ? o.Trustee.FirstName + " " + o.Trustee.LastName : null,
+                IsTrustful = o.IsTrustful,
                 MemberCount = _db.Members.Count(m => m.OrgUnitId == o.Id),
             })
             .FirstOrDefaultAsync(ct);
@@ -89,7 +101,10 @@ public class OrgUnitsService : IOrgUnitsService
             Name = dto.Name,
             Type = dto.Type,
             ParentId = dto.ParentId,
+            MunicipalityId = dto.MunicipalityId,
             VoterCount = dto.VoterCount,
+            TrusteeId = dto.TrusteeId,
+            IsTrustful = dto.IsTrustful,
             CreatedDate = now,
             CreatedByUserId = _currentUser.Id,
         };
@@ -103,7 +118,10 @@ public class OrgUnitsService : IOrgUnitsService
             Name = entity.Name,
             Type = entity.Type,
             ParentId = entity.ParentId,
+            MunicipalityId = entity.MunicipalityId,
             VoterCount = entity.VoterCount,
+            TrusteeId = entity.TrusteeId,
+            IsTrustful = entity.IsTrustful,
             MemberCount = 0,
         };
     }
@@ -121,7 +139,10 @@ public class OrgUnitsService : IOrgUnitsService
         entity.Name = dto.Name;
         entity.Type = dto.Type;
         entity.ParentId = dto.ParentId;
+        entity.MunicipalityId = dto.MunicipalityId;
         entity.VoterCount = dto.VoterCount;
+        entity.TrusteeId = dto.TrusteeId;
+        entity.IsTrustful = dto.IsTrustful;
         entity.LastModifiedDate = DateTime.UtcNow;
         entity.LastModifiedByUserId = _currentUser.Id;
 

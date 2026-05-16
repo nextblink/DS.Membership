@@ -15,7 +15,14 @@ public class OrgUnitTreeDto
     /// <summary>String form of <see cref="OrgUnitType"/> (e.g. "City", "Municipal").</summary>
     public string Type { get; set; } = string.Empty;
 
+    public int? MunicipalityId { get; set; }
+
     public int VoterCount { get; set; }
+
+    public int? TrusteeId { get; set; }
+    public string? TrusteeName { get; set; }
+
+    public bool IsTrustful { get; set; }
 
     /// <summary>Count of non-deleted Members directly assigned to this unit.</summary>
     public int MemberCount { get; set; }
@@ -33,7 +40,11 @@ public class OrgUnitDetailsDto
     public string Name { get; set; } = string.Empty;
     public OrgUnitType Type { get; set; }
     public int? ParentId { get; set; }
+    public int? MunicipalityId { get; set; }
     public int VoterCount { get; set; }
+    public int? TrusteeId { get; set; }
+    public string? TrusteeName { get; set; }
+    public bool IsTrustful { get; set; }
     public int MemberCount { get; set; }
 }
 
@@ -50,8 +61,14 @@ public class CreateOrgUnitDto
 
     public int? ParentId { get; set; }
 
+    public int? MunicipalityId { get; set; }
+
     [Range(0, int.MaxValue)]
     public int VoterCount { get; set; }
+
+    public int? TrusteeId { get; set; }
+
+    public bool IsTrustful { get; set; } = true;
 }
 
 /// <summary>
@@ -67,6 +84,12 @@ public class UpdateOrgUnitDto
 
     public int? ParentId { get; set; }
 
+    public int? MunicipalityId { get; set; }
+
     [Range(0, int.MaxValue)]
     public int VoterCount { get; set; }
+
+    public int? TrusteeId { get; set; }
+
+    public bool IsTrustful { get; set; } = true;
 }

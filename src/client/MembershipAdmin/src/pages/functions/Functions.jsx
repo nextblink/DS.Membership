@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import { useToast, ToastContainer } from '../../components/Toast'
+import { useConfirm } from '../../components/ConfirmModal'
 
 function extractError(e) {
   return (
@@ -102,6 +103,7 @@ function FunctionModal({ item, onClose, onSaved, onSuccess }) {
 export default function Functions() {
   const { t } = useTranslation(['functions', 'common'])
   const toast = useToast()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -125,7 +127,8 @@ export default function Functions() {
   useEffect(() => { load() }, [])
 
   async function handleDelete(item) {
-    if (!window.confirm(t('confirm.delete'))) return
+    const ok = await confirm({ title: t('common:button.delete'), message: `${t('confirm.delete')} "${item.name}"?` })
+    if (!ok) return
     setDeletingId(item.id)
     setError(null)
     try {
@@ -143,6 +146,7 @@ export default function Functions() {
   return (
     <div>
       <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
+      <ConfirmDialog />
       {error && (
         <div data-testid="functions-error" className="mb-4 rounded-lg border border-error-300 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-500">
           {error}
