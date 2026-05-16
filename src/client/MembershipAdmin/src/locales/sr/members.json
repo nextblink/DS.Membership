@@ -4,6 +4,7 @@
   "newMember": "Нови члан",
   "editMember": "Измени члана",
   "filter": {
+    "name": "Ime i prezime",
     "firstName": "Име",
     "lastName": "Презиме",
     "jmbg": "ЈМБГ",
