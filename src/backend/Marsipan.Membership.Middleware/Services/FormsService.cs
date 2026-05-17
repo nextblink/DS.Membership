@@ -1,4 +1,4 @@
-using Marsipan.Membership.Middleware.Data;
+﻿using Marsipan.Membership.Middleware.Data;
 using Marsipan.Membership.Middleware.DTOs;
 using Marsipan.Membership.Middleware.Entities;
 using Marsipan.Membership.Middleware.Enums;
@@ -137,7 +137,7 @@ public class FormsService : IFormsService
         if (!_user.IsAuthenticated || string.IsNullOrEmpty(_user.Id))
             throw new InvalidOperationException("Cannot create a form without an authenticated user.");
 
-        // Server-side CreatedByUserId — never trust client input.
+        // Server-side CreatedByUserId â€” never trust client input.
         var form = new Form
         {
             FormNumber = meta.FormNumber,
@@ -145,7 +145,7 @@ public class FormsService : IFormsService
             MunicipalBoard = meta.MunicipalBoard,
             MemberId = meta.MemberId,
             Status = FormStatus.Pending,
-            CreatedByUserId = _user.Id!,
+            CreatedByUserId = _user.Id ?? string.Empty,
             CreatedDate = DateTime.UtcNow,
             IsDeleted = false
         };
@@ -166,7 +166,7 @@ public class FormsService : IFormsService
                 UploadedAt = DateTime.UtcNow,
                 Order = order,
                 CreatedDate = DateTime.UtcNow,
-                CreatedByUserId = _user.Id,
+                CreatedByUserId = _user.Id ?? string.Empty,
                 IsDeleted = false
             });
             order++;
@@ -203,7 +203,7 @@ public class FormsService : IFormsService
         form.MunicipalBoard = dto.MunicipalBoard;
         form.MemberId = dto.MemberId;
         form.LastModifiedDate = DateTime.UtcNow;
-        form.LastModifiedByUserId = _user.Id;
+        form.LastModifiedByUserId = _user.Id ?? string.Empty;
         // CreatedByUserId is intentionally NOT touched.
 
         await _db.SaveChangesAsync(ct);
@@ -221,7 +221,7 @@ public class FormsService : IFormsService
 
         form.Status = status;
         form.LastModifiedDate = DateTime.UtcNow;
-        form.LastModifiedByUserId = _user.Id;
+        form.LastModifiedByUserId = _user.Id ?? string.Empty;
         await _db.SaveChangesAsync(ct);
         return true;
     }
@@ -238,13 +238,13 @@ public class FormsService : IFormsService
 
         form.IsDeleted = true;
         form.LastModifiedDate = DateTime.UtcNow;
-        form.LastModifiedByUserId = _user.Id;
+        form.LastModifiedByUserId = _user.Id ?? string.Empty;
 
         foreach (var img in form.Images)
         {
             img.IsDeleted = true;
             img.LastModifiedDate = DateTime.UtcNow;
-            img.LastModifiedByUserId = _user.Id;
+            img.LastModifiedByUserId = _user.Id ?? string.Empty;
         }
 
         await _db.SaveChangesAsync(ct);
@@ -287,7 +287,7 @@ public class FormsService : IFormsService
                 UploadedAt = DateTime.UtcNow,
                 Order = nextOrder,
                 CreatedDate = DateTime.UtcNow,
-                CreatedByUserId = _user.Id,
+                CreatedByUserId = _user.Id ?? string.Empty,
                 IsDeleted = false
             };
             _db.FormImages.Add(image);
@@ -330,7 +330,7 @@ public class FormsService : IFormsService
 
         image.IsDeleted = true;
         image.LastModifiedDate = DateTime.UtcNow;
-        image.LastModifiedByUserId = _user.Id;
+        image.LastModifiedByUserId = _user.Id ?? string.Empty;
         await _db.SaveChangesAsync(ct);
 
         await _storage.DeleteAsync(image.FilePath, ct);

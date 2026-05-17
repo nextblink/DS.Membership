@@ -1,4 +1,4 @@
-using Marsipan.Membership.Middleware.Data;
+﻿using Marsipan.Membership.Middleware.Data;
 using Marsipan.Membership.Middleware.DTOs;
 using Marsipan.Membership.Middleware.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -106,7 +106,7 @@ public class OrgUnitsService : IOrgUnitsService
             TrusteeId = dto.TrusteeId,
             IsTrustful = dto.IsTrustful,
             CreatedDate = now,
-            CreatedByUserId = _currentUser.Id,
+            CreatedByUserId = _currentUser.Id ?? string.Empty,
         };
 
         _db.OrgUnits.Add(entity);
@@ -144,7 +144,7 @@ public class OrgUnitsService : IOrgUnitsService
         entity.TrusteeId = dto.TrusteeId;
         entity.IsTrustful = dto.IsTrustful;
         entity.LastModifiedDate = DateTime.UtcNow;
-        entity.LastModifiedByUserId = _currentUser.Id;
+        entity.LastModifiedByUserId = _currentUser.Id ?? string.Empty;
 
         await _db.SaveChangesAsync(ct);
         return true;
@@ -168,7 +168,7 @@ public class OrgUnitsService : IOrgUnitsService
 
         entity.IsDeleted = true;
         entity.LastModifiedDate = DateTime.UtcNow;
-        entity.LastModifiedByUserId = _currentUser.Id;
+        entity.LastModifiedByUserId = _currentUser.Id ?? string.Empty;
 
         await _db.SaveChangesAsync(ct);
         return true;

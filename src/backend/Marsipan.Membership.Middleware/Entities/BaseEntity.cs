@@ -1,13 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Marsipan.Membership.Middleware.Entities;
 
-/// <summary>
-/// Abstract base type for all domain entities. Provides identity, audit
-/// fields, and a soft-delete flag. Domain entities (added in issue #5)
-/// should inherit from this type.
-/// </summary>
 public abstract class BaseEntity
 {
     [Key]
@@ -15,13 +9,13 @@ public abstract class BaseEntity
 
     public DateTime CreatedDate { get; set; }
 
-    public DateTime? LastModifiedDate { get; set; }
+    public DateTime LastModifiedDate { get; set; }
 
     [MaxLength(450)]
-    public string? CreatedByUserId { get; set; }
+    public string CreatedByUserId { get; set; } = string.Empty;
 
     [MaxLength(450)]
-    public string? LastModifiedByUserId { get; set; }
+    public string LastModifiedByUserId { get; set; } = string.Empty;
 
     public bool IsDeleted { get; set; } = false;
 }

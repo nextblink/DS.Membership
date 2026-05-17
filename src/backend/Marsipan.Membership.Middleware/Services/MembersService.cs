@@ -1,4 +1,4 @@
-using Marsipan.Membership.Middleware.Data;
+﻿using Marsipan.Membership.Middleware.Data;
 using Marsipan.Membership.Middleware.DTOs;
 using Marsipan.Membership.Middleware.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -131,7 +131,7 @@ public class MembersService : IMembersService
         }
 
         var now = DateTime.UtcNow;
-        var userId = _currentUser.Id;
+        var userId = _currentUser.Id ?? string.Empty;
 
         var member = new Member
         {
@@ -239,7 +239,7 @@ public class MembersService : IMembersService
         member.MembershipDate = dto.MembershipDate;
         member.OrgUnitId = dto.OrgUnitId;
         member.LastModifiedDate = DateTime.UtcNow;
-        member.LastModifiedByUserId = _currentUser.Id;
+        member.LastModifiedByUserId = _currentUser.Id ?? string.Empty;
 
         await _db.SaveChangesAsync(ct);
         return true;
@@ -257,7 +257,7 @@ public class MembersService : IMembersService
 
         member.IsDeleted = true;
         member.LastModifiedDate = DateTime.UtcNow;
-        member.LastModifiedByUserId = _currentUser.Id;
+        member.LastModifiedByUserId = _currentUser.Id ?? string.Empty;
 
         await _db.SaveChangesAsync(ct);
         return true;
@@ -280,12 +280,12 @@ public class MembersService : IMembersService
             Number = dto.Number,
             Type = dto.Type,
             CreatedDate = now,
-            CreatedByUserId = _currentUser.Id,
+            CreatedByUserId = _currentUser.Id ?? string.Empty,
         };
 
         _db.Phones.Add(phone);
         member.LastModifiedDate = now;
-        member.LastModifiedByUserId = _currentUser.Id;
+        member.LastModifiedByUserId = _currentUser.Id ?? string.Empty;
 
         await _db.SaveChangesAsync(ct);
 
@@ -317,9 +317,9 @@ public class MembersService : IMembersService
         var now = DateTime.UtcNow;
         phone.IsDeleted = true;
         phone.LastModifiedDate = now;
-        phone.LastModifiedByUserId = _currentUser.Id;
+        phone.LastModifiedByUserId = _currentUser.Id ?? string.Empty;
         member.LastModifiedDate = now;
-        member.LastModifiedByUserId = _currentUser.Id;
+        member.LastModifiedByUserId = _currentUser.Id ?? string.Empty;
 
         await _db.SaveChangesAsync(ct);
         return true;
@@ -367,12 +367,12 @@ public class MembersService : IMembersService
             FunctionId = dto.FunctionId,
             AssignedDate = dto.AssignedDate,
             CreatedDate = now,
-            CreatedByUserId = _currentUser.Id,
+            CreatedByUserId = _currentUser.Id ?? string.Empty,
         };
 
         _db.MemberFunctions.Add(mf);
         member.LastModifiedDate = now;
-        member.LastModifiedByUserId = _currentUser.Id;
+        member.LastModifiedByUserId = _currentUser.Id ?? string.Empty;
 
         await _db.SaveChangesAsync(ct);
 
@@ -411,9 +411,9 @@ public class MembersService : IMembersService
         var now = DateTime.UtcNow;
         mf.IsDeleted = true;
         mf.LastModifiedDate = now;
-        mf.LastModifiedByUserId = _currentUser.Id;
+        mf.LastModifiedByUserId = _currentUser.Id ?? string.Empty;
         member.LastModifiedDate = now;
-        member.LastModifiedByUserId = _currentUser.Id;
+        member.LastModifiedByUserId = _currentUser.Id ?? string.Empty;
 
         await _db.SaveChangesAsync(ct);
         return true;
