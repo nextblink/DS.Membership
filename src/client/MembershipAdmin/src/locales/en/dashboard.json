@@ -6,6 +6,7 @@
     "pendingForms": "Pending Forms",
     "orgUnits": "Org Units",
     "notTrusted": "Not Trusted",
+    "untrustworthy": "Untrustworthy",
     "formsTotal": "{{count}} forms total",
     "avgMembership": "Avg Membership",
     "orgUnitsCount": "{{count}} units",
