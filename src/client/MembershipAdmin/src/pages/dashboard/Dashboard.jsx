@@ -129,7 +129,9 @@ export default function Dashboard() {
             <GenderPie femaleCount={femaleCount} maleCount={maleCount} />
           </div>
         </Link>
-        <OrgUnitsStatsCard totalOrgUnits={orgUnitCount} nonTrustworthyCount={stats?.nonTrustworthyOrgUnits ?? 0} nonTrustworthyPercentage={stats?.nonTrustworthyPercentage ?? 0} />
+        <Link to="/orgunits" className="hover:opacity-90 transition-opacity">
+          <OrgUnitsStatsCard totalOrgUnits={orgUnitCount} nonTrustworthyCount={stats?.nonTrustworthyOrgUnits ?? 0} nonTrustworthyPercentage={stats?.nonTrustworthyPercentage ?? 0} />
+        </Link>
         <FormStatsCard verifiedCount={verifiedForms} pendingCount={pendingForms} />
         <StatsCard
           delay="240ms"
