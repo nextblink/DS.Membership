@@ -31,7 +31,7 @@ public enum PhoneType
     Business
 }
 
-public enum OrgUnitType
+public enum CommitteeType
 {
     City               = 0,   // ГРО
     Municipal          = 1,   // ОО
