@@ -66,6 +66,18 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(m => m.OoId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        // MemberFunction.OrgUnitId → OrgUnit (nullable — set for secondary/national body memberships).
+        modelBuilder.Entity<MemberFunction>()
+            .HasOne(mf => mf.OrgUnit)
+            .WithMany()
+            .HasForeignKey(mf => mf.OrgUnitId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Unique: a member can hold each function in a given org unit only once.
+        modelBuilder.Entity<MemberFunction>()
+            .HasIndex(mf => new { mf.MemberId, mf.FunctionId, mf.OrgUnitId })
+            .IsUnique();
+
         // OrgUnit.TrusteeId → Member (nullable, restrict delete so you can't remove a trustee member).
         modelBuilder.Entity<OrgUnit>()
             .HasOne(o => o.Trustee)

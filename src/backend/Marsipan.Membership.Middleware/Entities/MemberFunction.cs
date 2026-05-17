@@ -20,4 +20,13 @@ public class MemberFunction : BaseEntity
 
     [Required]
     public DateOnly AssignedDate { get; set; }
+
+    /// <summary>
+    /// The org unit this function is held in. Null = implied from Member.OrgUnitId (primary local unit).
+    /// Set explicitly for secondary city GRO membership and national body memberships.
+    /// </summary>
+    public int? OrgUnitId { get; set; }
+
+    [ForeignKey(nameof(OrgUnitId))]
+    public OrgUnit? OrgUnit { get; set; }
 }

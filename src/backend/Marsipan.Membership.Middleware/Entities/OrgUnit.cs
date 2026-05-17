@@ -32,6 +32,9 @@ public class OrgUnit : BaseEntity
 
     public bool IsTrustful { get; set; } = true;
 
+    /// <summary>Display-only capacity hint for national bodies (150 / 10 / 10). Null = no limit.</summary>
+    public int? MaxMembers { get; set; }
+
     public ICollection<OrgUnit> Children { get; set; } = [];
 
     public ICollection<Member> Members { get; set; } = [];

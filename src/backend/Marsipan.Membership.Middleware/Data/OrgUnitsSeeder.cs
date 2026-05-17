@@ -22,7 +22,8 @@ public static class OrgUnitsSeeder
         }
 
         var existingCount = await context.OrgUnits.CountAsync();
-        if (existingCount >= municipalities.Count) return;
+        // +3 for the three national bodies seeded below
+        if (existingCount >= municipalities.Count + 3) return;
 
         // Load hasOo hint from JSON (not stored on entity).
         var hints = SeedDataLoader.Load<MunicipalityHint[]>("municipalities.json")
@@ -100,5 +101,19 @@ public static class OrgUnitsSeeder
         }
 
         await context.SaveChangesAsync();
+
+        // Seed 3 national bodies (no municipality, no parent, no voter count).
+        var hasNational = await context.OrgUnits
+            .AnyAsync(o => o.Type == OrgUnitType.MainCommittee);
+
+        if (!hasNational)
+        {
+            context.OrgUnits.AddRange(
+                new OrgUnit { Name = "Главни одбор",  Type = OrgUnitType.MainCommittee,      MaxMembers = 150, IsTrustful = true, VoterCount = 0, CreatedDate = now, LastModifiedDate = now, CreatedByUserId = systemUserId, LastModifiedByUserId = systemUserId },
+                new OrgUnit { Name = "Извршни одбор", Type = OrgUnitType.ExecutiveCommittee, MaxMembers = 10,  IsTrustful = true, VoterCount = 0, CreatedDate = now, LastModifiedDate = now, CreatedByUserId = systemUserId, LastModifiedByUserId = systemUserId },
+                new OrgUnit { Name = "Председништво", Type = OrgUnitType.Presidency,         MaxMembers = 10,  IsTrustful = true, VoterCount = 0, CreatedDate = now, LastModifiedDate = now, CreatedByUserId = systemUserId, LastModifiedByUserId = systemUserId }
+            );
+            await context.SaveChangesAsync();
+        }
     }
 }

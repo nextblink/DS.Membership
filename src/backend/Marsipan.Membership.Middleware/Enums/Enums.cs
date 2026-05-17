@@ -33,8 +33,11 @@ public enum PhoneType
 
 public enum OrgUnitType
 {
-    City,
-    Municipal
+    City               = 0,   // ГРО
+    Municipal          = 1,   // ОО
+    MainCommittee      = 2,   // Главни одбор
+    ExecutiveCommittee = 3,   // Извршни одбор
+    Presidency         = 4,   // Председништво
 }
 
 public enum FormStatus

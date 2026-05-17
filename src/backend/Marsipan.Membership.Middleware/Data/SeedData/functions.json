@@ -1,12 +1,26 @@
 [
-  { "name": "Члан главног одбора" },
-  { "name": "Председник" },
-  { "name": "Потпредседник" },
-  { "name": "Секретар" },
-  { "name": "Благајник" },
-  { "name": "Члан ИО" },
-  { "name": "Члан надзорног одбора" },
-  { "name": "Повереник" },
-  { "name": "Председник ОО" },
-  { "name": "Председник ГРО" }
+  { "name": "Члан ОО",              "orgUnitType": 1, "maxNumberOfPeople": null },
+  { "name": "Председник ОО",        "orgUnitType": 1, "maxNumberOfPeople": 1 },
+  { "name": "Потпредседник ОО",     "orgUnitType": 1, "maxNumberOfPeople": 1 },
+  { "name": "Секретар ОО",          "orgUnitType": 1, "maxNumberOfPeople": 1 },
+  { "name": "Благајник ОО",         "orgUnitType": 1, "maxNumberOfPeople": 1 },
+  { "name": "Повереник",            "orgUnitType": 1, "maxNumberOfPeople": 1 },
+
+  { "name": "Члан ГРО",             "orgUnitType": 0, "maxNumberOfPeople": null },
+  { "name": "Председник ГРО",       "orgUnitType": 0, "maxNumberOfPeople": 1 },
+  { "name": "Потпредседник ГРО",    "orgUnitType": 0, "maxNumberOfPeople": 1 },
+  { "name": "Секретар ГРО",         "orgUnitType": 0, "maxNumberOfPeople": 1 },
+  { "name": "Благајник ГРО",        "orgUnitType": 0, "maxNumberOfPeople": 1 },
+
+  { "name": "Члан ГО",              "orgUnitType": 2, "maxNumberOfPeople": 150 },
+  { "name": "Председник ГО",        "orgUnitType": 2, "maxNumberOfPeople": 1 },
+  { "name": "Потпредседник ГО",     "orgUnitType": 2, "maxNumberOfPeople": 1 },
+  { "name": "Секретар ГО",          "orgUnitType": 2, "maxNumberOfPeople": 1 },
+
+  { "name": "Члан ИО",              "orgUnitType": 3, "maxNumberOfPeople": 10 },
+  { "name": "Председник ИО",        "orgUnitType": 3, "maxNumberOfPeople": 1 },
+
+  { "name": "Члан председништва",   "orgUnitType": 4, "maxNumberOfPeople": 10 },
+  { "name": "Председник партије",   "orgUnitType": 4, "maxNumberOfPeople": 1 },
+  { "name": "Потпредседник партије","orgUnitType": 4, "maxNumberOfPeople": 1 }
 ]
