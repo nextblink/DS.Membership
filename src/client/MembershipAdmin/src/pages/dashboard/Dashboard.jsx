@@ -132,7 +132,9 @@ export default function Dashboard() {
         <Link to="/orgunits" className="hover:opacity-90 transition-opacity">
           <OrgUnitsStatsCard totalOrgUnits={orgUnitCount} nonTrustworthyCount={stats?.nonTrustworthyOrgUnits ?? 0} nonTrustworthyPercentage={stats?.nonTrustworthyPercentage ?? 0} />
         </Link>
-        <FormStatsCard verifiedCount={verifiedForms} pendingCount={pendingForms} />
+        <Link to="/forms" className="hover:opacity-90 transition-opacity">
+          <FormStatsCard verifiedCount={verifiedForms} pendingCount={pendingForms} />
+        </Link>
         <StatsCard
           delay="240ms"
           accent="#3E8DC4"
