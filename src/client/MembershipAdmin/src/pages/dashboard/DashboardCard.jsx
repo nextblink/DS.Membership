@@ -35,16 +35,13 @@ export default function DashboardCard({ accent = '#2E6BAD', delay = '0ms', to, s
         {/* Left accent stripe */}
         <div className="absolute inset-y-0 left-0 w-[3px] rounded-l-xl" style={{ background: accent }} />
 
-        {/* Decorative oversized icon — clipped in top-right corner */}
+        {/* Icon badge — top-right corner */}
         {icon && (
           <div
-            className="pointer-events-none absolute -top-5 -right-5 flex h-24 w-24 items-center justify-center"
-            style={{ color: accent, opacity: 0.13 }}
-            aria-hidden
+            className="absolute top-4 right-4 flex h-11 w-11 items-center justify-center rounded-xl"
+            style={{ background: `${accent}1a` }}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-full w-full">
-              {icon.props.children}
-            </svg>
+            {icon}
           </div>
         )}
 
