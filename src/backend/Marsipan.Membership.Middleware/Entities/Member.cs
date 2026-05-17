@@ -63,10 +63,10 @@ public class Member : BaseEntity
     public DateOnly MembershipDate { get; set; }
 
     [Required]
-    public int OrgUnitId { get; set; }
+    public int CommitteeId { get; set; }
 
-    [ForeignKey(nameof(OrgUnitId))]
-    public OrgUnit OrgUnit { get; set; } = null!;
+    [ForeignKey(nameof(CommitteeId))]
+    public Committee Committee { get; set; } = null!;
 
     public ICollection<Phone> Phones { get; set; } = [];
 

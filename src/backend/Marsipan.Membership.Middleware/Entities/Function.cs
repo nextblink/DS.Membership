@@ -11,7 +11,7 @@ public class Function : BaseEntity
     public string Name { get; set; } = null!;
 
     /// <summary>Scopes this function to a specific committee type. Null = applicable to any type.</summary>
-    public OrgUnitType? OrgUnitType { get; set; }
+    public CommitteeType? CommitteeType { get; set; }
 
     /// <summary>Max number of holders per org unit instance. Null = unlimited.</summary>
     public int? MaxNumberOfPeople { get; set; }

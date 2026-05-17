@@ -4,19 +4,19 @@ using Marsipan.Membership.Middleware.Enums;
 
 namespace Marsipan.Membership.Middleware.Entities;
 
-[Table("OrgUnits")]
-public class OrgUnit : BaseEntity
+[Table("Committees")]
+public class Committee : BaseEntity
 {
     [Required, MaxLength(200)]
     public string Name { get; set; } = null!;
 
     [Required]
-    public OrgUnitType Type { get; set; }
+    public CommitteeType Type { get; set; }
 
     public int? ParentId { get; set; }
 
     [ForeignKey(nameof(ParentId))]
-    public OrgUnit? Parent { get; set; }
+    public Committee? Parent { get; set; }
 
     public int VoterCount { get; set; }
 
@@ -32,10 +32,9 @@ public class OrgUnit : BaseEntity
 
     public bool IsTrustful { get; set; } = true;
 
-    /// <summary>Display-only capacity hint for national bodies (150 / 10 / 10). Null = no limit.</summary>
     public int? MaxMembers { get; set; }
 
-    public ICollection<OrgUnit> Children { get; set; } = [];
+    public ICollection<Committee> Children { get; set; } = [];
 
     public ICollection<Member> Members { get; set; } = [];
 }
