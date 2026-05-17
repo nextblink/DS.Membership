@@ -72,13 +72,14 @@ MemberCredential : BaseEntity
 
 // Announcement.cs
 Announcement : BaseEntity
-  Title            string
-  Body             string
-  AuthorId         int    FK → Member
-  TargetLevel      OrgUnitType?   null = all levels
-  TargetOrgUnitId  int?           FK → OrgUnit, null = all units
-  Attachments      ICollection<Attachment>
-  Likes            ICollection<AnnouncementLike>
+  Title              string
+  Body               string
+  AuthorId           int    FK → Member
+  TargetLevel        OrgUnitType?   null = all levels
+  TargetOrgUnitId    int?           FK → OrgUnit, null = all units
+  TargetFunctionId   int?           FK → Function, null = all functions
+  Attachments        ICollection<Attachment>
+  Likes              ICollection<AnnouncementLike>
 
 // AnnouncementLike.cs
 AnnouncementLike : BaseEntity
@@ -103,7 +104,7 @@ FcmSubscription : BaseEntity
 
 **TargetLevel** reuses the existing `OrgUnitType` enum (`City` / `Municipal`) as the level discriminator — no new enum.
 
-**Member.Role for mobile:** The existing `Member` entity tracks personal/demographic data but has no political party role field. A `PartyRole` string (or enum) column needs to be added to `Member` as part of this work — used for role-based announcement targeting and for the `role` JWT claim. This requires an additional EF migration (`AddMemberPartyRole`). The set of valid role values is to be confirmed with the domain owner before implementation.
+**Role-based targeting uses existing `Function` entities.** No new column on `Member`. `Announcement.TargetFunctionId` (nullable FK → `Function`) replaces the generic `TargetRole` concept. Targeting filter: include if `TargetFunctionId` is null OR the member has that function in their `MemberFunction` records. JWT `role` claim contains all function IDs the member holds (comma-separated or array claim).
 
 **Migrations:** two new migrations added to `Marsipan.Membership.Middleware/Migrations/`:
 - `AddMobileAuth` — MemberCredential table
@@ -152,9 +153,10 @@ FcmSubscription : BaseEntity
 }
 ```
 
-**Targeting filter in SyncService:** an announcement is included if:
+**Targeting filter in SyncService:** an announcement is included if all three conditions pass:
 - `TargetOrgUnitId` is null OR equals the member's `OrgUnitId`
 - AND `TargetLevel` is null OR equals the member's OrgUnit's `Type`
+- AND `TargetFunctionId` is null OR the member has that function in their `MemberFunction` records
 
 **File storage:** uploaded attachments stored under `uploads/mobile/` (separate subfolder from existing form images), served via static files middleware at `/uploads/mobile`.
 
