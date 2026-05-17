@@ -17,10 +17,12 @@ namespace Marsipan.Membership.Web.Controllers.Admin;
 public class FormsController : ControllerBase
 {
     private readonly IFormsService _forms;
+    private readonly IFormExtractionService _extraction;
 
-    public FormsController(IFormsService forms)
+    public FormsController(IFormsService forms, IFormExtractionService extraction)
     {
         _forms = forms;
+        _extraction = extraction;
     }
 
     [HttpGet]
@@ -65,6 +67,37 @@ public class FormsController : ControllerBase
             ct);
 
         return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
+    }
+
+    /// <summary>
+    /// Sends a single form image to the Claude vision API and returns extracted member data.
+    /// Does not persist anything — stateless extraction only.
+    /// </summary>
+    [HttpPost("extract")]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(ExtractedFormDataDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<ExtractedFormDataDto>> Extract(
+        [FromForm(Name = "file")] IFormFile? file,
+        CancellationToken ct)
+    {
+        if (file is null || file.Length == 0)
+            return BadRequest(new { message = "An image file is required." });
+
+        var allowed = new[] { "image/jpeg", "image/jpg", "image/png", "image/webp" };
+        if (!allowed.Contains(file.ContentType?.ToLowerInvariant()))
+            return BadRequest(new { message = "Only JPEG, PNG, and WebP images are supported." });
+
+        try
+        {
+            var result = await _extraction.ExtractAsync(file, ct);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return UnprocessableEntity(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{id:int}")]
