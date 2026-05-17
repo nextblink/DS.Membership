@@ -40,11 +40,11 @@
   },
   "orgUnitType": {
     "null": "Universal",
-    "0": "City Committee (GRO)",
-    "1": "Municipal Committee (OO)",
-    "2": "Main Committee",
-    "3": "Executive Committee",
-    "4": "Presidency"
+    "City": "City Committee (GRO)",
+    "Municipal": "Municipal Committee (OO)",
+    "MainCommittee": "Main Committee",
+    "ExecutiveCommittee": "Executive Committee",
+    "Presidency": "Presidency"
   },
   "toast": {
     "created": "Function created.",

@@ -110,12 +110,12 @@ const TYPE_OPTIONS = [
 ]
 
 const TYPE_COLORS = {
-  '0': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  '1': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
-  '2': 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
-  '3': 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
-  '4': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-  'null': 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+  'City':               'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  'Municipal':          'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
+  'MainCommittee':      'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  'ExecutiveCommittee': 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  'Presidency':         'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  'null':               'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
 }
 
 export default function Functions() {
@@ -143,10 +143,7 @@ export default function Functions() {
     }
   }
 
-  const typeLabel = (type) => {
-    const key = type == null ? 'null' : String(type)
-    return t(`orgUnitType.${key}`)
-  }
+  const typeLabel = (type) => t(`orgUnitType.${type == null ? 'null' : type}`)
 
   useEffect(() => { load() }, [])
 
@@ -188,11 +185,11 @@ export default function Functions() {
             >
               <option value="">{t('filter.allTypes')}</option>
               <option value="null">{t('orgUnitType.null')}</option>
-              <option value="0">{t('orgUnitType.0')}</option>
-              <option value="1">{t('orgUnitType.1')}</option>
-              <option value="2">{t('orgUnitType.2')}</option>
-              <option value="3">{t('orgUnitType.3')}</option>
-              <option value="4">{t('orgUnitType.4')}</option>
+              <option value="City">{t('orgUnitType.City')}</option>
+              <option value="Municipal">{t('orgUnitType.Municipal')}</option>
+              <option value="MainCommittee">{t('orgUnitType.MainCommittee')}</option>
+              <option value="ExecutiveCommittee">{t('orgUnitType.ExecutiveCommittee')}</option>
+              <option value="Presidency">{t('orgUnitType.Presidency')}</option>
             </select>
           </div>
           <button
@@ -227,7 +224,7 @@ export default function Functions() {
                 </tr>
               )}
 
-              {!loading && items.filter(i => !typeFilter || (typeFilter === 'null' ? i.orgUnitType == null : String(i.orgUnitType) === typeFilter)).length === 0 && (
+              {!loading && items.filter(i => !typeFilter || (typeFilter === 'null' ? i.orgUnitType == null : i.orgUnitType === typeFilter)).length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-4 py-6 text-theme-sm text-gray-500 dark:text-gray-400">
                     {t('state.noFunctions')}
@@ -236,10 +233,10 @@ export default function Functions() {
               )}
 
               {!loading && items
-                .filter(i => !typeFilter || (typeFilter === 'null' ? i.orgUnitType == null : String(i.orgUnitType) === typeFilter))
+                .filter(i => !typeFilter || (typeFilter === 'null' ? i.orgUnitType == null : i.orgUnitType === typeFilter))
                 .map((item) => {
                 const isDeleting = deletingId === item.id
-                const typeKey = item.orgUnitType == null ? 'null' : String(item.orgUnitType)
+                const typeKey = item.orgUnitType == null ? 'null' : item.orgUnitType
                 return (
                   <tr key={item.id} data-testid={`functions-row-${item.id}`} className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30">
                     <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">{item.name}</td>
