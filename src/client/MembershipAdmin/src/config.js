@@ -4,7 +4,7 @@
 //   /dashboard               → SuperAdmin, Admin, LocalAdmin
 //   /members, /members/*     → SuperAdmin, Admin, LocalAdmin, Operator, Viewer
 //   /forms, /forms/*         → SuperAdmin, Admin, LocalAdmin, Operator
-//   /org-units               → SuperAdmin only
+//   /committees              → SuperAdmin only
 //   /functions               → SuperAdmin only
 //   /users                   → SuperAdmin only
 //   /profile                 → all roles
@@ -32,7 +32,7 @@ export const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', roles: DASHBOARD_ROLES, iconName: 'home', section: 'main' },
   { to: '/members', label: 'Members', roles: MEMBERS_ROLES, iconName: 'users', section: 'main' },
   { to: '/forms', label: 'Forms', roles: FORMS_ROLES, iconName: 'document', section: 'main' },
-  { to: '/org-units', label: 'Org Units', roles: ORG_UNITS_ROLES, iconName: 'building', section: 'main' },
+  { to: '/committees', label: 'Committees', roles: ORG_UNITS_ROLES, iconName: 'building', section: 'main' },
   { to: '/functions', label: 'Functions', roles: FUNCTIONS_ROLES, iconName: 'clipboard', section: 'main' },
   { to: '/users', label: 'Users', roles: USERS_ROLES, iconName: 'user-group', section: 'main' },
   { to: '/profile', label: 'Profile', roles: ALL_ROLES, iconName: 'user-circle', section: 'account' },

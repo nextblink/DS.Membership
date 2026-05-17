@@ -23,7 +23,7 @@ import MemberEdit from '../pages/members/MemberEdit'
 import FormsList from '../pages/forms/FormsList'
 import FormUpload from '../pages/forms/FormUpload'
 import FormDetails from '../pages/forms/FormDetails'
-import OrgUnits from '../pages/org-units/OrgUnits'
+import Committees from '../pages/committees/Committees'
 import Functions from '../pages/functions/Functions'
 import Users from '../pages/users/Users'
 import Profile from '../pages/profile/Profile'
@@ -55,7 +55,7 @@ export default function AppRouter() {
         <Route path="/forms/new" element={guarded(<FormUpload />, FORMS_ROLES)} />
         <Route path="/forms/:id" element={guarded(<FormDetails />, FORMS_ROLES)} />
 
-        <Route path="/org-units" element={guarded(<OrgUnits />, ORG_UNITS_ROLES)} />
+        <Route path="/committees" element={guarded(<Committees />, ORG_UNITS_ROLES)} />
         <Route path="/functions" element={guarded(<Functions />, FUNCTIONS_ROLES)} />
         <Route path="/users" element={guarded(<Users />, USERS_ROLES)} />
 

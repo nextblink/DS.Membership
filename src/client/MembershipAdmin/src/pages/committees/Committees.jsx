@@ -1,6 +1,6 @@
-﻿// Org Units tree page — SuperAdmin only (route enforces role).
+﻿// Committees tree page — SuperAdmin only (route enforces role).
 //
-// Renders the OrgUnit hierarchy (City -> Municipal) from GET /api/committees.
+// Renders the committee hierarchy (City -> Municipal) from GET /api/committees.
 // Supports inline VoterCount edit, add-root, add-child, and leaf delete.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -605,7 +605,7 @@ function TableRow({
   )
 }
 
-export default function OrgUnits() {
+export default function Committees() {
   const { t } = useTranslation(['committees', 'common'])
   const toast = useToast()
   const [tree, setTree] = useState([])
