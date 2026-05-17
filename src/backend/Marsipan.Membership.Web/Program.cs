@@ -172,6 +172,8 @@ var app = builder.Build();
 
     await MunicipalitiesSeeder.SeedAsync(dbContext, systemUserId);
     await OrgUnitsSeeder.SeedAsync(dbContext, systemUserId);
+    await FunctionsSeeder.SeedAsync(dbContext, systemUserId);
+    await MembersSeeder.SeedAsync(dbContext, systemUserId);
 }
 
 // Configure the HTTP request pipeline.
