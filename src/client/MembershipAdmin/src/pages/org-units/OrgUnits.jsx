@@ -113,7 +113,7 @@ function filterTree(nodes, query) {
 }
 
 function TrusteeField({ trusteeId, setTrusteeId, trusteeName, setTrusteeName, label }) {
-  const { t } = useTranslation('orgUnits')
+  const { t } = useTranslation('committees')
   const [suggestions, setSuggestions] = useState([])
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
   const timer = useRef(null)
@@ -224,7 +224,7 @@ function TrusteeField({ trusteeId, setTrusteeId, trusteeName, setTrusteeName, la
 }
 
 function AddUnitModal({ open, parent, onClose, onSubmit, onSuccess, onError }) {
-  const { t } = useTranslation('orgUnits')
+  const { t } = useTranslation('committees')
   const [name, setName] = useState('')
   const [type, setType] = useState(parent ? TYPE_MUNICIPAL : TYPE_CITY)
   const [voterCount, setVoterCount] = useState(0)
@@ -362,7 +362,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit, onSuccess, onError }) {
 }
 
 function EditUnitModal({ node, onClose, onSubmit, onSuccess, onError }) {
-  const { t } = useTranslation('orgUnits')
+  const { t } = useTranslation('committees')
   const [name, setName] = useState(node.name ?? '')
   const [type, setType] = useState(node.type ?? TYPE_CITY)
   const [voterCount, setVoterCount] = useState(node.voterCount ?? 0)
@@ -447,7 +447,7 @@ function EditUnitModal({ node, onClose, onSubmit, onSuccess, onError }) {
 }
 
 function VoterCountEditor({ node, onSave }) {
-  const { t } = useTranslation('orgUnits')
+  const { t } = useTranslation('committees')
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState(String(node.voterCount ?? 0))
   const [saving, setSaving] = useState(false)
@@ -531,7 +531,7 @@ function TableRow({
   onSaveVoterCount,
   onDelete,
 }) {
-  const { t, i18n } = useTranslation('orgUnits')
+  const { t, i18n } = useTranslation('committees')
   const memberCount = node.memberCount ?? node.members?.length ?? 0
 
   const getTrustfulIcon = () => {
@@ -606,7 +606,7 @@ function TableRow({
 }
 
 export default function OrgUnits() {
-  const { t } = useTranslation(['orgUnits', 'common'])
+  const { t } = useTranslation(['committees', 'common'])
   const toast = useToast()
   const [tree, setTree] = useState([])
   const [loading, setLoading] = useState(true)
@@ -623,7 +623,7 @@ export default function OrgUnits() {
       const res = await api.get('/api/committees')
       setTree(buildTree(res.data))
     } catch (err) {
-      setError(err?.response?.data?.message || err?.message || t('orgUnits:state.loadFailed'))
+      setError(err?.response?.data?.message || err?.message || t('committees:state.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -680,20 +680,20 @@ export default function OrgUnits() {
     setTree((prev) =>
       updateNode(prev, node.id, (n) => ({ ...n, voterCount: newVoterCount })),
     )
-    toast.success(t('orgUnits:toast.voterCountSaved'))
+    toast.success(t('committees:toast.voterCountSaved'))
   }, [toast, t])
 
   const handleDelete = useCallback(async (node) => {
-    if (!window.confirm(t('orgUnits:action.deleteConfirm'))) return
+    if (!window.confirm(t('committees:action.deleteConfirm'))) return
     setDeleteError(null)
     try {
       await api.delete(`/api/committees/${node.id}`)
       setTree((prev) => removeNode(prev, node.id))
-      toast.success(t('orgUnits:toast.deleted'))
+      toast.success(t('committees:toast.deleted'))
     } catch (err) {
       const msg = err?.response?.status === 409
-        ? t('orgUnits:error.deleteRestricted')
-        : err?.response?.data?.message || err?.message || t('orgUnits:error.deleteFailed')
+        ? t('committees:error.deleteRestricted')
+        : err?.response?.data?.message || err?.message || t('committees:error.deleteFailed')
       setDeleteError(msg)
       toast.error(msg)
     }
@@ -726,10 +726,10 @@ export default function OrgUnits() {
       return <p className="text-theme-sm text-error-500" data-testid="org-units-error">{error}</p>
     }
     if (tree.length === 0) {
-      return <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('orgUnits:state.noOrgUnits')}</p>
+      return <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('committees:state.noOrgUnits')}</p>
     }
     if (visibleRows.length === 0) {
-      return <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('orgUnits:filter.noResults')}</p>
+      return <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('committees:filter.noResults')}</p>
     }
     return (
       <div className="overflow-x-auto">
@@ -768,7 +768,7 @@ export default function OrgUnits() {
       <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-          <h2 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('orgUnits:title')}</h2>
+          <h2 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('committees:title')}</h2>
           <button
             type="button"
             onClick={handleAddRoot}
@@ -792,7 +792,7 @@ export default function OrgUnits() {
               type="text"
               value={filterName}
               onChange={(e) => setFilterName(e.target.value)}
-              placeholder={t('orgUnits:filter.namePlaceholder')}
+              placeholder={t('committees:filter.namePlaceholder')}
               className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-1.5 pl-9 pr-9 text-theme-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/10"
             />
             {filterName && (
@@ -823,7 +823,7 @@ export default function OrgUnits() {
         parent={modal.parent}
         onClose={() => setModal({ open: false, parent: null })}
         onSubmit={handleCreate}
-        onSuccess={() => toast.success(t('orgUnits:toast.created'))}
+        onSuccess={() => toast.success(t('committees:toast.created'))}
         onError={(msg) => toast.error(msg)}
       />
 
@@ -832,7 +832,7 @@ export default function OrgUnits() {
           node={editModal}
           onClose={() => setEditModal(null)}
           onSubmit={handleSaveEdit}
-          onSuccess={() => toast.success(t('orgUnits:toast.saved'))}
+          onSuccess={() => toast.success(t('committees:toast.saved'))}
           onError={(msg) => toast.error(msg)}
         />
       )}

@@ -7,7 +7,7 @@ import enAuth from '../locales/en/auth.json'
 import enDashboard from '../locales/en/dashboard.json'
 import enMembers from '../locales/en/members.json'
 import enForms from '../locales/en/forms.json'
-import enOrgUnits from '../locales/en/orgUnits.json'
+import enCommittees from '../locales/en/committees.json'
 import enFunctions from '../locales/en/functions.json'
 import enUsers from '../locales/en/users.json'
 import enProfile from '../locales/en/profile.json'
@@ -18,7 +18,7 @@ import srAuth from '../locales/sr/auth.json'
 import srDashboard from '../locales/sr/dashboard.json'
 import srMembers from '../locales/sr/members.json'
 import srForms from '../locales/sr/forms.json'
-import srOrgUnits from '../locales/sr/orgUnits.json'
+import srCommittees from '../locales/sr/committees.json'
 import srFunctions from '../locales/sr/functions.json'
 import srUsers from '../locales/sr/users.json'
 import srProfile from '../locales/sr/profile.json'
@@ -35,7 +35,7 @@ i18n
         dashboard: enDashboard,
         members: enMembers,
         forms: enForms,
-        orgUnits: enOrgUnits,
+        committees: enCommittees,
         functions: enFunctions,
         users: enUsers,
         profile: enProfile,
@@ -47,7 +47,7 @@ i18n
         dashboard: srDashboard,
         members: srMembers,
         forms: srForms,
-        orgUnits: srOrgUnits,
+        committees: srCommittees,
         functions: srFunctions,
         users: srUsers,
         profile: srProfile,
@@ -60,7 +60,7 @@ i18n
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
     },
-    ns: ['common', 'auth', 'dashboard', 'members', 'forms', 'orgUnits', 'functions', 'users', 'profile', 'enums'],
+    ns: ['common', 'auth', 'dashboard', 'members', 'forms', 'committees', 'functions', 'users', 'profile', 'enums'],
     defaultNS: 'common',
     interpolation: { escapeValue: false },
   })
