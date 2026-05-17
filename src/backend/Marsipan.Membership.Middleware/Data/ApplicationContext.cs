@@ -58,6 +58,14 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(o => o.MunicipalityId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Municipality.OoId → OrgUnit (nullable back-reference to the OO unit).
+        // NoAction prevents circular cascade: OrgUnit→Municipality and Municipality→OrgUnit.
+        modelBuilder.Entity<Municipality>()
+            .HasOne<OrgUnit>()
+            .WithMany()
+            .HasForeignKey(m => m.OoId)
+            .OnDelete(DeleteBehavior.NoAction);
+
         // OrgUnit.TrusteeId → Member (nullable, restrict delete so you can't remove a trustee member).
         modelBuilder.Entity<OrgUnit>()
             .HasOne(o => o.Trustee)

@@ -12,6 +12,9 @@ public class Municipality : BaseEntity
     [Required]
     public bool IsCity { get; set; }
 
+    [MaxLength(10)]
+    public string? PostalCode { get; set; }
+
     public int VoterCount { get; set; }
 
     public int? ParentId { get; set; }
@@ -20,4 +23,10 @@ public class Municipality : BaseEntity
     public Municipality? Parent { get; set; }
 
     public ICollection<Municipality> Children { get; set; } = [];
+
+    /// <summary>
+    /// FK to the OrgUnit that serves as the OO (Opštinski odbor) for this municipality.
+    /// Null means no OO unit exists. Set by OrgUnitsSeeder after units are created.
+    /// </summary>
+    public int? OoId { get; set; }
 }

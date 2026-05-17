@@ -4,75 +4,94 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Marsipan.Membership.Middleware.Data;
 
-/// <summary>
-/// Seed OrgUnits based on linked Municipalities
-/// Each municipality gets a corresponding OrgUnit with the appropriate type
-/// </summary>
 public static class OrgUnitsSeeder
 {
+    private record MunicipalityHint(string Name, bool HasOo);
+
     public static async Task SeedAsync(ApplicationContext context)
     {
-        // Get all municipalities
         var municipalities = await context.Municipalities.ToListAsync();
+        if (!municipalities.Any()) return;
 
-        if (!municipalities.Any())
-            return;
-
-        // Delete old seed data (the 3 hardcoded ones)
-        var oldOrgUnits = await context.OrgUnits.Where(o => o.Id <= 3).ToListAsync();
-        if (oldOrgUnits.Any())
+        // Remove any legacy hardcoded org units (ids 1-3) if still present.
+        var legacy = await context.OrgUnits.Where(o => o.Id <= 3).ToListAsync();
+        if (legacy.Any())
         {
-            context.OrgUnits.RemoveRange(oldOrgUnits);
+            context.OrgUnits.RemoveRange(legacy);
             await context.SaveChangesAsync();
         }
 
-        // Check if we already have the full seeded data
         var existingCount = await context.OrgUnits.CountAsync();
-        if (existingCount >= municipalities.Count)
-            return;
+        if (existingCount >= municipalities.Count) return;
 
-        var orgUnitsToAdd = new List<OrgUnit>();
+        // Load hasOo hint from JSON (not stored on entity).
+        var hints = SeedDataLoader.Load<MunicipalityHint[]>("municipalities.json")
+            .ToDictionary(h => h.Name, h => h.HasOo);
 
-        // Create an OrgUnit for each municipality
-        foreach (var municipality in municipalities)
+        var toAdd = new List<OrgUnit>();
+
+        foreach (var m in municipalities)
         {
-            var orgUnit = new OrgUnit
+            var hasOo = hints.GetValueOrDefault(m.Name, true);
+
+            // GRO unit — for every city-level municipality.
+            if (m.IsCity)
             {
-                Name = municipality.Name,
-                Type = municipality.IsCity ? OrgUnitType.City : OrgUnitType.Municipal,
-                MunicipalityId = municipality.Id,
-                ParentId = null, // Will be set in the next pass
-                VoterCount = municipality.VoterCount,
-                IsTrustful = true,
-                CreatedDate = DateTime.UtcNow
-            };
-            orgUnitsToAdd.Add(orgUnit);
+                toAdd.Add(new OrgUnit
+                {
+                    Name = $"{m.Name} ГРО",
+                    Type = OrgUnitType.City,
+                    MunicipalityId = m.Id,
+                    VoterCount = m.VoterCount,
+                    IsTrustful = true,
+                    CreatedDate = DateTime.UtcNow
+                });
+            }
+
+            // OO unit — when the municipality has an opštinski odbor.
+            if (hasOo)
+            {
+                toAdd.Add(new OrgUnit
+                {
+                    Name = $"{m.Name} ОО",
+                    Type = OrgUnitType.Municipal,
+                    MunicipalityId = m.Id,
+                    VoterCount = m.VoterCount,
+                    IsTrustful = true,
+                    CreatedDate = DateTime.UtcNow
+                });
+            }
         }
 
-        // Add all OrgUnits first
-        context.OrgUnits.AddRange(orgUnitsToAdd);
+        context.OrgUnits.AddRange(toAdd);
         await context.SaveChangesAsync();
 
-        // Now establish parent-child relationships based on municipality relationships
-        var municipalityLookup = municipalities.ToDictionary(m => m.Id);
-        var orgUnitsByMunicipalityId = new Dictionary<int, OrgUnit>();
+        var municipalityById = municipalities.ToDictionary(m => m.Id);
+        var orgUnitsByMunicipalityId = toAdd
+            .GroupBy(o => o.MunicipalityId!.Value)
+            .ToDictionary(g => g.Key, g => g.ToList());
 
-        foreach (var orgUnit in orgUnitsToAdd)
+        // Set Municipality.OoId to the newly created OO unit for each municipality.
+        foreach (var m in municipalities)
         {
-            if (orgUnit.MunicipalityId.HasValue)
-            {
-                orgUnitsByMunicipalityId[orgUnit.MunicipalityId.Value] = orgUnit;
-            }
+            if (!orgUnitsByMunicipalityId.TryGetValue(m.Id, out var units)) continue;
+            var ooUnit = units.FirstOrDefault(u => u.Type == OrgUnitType.Municipal);
+            if (ooUnit != null) m.OoId = ooUnit.Id;
         }
 
-        // Link OrgUnit parents to municipality parents
-        foreach (var municipality in municipalities.Where(m => m.ParentId.HasValue))
+        // Wire up parent OrgUnit relationships following municipality hierarchy.
+        foreach (var m in municipalities.Where(m => m.ParentId.HasValue))
         {
-            if (orgUnitsByMunicipalityId.TryGetValue(municipality.Id, out var orgUnit) &&
-                orgUnitsByMunicipalityId.TryGetValue(municipality.ParentId.Value, out var parentOrgUnit))
-            {
-                orgUnit.ParentId = parentOrgUnit.Id;
-            }
+            if (!orgUnitsByMunicipalityId.TryGetValue(m.Id, out var childUnits)) continue;
+            if (!municipalityById.TryGetValue(m.ParentId!.Value, out var parentMunicipality)) continue;
+            if (!orgUnitsByMunicipalityId.TryGetValue(parentMunicipality.Id, out var parentUnits)) continue;
+
+            var parentUnit = parentUnits.FirstOrDefault(u => u.Type == OrgUnitType.City)
+                          ?? parentUnits.FirstOrDefault();
+
+            if (parentUnit != null)
+                foreach (var child in childUnits)
+                    child.ParentId = parentUnit.Id;
         }
 
         await context.SaveChangesAsync();

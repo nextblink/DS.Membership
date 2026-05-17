@@ -5,7 +5,8 @@ namespace Marsipan.Membership.Middleware.Data;
 
 public static class MunicipalitiesSeeder
 {
-    private record MunicipalityRecord(string Name, bool IsCity, string? ParentCity, int VoterCount);
+    private record MunicipalityRecord(
+        string Name, bool IsCity, bool HasOo, string? ParentCity, string? PostalCode, int VoterCount);
 
     public static async Task SeedAsync(ApplicationContext context)
     {
@@ -23,6 +24,7 @@ public static class MunicipalitiesSeeder
             {
                 Name = r.Name,
                 IsCity = r.IsCity,
+                PostalCode = string.IsNullOrWhiteSpace(r.PostalCode) ? null : r.PostalCode,
                 VoterCount = r.VoterCount,
                 CreatedDate = DateTime.UtcNow
             };
