@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
-import StatsCard from './StatsCard'
-import FormStatsCard from './FormStatsCard'
-import OrgUnitsStatsCard from './OrgUnitsStatsCard'
+import DashboardCard from './DashboardCard'
 import OrgUnitsTable from './OrgUnitsTable'
 import FormsStatusDonut from './FormsStatusDonut'
 import GenderPie from './GenderPie'
@@ -102,47 +99,41 @@ export default function Dashboard() {
     ? membersByOrgUnit.reduce((s, r) => s + computePromille(r), 0) / orgUnitCount
     : 0
 
-  const iconProps = (color) => ({
-    className: `h-5 w-5`,
-    style: { color },
-    fill: 'none',
-    stroke: 'currentColor',
-    viewBox: '0 0 24 24',
-    'aria-hidden': true,
-  })
-
   return (
     <div>
       {/* Stat cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Link to="/members" className="db-card relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm hover:shadow-theme-md hover:border-gray-300 dark:hover:border-gray-700 transition-all" style={{ animationDelay: '0ms' }}>
-          <div className="absolute left-0 top-0 h-full w-1" style={{ background: '#2E6BAD' }} />
-          <div className="px-5 py-5 pl-7 flex items-center justify-between">
-            <div>
-              <div className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                {totalMembers.toLocaleString()}
-              </div>
-              <div className="mt-0.5 text-theme-xs font-medium uppercase tracking-widest text-gray-400 dark:text-gray-500">
-                {t('stats.totalMembers')}
-              </div>
-            </div>
-            <GenderPie femaleCount={femaleCount} maleCount={maleCount} />
-          </div>
-        </Link>
-        <Link to="/orgunits" className="hover:opacity-90 transition-opacity">
-          <OrgUnitsStatsCard totalOrgUnits={orgUnitCount} nonTrustworthyCount={stats?.nonTrustworthyOrgUnits ?? 0} nonTrustworthyPercentage={stats?.nonTrustworthyPercentage ?? 0} />
-        </Link>
-        <Link to="/forms" className="hover:opacity-90 transition-opacity">
-          <FormStatsCard verifiedCount={verifiedForms} pendingCount={pendingForms} />
-        </Link>
-        <StatsCard
-          delay="240ms"
+        <DashboardCard
+          accent="#2E6BAD"
+          delay="0ms"
+          to="/members"
+          stats={[{ value: totalMembers.toLocaleString(), label: t('stats.totalMembers') }]}
+          right={<GenderPie femaleCount={femaleCount} maleCount={maleCount} />}
+        />
+        <DashboardCard
+          accent="#8b5cf6"
+          delay="80ms"
+          to="/orgunits"
+          stats={[
+            { value: orgUnitCount.toLocaleString(), label: t('stats.orgUnits') },
+            { value: (stats?.nonTrustworthyOrgUnits ?? 0).toLocaleString(), label: t('stats.untrustworthy') },
+          ]}
+        />
+        <DashboardCard
+          accent="#f79009"
+          delay="160ms"
+          to="/forms"
+          stats={[
+            { value: verifiedForms.toLocaleString(), label: t('stats.verifiedForms') },
+            { value: pendingForms.toLocaleString(), label: t('stats.pendingForms') },
+          ]}
+        />
+        <DashboardCard
           accent="#3E8DC4"
-          label={t('stats.avgMembership')}
-          value={`${avgMembership.toFixed(2)}‰`}
-          sublabel={t('stats.orgUnitsCount', { count: orgUnitCount })}
+          delay="240ms"
+          stats={[{ value: `${avgMembership.toFixed(2)}‰`, label: t('stats.avgMembership') }]}
           icon={
-            <svg {...iconProps('#3E8DC4')}>
+            <svg className="h-5 w-5" style={{ color: '#3E8DC4' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
