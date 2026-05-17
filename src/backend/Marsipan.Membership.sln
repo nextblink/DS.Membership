@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marsipan.Membership.Middlew
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marsipan.Membership.Web", "Marsipan.Membership.Web\Marsipan.Membership.Web.csproj", "{CF72AAD4-CF34-4A2B-A6B8-68429121C664}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marsipan.Membership.Telegram.Tests", "Marsipan.Membership.Telegram.Tests\Marsipan.Membership.Telegram.Tests.csproj", "{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{CF72AAD4-CF34-4A2B-A6B8-68429121C664}.Release|x64.Build.0 = Release|Any CPU
 		{CF72AAD4-CF34-4A2B-A6B8-68429121C664}.Release|x86.ActiveCfg = Release|Any CPU
 		{CF72AAD4-CF34-4A2B-A6B8-68429121C664}.Release|x86.Build.0 = Release|Any CPU
+		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Debug|x64.Build.0 = Debug|Any CPU
+		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Debug|x86.Build.0 = Debug|Any CPU
+		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Release|x64.ActiveCfg = Release|Any CPU
+		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Release|x64.Build.0 = Release|Any CPU
+		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Release|x86.ActiveCfg = Release|Any CPU
+		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
