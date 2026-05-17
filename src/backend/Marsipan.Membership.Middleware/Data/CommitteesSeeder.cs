@@ -36,28 +36,12 @@ public static class CommitteesSeeder
         {
             var hasOo = hints.GetValueOrDefault(m.Name, true);
 
-            if (m.IsCity)
-            {
-                toAdd.Add(new Committee
-                {
-                    Name = $"{m.Name} ГРО",
-                    Type = CommitteeType.City,
-                    MunicipalityId = m.Id,
-                    VoterCount = m.VoterCount,
-                    IsTrustful = true,
-                    CreatedDate = now,
-                    LastModifiedDate = now,
-                    CreatedByUserId = systemUserId,
-                    LastModifiedByUserId = systemUserId
-                });
-            }
-
             if (hasOo)
             {
                 toAdd.Add(new Committee
                 {
-                    Name = $"{m.Name} ОО",
-                    Type = CommitteeType.Municipal,
+                    Name = m.IsCity ? $"{m.Name} ГРО" : $"{m.Name} ОО",
+                    Type = m.IsCity ? CommitteeType.City : CommitteeType.Municipal,
                     MunicipalityId = m.Id,
                     VoterCount = m.VoterCount,
                     IsTrustful = true,

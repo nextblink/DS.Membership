@@ -70,9 +70,17 @@ public class MembersService : IMembersService
 
         var totalCount = await query.CountAsync(ct);
 
-        var items = await query
-            .OrderBy(m => m.LastName)
-            .ThenBy(m => m.FirstName)
+        var ordered = q.SortBy?.ToLowerInvariant() switch
+        {
+            "seniority" => q.SortDesc
+                ? query.OrderByDescending(m => m.MembershipDate).ThenBy(m => m.LastName)
+                : query.OrderBy(m => m.MembershipDate).ThenBy(m => m.LastName),
+            _ => q.SortDesc
+                ? query.OrderByDescending(m => m.LastName).ThenByDescending(m => m.FirstName)
+                : query.OrderBy(m => m.LastName).ThenBy(m => m.FirstName),
+        };
+
+        var items = await ordered
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(m => new MemberListItemDto

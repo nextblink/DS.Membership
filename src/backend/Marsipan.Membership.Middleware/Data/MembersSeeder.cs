@@ -63,7 +63,7 @@ public static class MembersSeeder
             var unitMembers = new List<Member>();
             for (int i = 0; i < memberCount; i++)
             {
-                var isMale    = Rng.Next(2) == 0;
+                var isMale    = Rng.NextDouble() >= 1.0 / 3.0;
                 var firstName = Pick(isMale ? names.FirstNamesMale : names.FirstNamesFemale);
                 var lastName  = Pick(names.LastNames);
                 var dob       = GenerateDob();

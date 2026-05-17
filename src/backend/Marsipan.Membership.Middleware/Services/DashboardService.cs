@@ -36,7 +36,8 @@ public class DashboardService : IDashboardService
             string.Equals(_user.Role, ScopeFilters.RoleSuperAdmin, StringComparison.Ordinal) ||
             string.Equals(_user.Role, ScopeFilters.RoleAdmin, StringComparison.Ordinal);
 
-        var committeesQuery = _db.Committees.AsNoTracking();
+        var committeesQuery = _db.Committees.AsNoTracking()
+            .Where(o => o.Type == CommitteeType.City || o.Type == CommitteeType.Municipal);
         var membersQuery = _db.Members.AsNoTracking();
         var formsQuery = _db.Forms.AsNoTracking();
 

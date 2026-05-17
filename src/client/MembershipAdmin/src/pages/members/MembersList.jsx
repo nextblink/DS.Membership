@@ -44,6 +44,8 @@ export default function MembersList() {
 
   const page = Number(searchParams.get('page') ?? '1') || 1
   const pageSize = Number(searchParams.get('pageSize') ?? PAGE_SIZE_DEFAULT) || PAGE_SIZE_DEFAULT
+  const sortBy = searchParams.get('sortBy') ?? ''
+  const sortDesc = searchParams.get('sortDesc') === 'true'
 
   const [committees, setCommittees] = useState([])
   const [functionsList, setFunctionsList] = useState([])
@@ -78,6 +80,8 @@ export default function MembersList() {
     }
     if (!params.page) params.page = 1
     if (!params.pageSize) params.pageSize = PAGE_SIZE_DEFAULT
+    if (sortBy) params.sortBy = sortBy
+    if (sortDesc) params.sortDesc = true
 
     api
       .get('/api/members', { params })
@@ -148,7 +152,68 @@ export default function MembersList() {
     setDraft((d) => ({ ...d, [k]: v }))
   }
 
+  function toggleSort(col) {
+    const next = new URLSearchParams(searchParams)
+    if (sortBy === col) {
+      next.set('sortDesc', String(!sortDesc))
+    } else {
+      next.set('sortBy', col)
+      next.set('sortDesc', 'false')
+    }
+    next.set('page', '1')
+    setSearchParams(next)
+  }
+
   const totalPages = data.totalPages || Math.max(1, Math.ceil(data.totalCount / pageSize))
+
+  const pageNumbers = useMemo(() => {
+    const total = totalPages || 1
+    const out = []
+    const start = Math.max(1, page - 2)
+    const end = Math.min(total, start + 4)
+    for (let i = start; i <= end; i++) out.push(i)
+    return out
+  }, [page, totalPages])
+
+  const paginationBar = (
+    <div className="flex items-center justify-between px-6 py-4">
+      <div className="text-theme-xs text-gray-500 dark:text-gray-400">
+        {t('common:pagination.summary', { count: data.totalCount, page: data.page, total: totalPages })}
+      </div>
+      <div className="flex gap-1">
+        <button
+          type="button"
+          disabled={data.page <= 1}
+          onClick={() => goToPage(data.page - 1)}
+          className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
+        >
+          {t('common:button.prev')}
+        </button>
+        {pageNumbers.map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => goToPage(p)}
+            className={`rounded-lg border px-3 py-1.5 text-theme-xs ${
+              p === data.page
+                ? 'border-brand-500 bg-brand-500 text-white'
+                : 'border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+            }`}
+          >
+            {p}
+          </button>
+        ))}
+        <button
+          type="button"
+          disabled={data.page >= totalPages}
+          onClick={() => goToPage(data.page + 1)}
+          className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
+        >
+          {t('common:button.next')}
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
@@ -303,17 +368,32 @@ export default function MembersList() {
         </div>
       </form>
 
+      {/* Pagination header */}
+      <div className="border-b border-gray-200 dark:border-gray-800">
+        {paginationBar}
+      </div>
+
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
             <tr>
-              <th className="px-4 py-3">{t('table.fullName')}</th>
+              <th className="px-4 py-3">
+                <button type="button" onClick={() => toggleSort('name')} className="inline-flex items-center gap-1 hover:text-gray-900 dark:hover:text-white">
+                  {t('table.fullName')}
+                  <SortIcon active={sortBy === 'name' || sortBy === ''} desc={sortDesc && (sortBy === 'name' || sortBy === '')} />
+                </button>
+              </th>
               <th className="px-4 py-3">{t('table.jmbg')}</th>
               <th className="px-4 py-3">{t('table.committee')}</th>
               <th className="px-4 py-3">{t('table.functions')}</th>
               <th className="px-4 py-3 w-36 whitespace-nowrap">{t('table.membershipDate')}</th>
-              <th className="px-4 py-3 w-32 whitespace-nowrap">{t('table.seniority')}</th>
+              <th className="px-4 py-3 w-32 whitespace-nowrap">
+                <button type="button" onClick={() => toggleSort('seniority')} className="inline-flex items-center gap-1 hover:text-gray-900 dark:hover:text-white">
+                  {t('table.seniority')}
+                  <SortIcon active={sortBy === 'seniority'} desc={sortDesc && sortBy === 'seniority'} />
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -375,29 +455,9 @@ export default function MembersList() {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-6 py-4">
-        <div className="text-theme-xs text-gray-500 dark:text-gray-400">
-          {t('common:pagination.summary', { count: data.totalCount, page: data.page, total: totalPages })}
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            disabled={data.page <= 1}
-            onClick={() => goToPage(data.page - 1)}
-            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
-            {t('common:button.prev')}
-          </button>
-          <button
-            type="button"
-            disabled={data.page >= totalPages}
-            onClick={() => goToPage(data.page + 1)}
-            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
-            {t('common:button.next')}
-          </button>
-        </div>
+      {/* Pagination footer */}
+      <div className="border-t border-gray-200 dark:border-gray-800">
+        {paginationBar}
       </div>
     </div>
   )
@@ -442,6 +502,14 @@ function MembershipBar({ date }) {
         />
       </div>
     </div>
+  )
+}
+
+function SortIcon({ active, desc }) {
+  return (
+    <svg className={`h-3 w-3 shrink-0 ${active ? 'text-brand-500' : 'text-gray-300 dark:text-gray-600'}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      {desc ? <path d="M12 20l-8-8h16z" /> : <path d="M12 4l8 8H4z" />}
+    </svg>
   )
 }
 

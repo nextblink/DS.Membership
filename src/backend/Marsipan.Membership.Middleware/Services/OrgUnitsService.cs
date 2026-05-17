@@ -1,6 +1,7 @@
 ﻿using Marsipan.Membership.Middleware.Data;
 using Marsipan.Membership.Middleware.DTOs;
 using Marsipan.Membership.Middleware.Entities;
+using Marsipan.Membership.Middleware.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Marsipan.Membership.Middleware.Services;
@@ -23,6 +24,7 @@ public class CommitteesService : ICommitteesService
         // query filter on OrgUnit already strips deleted rows.
         var units = await _db.Committees
             .AsNoTracking()
+            .Where(o => o.Type == CommitteeType.City || o.Type == CommitteeType.Municipal)
             .Select(o => new
             {
                 o.Id,

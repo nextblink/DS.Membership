@@ -176,10 +176,13 @@ var app = builder.Build();
         }
     }
 
-    await MunicipalitiesSeeder.SeedAsync(dbContext, systemUserId);
-    await CommitteesSeeder.SeedAsync(dbContext, systemUserId);
-    await FunctionsSeeder.SeedAsync(dbContext, systemUserId);
-    await MembersSeeder.SeedAsync(dbContext, systemUserId);
+    if (app.Configuration.GetValue<bool>("Seed"))
+    {
+        await MunicipalitiesSeeder.SeedAsync(dbContext, systemUserId);
+        await CommitteesSeeder.SeedAsync(dbContext, systemUserId);
+        await FunctionsSeeder.SeedAsync(dbContext, systemUserId);
+        await MembersSeeder.SeedAsync(dbContext, systemUserId);
+    }
 }
 
 // Configure the HTTP request pipeline.

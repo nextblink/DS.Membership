@@ -269,6 +269,22 @@ export default function FormsList() {
         </div>
       </form>
 
+      {/* Pagination header */}
+      <div className="border-b border-gray-200 dark:border-gray-800">
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="text-theme-xs text-gray-500 dark:text-gray-400">
+            {t('forms:pagination.showing', { page, total: totalPages, count: totalCount })}
+          </div>
+          <div className="flex gap-1">
+            <button type="button" disabled={page <= 1} onClick={() => goToPage(page - 1)} className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800">{t('common:button.prev')}</button>
+            {pageNumbers.map((p) => (
+              <button key={p} type="button" onClick={() => goToPage(p)} className={`rounded-lg border px-3 py-1.5 text-theme-xs ${p === page ? 'border-brand-500 bg-brand-500 text-white' : 'border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>{p}</button>
+            ))}
+            <button type="button" disabled={page >= totalPages} onClick={() => goToPage(page + 1)} className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800">{t('common:button.next')}</button>
+          </div>
+        </div>
+      </div>
+
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">

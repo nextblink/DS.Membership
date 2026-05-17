@@ -299,7 +299,7 @@ function ModalShell({ title, onClose, children }) {
   )
 }
 
-function CreateUserModal({ orgUnitOptions, onClose, onCreated, onError }) {
+function CreateUserModal({ committeeOptions, onClose, onCreated, onError }) {
   const { t } = useTranslation(['users', 'enums'])
   const [serverErrors, setServerErrors] = useState([])
   const {
@@ -463,7 +463,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated, onError }) {
   )
 }
 
-function EditUserModal({ user, orgUnitOptions, onClose, onSaved, onError }) {
+function EditUserModal({ user, committeeOptions, onClose, onSaved, onError }) {
   const { t } = useTranslation(['users', 'enums'])
   const [serverErrors, setServerErrors] = useState([])
   const {
