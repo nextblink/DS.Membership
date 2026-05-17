@@ -8,7 +8,7 @@
 //                     (see MemberEdit). The form still surfaces add/remove UI and
 //                     reports the desired final lists via onSubmit's second arg
 //                     ({ addedPhones, removedPhoneIds, addedFunctions, removedFunctionIds }).
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
@@ -150,6 +150,7 @@ function diffNested(original, current) {
 export default function MemberForm({
   mode = 'create',
   initialMember = null,
+  initialExtracted = null,
   onSubmit,
   onCancel,
   submitError = null,
@@ -173,6 +174,69 @@ export default function MemberForm({
   const [orgUnits, setOrgUnits] = useState([])
   const [functionsList, setFunctionsList] = useState([])
   const [lookupsLoaded, setLookupsLoaded] = useState(false)
+  const [extractedKeys, setExtractedKeys] = useState(new Set())
+  const [jmbgWarning, setJmbgWarning] = useState(null)
+  const jmbgTimer = useRef(null)
+
+  async function checkJmbgDuplicate(jmbg) {
+    if (!jmbg || jmbg.length !== 13) { setJmbgWarning(null); return }
+    try {
+      const res = await api.get('/api/members', { params: { jmbg, pageSize: 1 } })
+      const items = res.data?.items ?? []
+      if (items.length > 0) {
+        setJmbgWarning({ id: items[0].id, fullName: `${items[0].firstName} ${items[0].lastName}` })
+      } else {
+        setJmbgWarning(null)
+      }
+    } catch {
+      setJmbgWarning(null)
+    }
+  }
+
+  useEffect(() => {
+    if (!initialExtracted) return
+    const e = initialExtracted
+    const filled = new Set()
+    function markFilled(key, value) {
+      if (value != null && value !== '') filled.add(key)
+      return value ?? ''
+    }
+    const phones = (e.phones ?? []).map((p, i) => ({
+      id: `ext-${i}`,
+      number: p.number ?? '',
+      type: p.type ?? 'Mobile',
+    }))
+    if (phones.length > 0) filled.add('phones')
+    const newValues = {
+      ...toFormValues(null),
+      firstName:         markFilled('firstName', e.firstName),
+      lastName:          markFilled('lastName', e.lastName),
+      parentName:        markFilled('parentName', e.parentName),
+      dateOfBirth:       markFilled('dateOfBirth', e.dateOfBirth),
+      jmbg:              markFilled('jmbg', e.jmbg),
+      gender:            e.gender ?? 'Male',
+      postalCode:        markFilled('postalCode', e.postalCode),
+      idCardNumber:      markFilled('idCardNumber', e.idCardNumber),
+      city:              markFilled('city', e.city),
+      email:             markFilled('email', e.email),
+      phones:            phones.length > 0 ? phones : [],
+      maritalStatus:     e.maritalStatus ?? 'Single',
+      votingPlaceNumber: e.votingPlaceNumber != null ? String(e.votingPlaceNumber) : '',
+      educationLevel:    e.educationLevel ?? 'Secondary',
+      occupation:        markFilled('occupation', e.occupation),
+      jobTitle:          markFilled('jobTitle', e.jobTitle),
+      companyName:       markFilled('companyName', e.companyName),
+      companyCity:       markFilled('companyCity', e.companyCity),
+      membershipDate:    markFilled('membershipDate', e.membershipDate),
+    }
+    if (e.gender) filled.add('gender')
+    if (e.maritalStatus) filled.add('maritalStatus')
+    if (e.educationLevel) filled.add('educationLevel')
+    if (e.votingPlaceNumber != null) filled.add('votingPlaceNumber')
+    reset(newValues)
+    setExtractedKeys(filled)
+    if (e.jmbg) checkJmbgDuplicate(e.jmbg)
+  }, [initialExtracted, reset])
 
   // Reset only after lookups load so select options exist when values like orgUnitId='1' are set.
   // Without this guard, the select has no matching option and the browser clears the value to ''.
@@ -229,49 +293,72 @@ export default function MemberForm({
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <Field label={t('members:form.firstName')} required error={errors.firstName?.message}>
             <input
-              className={inputClass}
-              {...register('firstName', { required: t('members:validation.firstNameRequired') })}
+              className={`${inputClass}${extractedKeys.has('firstName') ? ' extracted-field' : ''}`}
+              {...register('firstName', {
+                required: t('members:validation.firstNameRequired'),
+                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('firstName'); return s }),
+              })}
             />
           </Field>
           <Field label={t('members:form.lastName')} required error={errors.lastName?.message}>
             <input
-              className={inputClass}
-              {...register('lastName', { required: t('members:validation.lastNameRequired') })}
+              className={`${inputClass}${extractedKeys.has('lastName') ? ' extracted-field' : ''}`}
+              {...register('lastName', {
+                required: t('members:validation.lastNameRequired'),
+                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('lastName'); return s }),
+              })}
             />
           </Field>
           <Field label={t('members:form.parentName')} error={errors.parentName?.message}>
-            <input className={inputClass} {...register('parentName')} />
+            <input
+              className={`${inputClass}${extractedKeys.has('parentName') ? ' extracted-field' : ''}`}
+              {...register('parentName', {
+                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('parentName'); return s }),
+              })}
+            />
           </Field>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Field label={t('members:form.dateOfBirth')} required error={errors.dateOfBirth?.message}>
             <input
               type="date"
-              className={inputClass}
-              {...register('dateOfBirth', { required: t('members:validation.dateOfBirthRequired') })}
+              className={`${inputClass}${extractedKeys.has('dateOfBirth') ? ' extracted-field' : ''}`}
+              {...register('dateOfBirth', {
+                required: t('members:validation.dateOfBirthRequired'),
+                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('dateOfBirth'); return s }),
+              })}
             />
           </Field>
           <Field label={t('members:form.jmbg')} required error={errors.jmbg?.message}>
             <input
-              className={inputClass}
+              className={`${inputClass}${extractedKeys.has('jmbg') ? ' extracted-field' : ''}`}
               inputMode="numeric"
               pattern="[0-9]*"
               {...register('jmbg', {
                 required: t('members:validation.jmbgRequired'),
                 minLength: { value: 13, message: t('members:validation.jmbgLength') },
                 maxLength: { value: 13, message: t('members:validation.jmbgLength') },
-                onChange: (e) => { e.target.value = e.target.value.replace(/\D/g, '') },
+                onChange: (e) => {
+                  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 13)
+                  setExtractedKeys((prev) => { const s = new Set(prev); s.delete('jmbg'); return s })
+                  clearTimeout(jmbgTimer.current)
+                  jmbgTimer.current = setTimeout(() => checkJmbgDuplicate(e.target.value), 400)
+                },
               })}
+              onBlur={() => checkJmbgDuplicate(watch('jmbg'))}
             />
           </Field>
           <div className="col-span-2 flex gap-4">
             <Field label={t('members:form.gender')} required error={errors.gender?.message}>
-              <div className="flex gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
+              <div className={`flex gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit${extractedKeys.has('gender') ? ' extracted-field' : ''}`}>
                 {GENDER_OPTIONS.map((o) => (
                   <button
                     key={o.value}
                     type="button"
-                    onClick={() => setValue('gender', o.value)}
+                    onClick={() => {
+                      setValue('gender', o.value)
+                      setExtractedKeys((prev) => { const s = new Set(prev); s.delete('gender'); return s })
+                    }}
                     className={`rounded-md px-2.5 py-1 text-theme-xs font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
                       watch('gender') === o.value
                         ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs'
@@ -284,12 +371,15 @@ export default function MemberForm({
               </div>
             </Field>
             <Field label={t('members:form.maritalStatus')} required error={errors.maritalStatus?.message}>
-              <div className="flex flex-wrap gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
+              <div className={`flex flex-wrap gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit${extractedKeys.has('maritalStatus') ? ' extracted-field' : ''}`}>
                 {MARITAL_STATUS_OPTIONS.map((o) => (
                   <button
                     key={o.value}
                     type="button"
-                    onClick={() => setValue('maritalStatus', o.value)}
+                    onClick={() => {
+                      setValue('maritalStatus', o.value)
+                      setExtractedKeys((prev) => { const s = new Set(prev); s.delete('maritalStatus'); return s })
+                    }}
                     className={`rounded-md px-2.5 py-1 text-theme-xs font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
                       watch('maritalStatus') === o.value
                         ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs'
@@ -305,18 +395,31 @@ export default function MemberForm({
         </div>
         <div className="grid grid-cols-4 gap-4 mt-4">
           <Field label={t('members:form.city')}>
-            <input className={inputClass} {...register('city')} />
+            <input
+              className={`${inputClass}${extractedKeys.has('city') ? ' extracted-field' : ''}`}
+              {...register('city', {
+                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('city'); return s }),
+              })}
+            />
           </Field>
           <Field label={t('members:form.postalCode')}>
-            <input className={inputClass} {...register('postalCode')} />
+            <input
+              className={`${inputClass}${extractedKeys.has('postalCode') ? ' extracted-field' : ''}`}
+              {...register('postalCode', {
+                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('postalCode'); return s }),
+              })}
+            />
           </Field>
           <Field label={t('members:form.votingPlaceNumber')}>
             <input
-              className={inputClass}
+              className={`${inputClass}${extractedKeys.has('votingPlaceNumber') ? ' extracted-field' : ''}`}
               inputMode="numeric"
               pattern="[0-9]*"
               {...register('votingPlaceNumber', {
-                onChange: (e) => { e.target.value = e.target.value.replace(/\D/g, '') },
+                onChange: (e) => {
+                  e.target.value = e.target.value.replace(/\D/g, '')
+                  setExtractedKeys((prev) => { const s = new Set(prev); s.delete('votingPlaceNumber'); return s })
+                },
               })}
             />
           </Field>
@@ -325,12 +428,13 @@ export default function MemberForm({
           <Field label={t('members:form.email')} error={errors.email?.message}>
             <input
               type="email"
-              className={inputClass}
+              className={`${inputClass}${extractedKeys.has('email') ? ' extracted-field' : ''}`}
               {...register('email', {
                 pattern: {
                   value: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
                   message: t('members:validation.emailInvalid'),
                 },
+                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('email'); return s }),
               })}
             />
           </Field>
@@ -415,8 +519,11 @@ export default function MemberForm({
           <Field label={t('members:form.membershipDate')} required error={errors.membershipDate?.message}>
             <input
               type="date"
-              className={inputClass}
-              {...register('membershipDate', { required: t('members:validation.membershipDateRequired') })}
+              className={`${inputClass}${extractedKeys.has('membershipDate') ? ' extracted-field' : ''}`}
+              {...register('membershipDate', {
+                required: t('members:validation.membershipDateRequired'),
+                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('membershipDate'); return s }),
+              })}
             />
           </Field>
         </div>
@@ -478,16 +585,24 @@ export default function MemberForm({
         {/* Row 1: Occupation + Education Level */}
         <div className="grid grid-cols-4 gap-4 mb-4">
           <Field label={t('members:form.occupation')}>
-            <input className={inputClass} {...register('occupation')} />
+            <input
+              className={`${inputClass}${extractedKeys.has('occupation') ? ' extracted-field' : ''}`}
+              {...register('occupation', {
+                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('occupation'); return s }),
+              })}
+            />
           </Field>
           <div className="col-span-3">
           <Field label={t('members:form.educationLevel')} required>
-            <div className="flex flex-wrap gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
+            <div className={`flex flex-wrap gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit${extractedKeys.has('educationLevel') ? ' extracted-field' : ''}`}>
               {EDUCATION_LEVEL_OPTIONS.map((o) => (
                 <button
                   key={o.value}
                   type="button"
-                  onClick={() => setValue('educationLevel', o.value)}
+                  onClick={() => {
+                    setValue('educationLevel', o.value)
+                    setExtractedKeys((prev) => { const s = new Set(prev); s.delete('educationLevel'); return s })
+                  }}
                   className={`rounded-md px-2.5 py-1 text-theme-xs font-medium transition-colors hover:text-gray-900 dark:hover:text-white ${
                     watch('educationLevel') === o.value
                       ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-theme-xs'
@@ -505,13 +620,28 @@ export default function MemberForm({
         {/* Row 2: Job Title + Company Name + Company City + Is Public */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
           <Field label={t('members:form.jobTitle')}>
-            <input className={inputClass} {...register('jobTitle')} />
+            <input
+              className={`${inputClass}${extractedKeys.has('jobTitle') ? ' extracted-field' : ''}`}
+              {...register('jobTitle', {
+                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('jobTitle'); return s }),
+              })}
+            />
           </Field>
           <Field label={t('members:form.companyName')}>
-            <input className={inputClass} {...register('companyName')} />
+            <input
+              className={`${inputClass}${extractedKeys.has('companyName') ? ' extracted-field' : ''}`}
+              {...register('companyName', {
+                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('companyName'); return s }),
+              })}
+            />
           </Field>
           <Field label={t('members:form.companyCity')}>
-            <input className={inputClass} {...register('companyCity')} />
+            <input
+              className={`${inputClass}${extractedKeys.has('companyCity') ? ' extracted-field' : ''}`}
+              {...register('companyCity', {
+                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('companyCity'); return s }),
+              })}
+            />
           </Field>
           <div>
             <label className={labelClass}>{t('members:form.isPublicCompany')}</label>
@@ -534,6 +664,20 @@ export default function MemberForm({
           </div>
         </div>
       </section>
+
+      {jmbgWarning && (
+        <div className="mb-4 rounded-lg border border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-500/10 px-4 py-3 text-theme-sm text-yellow-700 dark:text-yellow-300 flex items-center justify-between">
+          <span>{t('members:validation.jmbgExists', { name: jmbgWarning.fullName })}</span>
+          <a
+            href={`/members/${jmbgWarning.id}`}
+            target="_blank"
+            rel="noreferrer"
+            className="ml-4 underline font-medium shrink-0"
+          >
+            {t('members:validation.viewMember')}
+          </a>
+        </div>
+      )}
 
       <div className="flex gap-2">
         <button

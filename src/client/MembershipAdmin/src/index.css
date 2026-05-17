@@ -797,3 +797,8 @@ span.flatpickr-weekday,
 .simplebar-scrollbar.simplebar-visible:before {
   @apply opacity-100;
 }
+
+.extracted-field {
+  border-left: 3px solid #2E6BAD !important;
+  background-color: rgba(46, 107, 173, 0.04);
+}
