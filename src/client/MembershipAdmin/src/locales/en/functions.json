@@ -31,7 +31,20 @@
   },
   "table": {
     "name": "Name",
+    "type": "Committee Type",
+    "maxPeople": "Max Members",
     "actions": "Actions"
+  },
+  "filter": {
+    "allTypes": "All types"
+  },
+  "orgUnitType": {
+    "null": "Universal",
+    "0": "City Committee (GRO)",
+    "1": "Municipal Committee (OO)",
+    "2": "Main Committee",
+    "3": "Executive Committee",
+    "4": "Presidency"
   },
   "toast": {
     "created": "Function created.",

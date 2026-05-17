@@ -100,6 +100,24 @@ function FunctionModal({ item, onClose, onSaved, onSuccess }) {
   )
 }
 
+const TYPE_OPTIONS = [
+  { value: '', label: null },
+  { value: '0', label: null },
+  { value: '1', label: null },
+  { value: '2', label: null },
+  { value: '3', label: null },
+  { value: '4', label: null },
+]
+
+const TYPE_COLORS = {
+  '0': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  '1': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
+  '2': 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  '3': 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  '4': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  'null': 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+}
+
 export default function Functions() {
   const { t } = useTranslation(['functions', 'common'])
   const toast = useToast()
@@ -109,6 +127,7 @@ export default function Functions() {
   const [error, setError] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
   const [modal, setModal] = useState(null) // null | 'add' | { id, name }
+  const [typeFilter, setTypeFilter] = useState('')
 
   async function load() {
     setLoading(true)
@@ -122,6 +141,11 @@ export default function Functions() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const typeLabel = (type) => {
+    const key = type == null ? 'null' : String(type)
+    return t(`orgUnitType.${key}`)
   }
 
   useEffect(() => { load() }, [])
@@ -154,8 +178,23 @@ export default function Functions() {
       )}
 
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
-        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-800 px-6 py-4">
           <h2 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('title')}</h2>
+          <div className="flex items-center gap-3">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-theme-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+            >
+              <option value="">{t('filter.allTypes')}</option>
+              <option value="null">{t('orgUnitType.null')}</option>
+              <option value="0">{t('orgUnitType.0')}</option>
+              <option value="1">{t('orgUnitType.1')}</option>
+              <option value="2">{t('orgUnitType.2')}</option>
+              <option value="3">{t('orgUnitType.3')}</option>
+              <option value="4">{t('orgUnitType.4')}</option>
+            </select>
+          </div>
           <button
             type="button"
             onClick={() => setModal('add')}
@@ -174,31 +213,44 @@ export default function Functions() {
             <thead>
               <tr className="bg-gray-50 dark:bg-gray-800/50 text-left">
                 <th className="px-4 py-3 text-theme-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('table.name')}</th>
+                <th className="px-4 py-3 text-theme-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('table.type')}</th>
+                <th className="w-28 px-4 py-3 text-center text-theme-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('table.maxPeople')}</th>
                 <th className="w-40 px-4 py-3 text-right text-theme-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('table.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={2} className="px-4 py-6 text-theme-sm text-gray-500 dark:text-gray-400">
+                  <td colSpan={4} className="px-4 py-6 text-theme-sm text-gray-500 dark:text-gray-400">
                     {t('common:state.loading')}
                   </td>
                 </tr>
               )}
 
-              {!loading && items.length === 0 && (
+              {!loading && items.filter(i => !typeFilter || (typeFilter === 'null' ? i.orgUnitType == null : String(i.orgUnitType) === typeFilter)).length === 0 && (
                 <tr>
-                  <td colSpan={2} className="px-4 py-6 text-theme-sm text-gray-500 dark:text-gray-400">
+                  <td colSpan={4} className="px-4 py-6 text-theme-sm text-gray-500 dark:text-gray-400">
                     {t('state.noFunctions')}
                   </td>
                 </tr>
               )}
 
-              {!loading && items.map((item) => {
+              {!loading && items
+                .filter(i => !typeFilter || (typeFilter === 'null' ? i.orgUnitType == null : String(i.orgUnitType) === typeFilter))
+                .map((item) => {
                 const isDeleting = deletingId === item.id
+                const typeKey = item.orgUnitType == null ? 'null' : String(item.orgUnitType)
                 return (
                   <tr key={item.id} data-testid={`functions-row-${item.id}`} className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30">
                     <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">{item.name}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${TYPE_COLORS[typeKey]}`}>
+                        {typeLabel(item.orgUnitType)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center text-theme-sm text-gray-500 dark:text-gray-400">
+                      {item.maxNumberOfPeople ?? '—'}
+                    </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-2">
                         <button
