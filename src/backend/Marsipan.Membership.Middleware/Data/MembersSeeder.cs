@@ -4,122 +4,93 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Marsipan.Membership.Middleware.Data;
 
-/// <summary>
-/// Seed random members for each OrgUnit based on 0.5-1.5 promille of voter count.
-/// Generates realistic Serbian member data including names, JMBG, and optional phone/function assignments.
-/// </summary>
 public static class MembersSeeder
 {
     private static readonly Random Random = new();
 
-    // Serbian first names
-    private static readonly string[] FirstNamesMale =
-    [
-        "Marko", "Aleksandar", "Miloš", "Dragan", "Igor", "Petar", "Nikola", "Milan",
-        "Vladimir", "Jovan", "Nenad", "Goran", "Branko", "Radovan", "Slobodan", "Saša",
-        "Dejan", "Đorđe", "Stevan", "Vladan", "Darko", "Miroslav", "Željko", "Zoran"
-    ];
-
-    private static readonly string[] FirstNamesFemale =
-    [
-        "Marija", "Jasmina", "Dragana", "Milica", "Jelena", "Aleksandra", "Ivana",
-        "Katarina", "Tanja", "Gordana", "Biljana", "Vesna", "Mirjana", "Zorica",
-        "Mila", "Svetlana", "Nataša", "Stefanija", "Dijana", "Milena", "Slađana"
-    ];
-
-    // Serbian last names
-    private static readonly string[] LastNames =
-    [
-        "Nikolić", "Ristić", "Marković", "Jovanović", "Milanović", "Ilić", "Petrović",
-        "Kovačević", "Pavlović", "Đorđević", "Stjepanović", "Aleksić", "Bogdanović",
-        "Stojanović", "Nedić", "Knežević", "Kostić", "Mandić", "Ćirković", "Tadić",
-        "Stanisavljević", "Pantelić", "Šolic", "Vidaković", "Miloš", "Orlović"
-    ];
+    private record NamesData(
+        string[] FirstNamesMale,
+        string[] FirstNamesFemale,
+        string[] LastNames,
+        string[] ParentNames,
+        string[] CompanyPrefixes,
+        string[] CompanySuffixes,
+        string[] JobTitles,
+        string[] Occupations);
 
     public static async Task SeedAsync(ApplicationContext context)
     {
-        // Check if members already exist
         if (await context.Members.AnyAsync())
             return;
 
         var orgUnits = await context.OrgUnits.ToListAsync();
         var functions = await context.Functions.ToListAsync();
+        if (!orgUnits.Any() || !functions.Any()) return;
 
-        if (!orgUnits.Any() || !functions.Any())
-            return;
+        var names = SeedDataLoader.Load<NamesData>("member-names.json");
 
         var membersToAdd = new List<Member>();
 
         foreach (var orgUnit in orgUnits)
         {
-            // Calculate member count: random between 0.5 and 1.5 promille of voter count
-            var promille = Random.NextDouble() * 1.0 + 0.5; // 0.5-1.5
-            var memberCount = Math.Max(1, (int)Math.Round(orgUnit.VoterCount * promille / 1000));
+            var promille = Random.NextDouble() * 1.0 + 0.5;
+            var count = Math.Max(1, (int)Math.Round(orgUnit.VoterCount * promille / 1000));
 
-            for (int i = 0; i < memberCount; i++)
+            for (int i = 0; i < count; i++)
             {
                 var isMale = Random.Next(2) == 0;
-                var firstName = isMale ? FirstNamesMale[Random.Next(FirstNamesMale.Length)] : FirstNamesFemale[Random.Next(FirstNamesFemale.Length)];
-                var lastName = LastNames[Random.Next(LastNames.Length)];
-                var dateOfBirth = GenerateRandomDateOfBirth();
+                var firstName = Pick(isMale ? names.FirstNamesMale : names.FirstNamesFemale);
+                var lastName = Pick(names.LastNames);
+                var dob = GenerateDob();
 
                 var member = new Member
                 {
                     FirstName = firstName,
                     LastName = lastName,
-                    ParentName = Random.Next(3) == 0 ? GenerateParentName() : null,
-                    DateOfBirth = dateOfBirth,
-                    JMBG = GenerateJMBG(dateOfBirth, isMale),
+                    ParentName = Random.Next(3) == 0 ? Pick(names.ParentNames) : null,
+                    DateOfBirth = dob,
+                    JMBG = GenerateJmbg(dob, isMale),
                     Gender = isMale ? Gender.Male : Gender.Female,
-                    PostalCode = Random.Next(3) == 0 ? GeneratePostalCode() : null,
-                    IdCardNumber = Random.Next(2) == 0 ? GenerateIdCardNumber() : null,
+                    PostalCode = Random.Next(3) == 0 ? Random.Next(10000, 99999).ToString() : null,
+                    IdCardNumber = Random.Next(2) == 0 ? $"{Random.Next(100000, 999999)}{(char)('A' + Random.Next(26))}" : null,
                     City = Random.Next(2) == 0 ? orgUnit.Name : null,
                     Email = Random.Next(4) == 0 ? $"{firstName.ToLower()}.{lastName.ToLower()}@example.com" : null,
                     MaritalStatus = (MaritalStatus)Random.Next(4),
                     VotingPlaceNumber = Random.Next(2) == 0 ? Random.Next(1, 5000) : null,
                     EducationLevel = (EducationLevel)Random.Next(6),
-                    CompanyName = Random.Next(3) == 0 ? GenerateCompanyName() : null,
+                    CompanyName = Random.Next(3) == 0 ? $"{Pick(names.CompanyPrefixes)} {Pick(names.CompanySuffixes)}" : null,
                     CompanyCity = Random.Next(3) == 0 ? orgUnit.Name : null,
                     IsPublicCompany = Random.Next(2) == 0,
-                    JobTitle = Random.Next(2) == 0 ? GenerateJobTitle() : null,
-                    Occupation = Random.Next(2) == 0 ? GenerateOccupation() : null,
+                    JobTitle = Random.Next(2) == 0 ? Pick(names.JobTitles) : null,
+                    Occupation = Random.Next(2) == 0 ? Pick(names.Occupations) : null,
                     MembershipDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-Random.Next(1, 730))),
                     OrgUnitId = orgUnit.Id,
                     CreatedDate = DateTime.UtcNow
                 };
 
-                // Add 1-3 random phone numbers
                 var phoneCount = Random.Next(1, 4);
                 for (int j = 0; j < phoneCount; j++)
                 {
                     member.Phones.Add(new Phone
                     {
-                        Number = GeneratePhoneNumber(),
+                        Number = $"+381{Random.Next(10, 99)}{Random.Next(100, 999)}{Random.Next(1000, 9999)}",
                         Type = (PhoneType)Random.Next(3),
                         CreatedDate = DateTime.UtcNow
                     });
                 }
 
-                // Add 0-2 random functions
-                if (functions.Count > 0)
+                var fnCount = Random.Next(3);
+                var assigned = new HashSet<int>();
+                for (int j = 0; j < fnCount && assigned.Count < functions.Count; j++)
                 {
-                    var functionCount = Random.Next(3);
-                    var assignedFunctionIds = new HashSet<int>();
-                    for (int j = 0; j < functionCount && assignedFunctionIds.Count < functions.Count; j++)
+                    int fid;
+                    do { fid = functions[Random.Next(functions.Count)].Id; } while (!assigned.Add(fid));
+                    member.MemberFunctions.Add(new MemberFunction
                     {
-                        int functionId;
-                        do
-                        {
-                            functionId = functions[Random.Next(functions.Count)].Id;
-                        } while (!assignedFunctionIds.Add(functionId));
-
-                        member.MemberFunctions.Add(new MemberFunction
-                        {
-                            FunctionId = functionId,
-                            AssignedDate = member.MembershipDate,
-                            CreatedDate = DateTime.UtcNow
-                        });
-                    }
+                        FunctionId = fid,
+                        AssignedDate = member.MembershipDate,
+                        CreatedDate = DateTime.UtcNow
+                    });
                 }
 
                 membersToAdd.Add(member);
@@ -130,73 +101,25 @@ public static class MembersSeeder
         await context.SaveChangesAsync();
     }
 
-    private static DateOnly GenerateRandomDateOfBirth()
+    private static string Pick(string[] arr) => arr[Random.Next(arr.Length)];
+
+    private static DateOnly GenerateDob()
     {
-        // Generate date between 18-80 years ago
-        var today = DateTime.UtcNow;
-        var minDate = today.AddYears(-80);
-        var maxDate = today.AddYears(-18);
-        var range = (maxDate - minDate).Days;
-        var randomDate = minDate.AddDays(Random.Next(range));
-        return DateOnly.FromDateTime(randomDate);
+        var min = DateTime.UtcNow.AddYears(-80);
+        var range = (DateTime.UtcNow.AddYears(-18) - min).Days;
+        return DateOnly.FromDateTime(min.AddDays(Random.Next(range)));
     }
 
-    private static string GenerateJMBG(DateOnly dateOfBirth, bool isMale)
+    private static string GenerateJmbg(DateOnly dob, bool isMale)
     {
-        var day = dateOfBirth.Day.ToString("D2");
-        var month = dateOfBirth.Month.ToString("D2");
-        var year = dateOfBirth.Year % 100; // Last 2 digits
-        var yearStr = year.ToString("D2");
-        var region = Random.Next(10, 999).ToString("D3");
-        var serial = Random.Next(0, 100).ToString("D2");
-        var gender = (isMale ? Random.Next(1, 5) : Random.Next(5, 9)).ToString();
-        var check = Random.Next(0, 10).ToString();
-
-        var jmbg = day + month + yearStr + region + serial + gender + check;
-        return jmbg.Substring(0, 13); // Ensure exactly 13 chars
-    }
-
-    private static string GenerateParentName()
-    {
-        var names = new[] { "Jovan", "Petar", "Miroslav", "Vladimir", "Marko", "Aleksandar" };
-        return names[Random.Next(names.Length)];
-    }
-
-    private static string GeneratePostalCode()
-    {
-        return Random.Next(10000, 99999).ToString();
-    }
-
-    private static string GenerateIdCardNumber()
-    {
-        return $"{Random.Next(100000, 999999)}{(char)('A' + Random.Next(26))}";
-    }
-
-    private static string GenerateCompanyName()
-    {
-        var prefixes = new[] { "Firma", "Preduzeće", "Društvo", "Fabrika", "Radnja" };
-        var suffixes = new[] { "Development", "Services", "Trade", "Production", "Consulting" };
-        return $"{prefixes[Random.Next(prefixes.Length)]} {suffixes[Random.Next(suffixes.Length)]}";
-    }
-
-    private static string GenerateJobTitle()
-    {
-        var titles = new[] { "Direktor", "Rukovodilac", "Menadžer", "Savetnik", "Koordinator", "Asistent", "Analitičar", "Inženjer" };
-        return titles[Random.Next(titles.Length)];
-    }
-
-    private static string GenerateOccupation()
-    {
-        var occupations = new[] { "Inženjer", "Učitelj", "Lekar", "Pravnik", "Računovođa", "Arhitekta", "Električar", "Teslar", "Pekara", "Trgovac" };
-        return occupations[Random.Next(occupations.Length)];
-    }
-
-    private static string GeneratePhoneNumber()
-    {
-        // Serbian format: +381 XX XXX XXXX
-        var areaCode = Random.Next(10, 99);
-        var exchange = Random.Next(100, 999);
-        var number = Random.Next(1000, 9999);
-        return $"+381{areaCode}{exchange}{number}";
+        var raw =
+            dob.Day.ToString("D2") +
+            dob.Month.ToString("D2") +
+            (dob.Year % 100).ToString("D2") +
+            Random.Next(10, 999).ToString("D3") +
+            Random.Next(0, 100).ToString("D2") +
+            (isMale ? Random.Next(1, 5) : Random.Next(5, 9)).ToString() +
+            Random.Next(0, 10).ToString();
+        return raw[..13];
     }
 }

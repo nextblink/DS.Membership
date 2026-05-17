@@ -1,5 +1,4 @@
 using Marsipan.Membership.Middleware.Entities;
-using Marsipan.Membership.Middleware.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +11,6 @@ namespace Marsipan.Membership.Middleware.Data;
 /// </summary>
 public class ApplicationContext : IdentityDbContext<ApplicationUser>
 {
-    // Deterministic timestamp used for all HasData seed rows. EF Core requires
-    // seed values to be constant across migrations.
-    private static readonly DateTime SeedDate = new(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
     public ApplicationContext(DbContextOptions<ApplicationContext> options)
         : base(options)
     {
@@ -88,47 +83,8 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<Form>().HasQueryFilter(e => !e.IsDeleted);
 
         // ----------------------------------------------------------------------
-        // Seed data
+        // Seed data — roles only; all other data is managed via admin UI
         // ----------------------------------------------------------------------
-
-        modelBuilder.Entity<Function>().HasData(
-            new Function { Id = 1, Name = "Члан главног одбора", CreatedDate = SeedDate },
-            new Function { Id = 2, Name = "Председник", CreatedDate = SeedDate },
-            new Function { Id = 3, Name = "Потпредседник", CreatedDate = SeedDate },
-            new Function { Id = 4, Name = "Секретар", CreatedDate = SeedDate },
-            new Function { Id = 5, Name = "Благајник", CreatedDate = SeedDate },
-            new Function { Id = 6, Name = "Member EC", CreatedDate = SeedDate }
-        );
-
-        modelBuilder.Entity<OrgUnit>().HasData(
-            new OrgUnit
-            {
-                Id = 1,
-                Name = "Belgrade",
-                Type = OrgUnitType.City,
-                ParentId = null,
-                VoterCount = 0,
-                CreatedDate = SeedDate
-            },
-            new OrgUnit
-            {
-                Id = 2,
-                Name = "Lazarevac",
-                Type = OrgUnitType.Municipal,
-                ParentId = 1,
-                VoterCount = 0,
-                CreatedDate = SeedDate
-            },
-            new OrgUnit
-            {
-                Id = 3,
-                Name = "Novi Sad",
-                Type = OrgUnitType.City,
-                ParentId = null,
-                VoterCount = 0,
-                CreatedDate = SeedDate
-            }
-        );
 
         modelBuilder.Entity<IdentityRole>().HasData(
             new IdentityRole { Id = "1", Name = "SuperAdmin", NormalizedName = "SUPERADMIN", ConcurrencyStamp = "00000000-0000-0000-0000-000000000001" },
