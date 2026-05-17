@@ -4,7 +4,7 @@
   "fields": {
     "email": "Email",
     "role": "Role",
-    "orgUnit": "Org Unit",
+    "committee": "Committee",
     "userId": "User ID"
   },
   "changePassword": {

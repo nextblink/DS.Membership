@@ -4,7 +4,7 @@
   "fields": {
     "email": "Имејл",
     "role": "Улога",
-    "orgUnit": "Орг. јединица",
+    "committee": "Одбор",
     "userId": "ID корисника"
   },
   "changePassword": {

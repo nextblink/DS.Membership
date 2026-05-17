@@ -4,7 +4,7 @@
     "totalMembers": "Укупно чланова",
     "verifiedForms": "Верификовани обрасци",
     "pendingForms": "Обрасци на чекању",
-    "orgUnits": "Укупно",
+    "committees": "Укупно одбора",
     "notTrusted": "Непоуздане",
     "untrustworthy": "Поверништва",
     "formsTotal": "{{count}} образаца укупно",
@@ -14,14 +14,14 @@
   },
   "orgTable": {
     "title": "Чланови по одборима",
-    "orgUnit": "Орг. јединица",
+    "committee": "Одбор",
     "members": "Чланови",
     "voters": "Бирачи",
     "percentage": "%",
     "promille": "‰",
     "noData": "Нема података",
     "units": "јединица",
-    "searchPlaceholder": "Претражите орг. јединице…"
+    "searchPlaceholder": "Претражите одборе…"
   },
   "chart": {
     "title": "Обрасци по статусу",

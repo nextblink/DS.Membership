@@ -36,7 +36,7 @@ function PromilleBar({ pm }) {
 export default function OrgUnitsTable({ rows }) {
   const { t } = useTranslation('dashboard')
   const columns = [
-    { key: 'name',        label: t('orgTable.orgUnit'),    numeric: false },
+    { key: 'name',        label: t('orgTable.committee'),    numeric: false },
     { key: 'memberCount', label: t('orgTable.members'),    numeric: true  },
     { key: 'voterCount',  label: t('orgTable.voters'),     numeric: true  },
     { key: 'promille',  label: t('orgTable.promille'), numeric: true  },

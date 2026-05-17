@@ -115,7 +115,7 @@ export default function Dashboard() {
           delay="80ms"
           to="/orgunits"
           stats={[
-            { value: orgUnitCount.toLocaleString(), label: t('stats.orgUnits') },
+            { value: orgUnitCount.toLocaleString(), label: t('stats.committees') },
             { value: (stats?.nonTrustworthyOrgUnits ?? 0).toLocaleString(), label: t('stats.untrustworthy') },
           ]}
           icon={

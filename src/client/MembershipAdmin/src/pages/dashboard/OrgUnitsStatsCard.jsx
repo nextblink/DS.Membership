@@ -13,7 +13,7 @@ export default function OrgUnitsStatsCard({ totalOrgUnits, nonTrustworthyCount, 
               {totalOrgUnits.toLocaleString()}
             </div>
             <div className="mt-0.5 text-theme-xs font-medium uppercase tracking-widest text-gray-400 dark:text-gray-500">
-              {t('stats.orgUnits')}
+              {t('stats.committees')}
             </div>
           </div>
           <div>

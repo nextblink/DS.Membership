@@ -10,7 +10,7 @@
   "uploadForm": "Додај образац",
   "filter": {
     "formNumber": "Број обрасца",
-    "orgUnit": "Орг. јединица",
+    "committee": "Одбор",
     "status": "Статус",
     "memberName": "Име члана",
     "placeholderFormNumber": "нпр. Ф-12345",
@@ -20,7 +20,7 @@
   "table": {
     "formNumber": "Број обрасца",
     "memberName": "Име члана",
-    "orgUnit": "Орг. јединица",
+    "committee": "Одбор",
     "status": "Статус",
     "uploadedBy": "Додао"
   },
@@ -36,7 +36,7 @@
     "formNumber": "Број обрасца",
     "formDate": "Датум обрасца",
     "municipalBoard": "Општински одбор",
-    "orgUnit": "Орг. јединица",
+    "committee": "Одбор",
     "uploadedBy": "Додао",
     "status": "Статус",
     "images": "Слике",
@@ -57,7 +57,7 @@
     "loadFailed": "Учитавање обрасца није успело.",
     "notFound": "Образац није пронађен.",
     "formLabel": "Образац",
-    "orgUnitLabel": "Орг. јединица",
+    "committeeLabel": "Одбор",
     "statusUpdateFailed": "Промена статуса није успела.",
     "imageUploadFailed": "Слање слике није успело.",
     "imageDeleteFailed": "Брисање слике није успело.",

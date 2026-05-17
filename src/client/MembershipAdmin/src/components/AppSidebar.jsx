@@ -53,7 +53,7 @@ const NAV_I18N_KEY = {
   home: 'nav.dashboard',
   users: 'nav.members',
   document: 'nav.forms',
-  building: 'nav.orgUnits',
+  building: 'nav.committees',
   clipboard: 'nav.functions',
   'user-group': 'nav.users',
   'user-circle': 'nav.profile',

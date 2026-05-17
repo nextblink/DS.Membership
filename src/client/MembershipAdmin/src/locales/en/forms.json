@@ -10,7 +10,7 @@
   "uploadForm": "Upload Form",
   "filter": {
     "formNumber": "Form Number",
-    "orgUnit": "Org Unit",
+    "committee": "Committee",
     "status": "Status",
     "memberName": "Member Name",
     "placeholderFormNumber": "e.g. F-12345",
@@ -20,7 +20,7 @@
   "table": {
     "formNumber": "Form Number",
     "memberName": "Member Name",
-    "orgUnit": "Org Unit",
+    "committee": "Committee",
     "status": "Status",
     "uploadedBy": "Uploaded By"
   },
@@ -36,7 +36,7 @@
     "formNumber": "Form Number",
     "formDate": "Form Date",
     "municipalBoard": "Municipal Board",
-    "orgUnit": "Org Unit",
+    "committee": "Committee",
     "uploadedBy": "Uploaded By",
     "status": "Status",
     "images": "Images",
@@ -57,7 +57,7 @@
     "loadFailed": "Failed to load form",
     "notFound": "Form not found.",
     "formLabel": "Form",
-    "orgUnitLabel": "Org Unit",
+    "committeeLabel": "Committee",
     "statusUpdateFailed": "Status update failed.",
     "imageUploadFailed": "Image upload failed.",
     "imageDeleteFailed": "Image delete failed.",

@@ -4,7 +4,7 @@
     "totalMembers": "Total Members",
     "verifiedForms": "Verified Forms",
     "pendingForms": "Pending Forms",
-    "orgUnits": "Org Units",
+    "committees": "Committees",
     "notTrusted": "Not Trusted",
     "untrustworthy": "Untrustworthy",
     "formsTotal": "{{count}} forms total",
@@ -13,15 +13,15 @@
     "pendingNote": "Awaiting review"
   },
   "orgTable": {
-    "title": "Members by Org Unit",
-    "orgUnit": "Org Unit",
+    "title": "Members by Committee",
+    "committee": "Committee",
     "members": "Members",
     "voters": "Voters",
     "percentage": "%",
     "promille": "‰",
     "noData": "No data",
     "units": "units",
-    "searchPlaceholder": "Search org units…"
+    "searchPlaceholder": "Search committees…"
   },
   "chart": {
     "title": "Forms by Status",

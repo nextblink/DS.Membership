@@ -6,7 +6,7 @@
     "name": "Name",
     "email": "Email",
     "role": "Role",
-    "orgUnit": "Org Unit",
+    "committee": "Committee",
     "actions": "Actions"
   },
   "filter": {
@@ -19,10 +19,10 @@
     "email": "Email",
     "password": "Password",
     "role": "Role",
-    "orgUnit": "Org Unit",
+    "committee": "Committee",
     "selectRole": "-- Select Role --",
-    "selectOrgUnit": "-- Select Org Unit --",
-    "noOrgUnit": "None"
+    "selectCommittee": "-- Select Committee --",
+    "noCommittee": "None"
   },
   "state": {
     "noUsers": "No users found.",
@@ -40,7 +40,7 @@
     "roleRequired": "Role is required",
     "emailInvalid": "Enter a valid email address",
     "passwordMinLength": "Password must be at least 6 characters",
-    "orgUnitRequired": "Org Unit is required for this role"
+    "committeeRequired": "Committee is required for this role"
   },
   "confirm": {
     "delete": "Delete this user?"

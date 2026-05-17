@@ -235,7 +235,7 @@ export default function Users() {
 
       {createOpen && (
         <CreateUserModal
-          orgUnitOptions={orgUnitOptions}
+          committeeOptions={committeeOptions}
           onClose={() => setCreateOpen(false)}
           onCreated={async () => {
             setCreateOpen(false)
@@ -249,7 +249,7 @@ export default function Users() {
       {editTarget && (
         <EditUserModal
           user={editTarget}
-          orgUnitOptions={orgUnitOptions}
+          committeeOptions={committeeOptions}
           onClose={() => setEditTarget(null)}
           onSaved={async () => {
             setEditTarget(null)

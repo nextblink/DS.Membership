@@ -6,7 +6,7 @@
     "name": "Ime",
     "email": "Имејл",
     "role": "Улога",
-    "orgUnit": "Орг. јединица",
+    "committee": "Одбор",
     "actions": "Акције"
   },
   "filter": {
@@ -19,10 +19,10 @@
     "email": "Имејл",
     "password": "Лозинка",
     "role": "Улога",
-    "orgUnit": "Орг. јединица",
+    "committee": "Одбор",
     "selectRole": "-- Одабери улогу --",
-    "selectOrgUnit": "-- Одабери орг. јединицу --",
-    "noOrgUnit": "Без јединице"
+    "selectCommittee": "-- Одабери одбор --",
+    "noCommittee": "Без одбора"
   },
   "state": {
     "noUsers": "Нема корисника.",
@@ -38,7 +38,8 @@
     "passwordRequired": "Лозинка је обавезна",
     "roleRequired": "Улога је обавезна",
     "emailInvalid": "Унесите исправну адресу имејла",
-    "passwordMinLength": "Лозинка мора имати најмање 6 знакова"
+    "passwordMinLength": "Лозинка мора имати најмање 6 знакова",
+    "committeeRequired": "Одбор је обавезан за ову улогу"
   },
   "confirm": {
     "delete": "Обрисати овог корисника?"
