@@ -75,7 +75,9 @@
     "orgUnitRequired": "Орг. јединица је обавезна",
     "jmbgTaken": "Члан са овим ЈМБГ већ постоји.",
     "emailInvalid": "Неисправан имејл",
-    "phoneRequired": "Обавезно"
+    "phoneRequired": "Обавезно",
+    "jmbgExists": "Члан са овим ЈМБГ-ом постоји — {{name}}.",
+    "viewMember": "Погледај члана"
   },
   "error": {
     "loadFailed": "Учитавање члана није успело.",

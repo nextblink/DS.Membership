@@ -1,4 +1,11 @@
 {
+  "extract": {
+    "button": "Extract from image",
+    "loading": "Claude is reading the form…",
+    "error": "Extraction failed. Please try again or enter details manually.",
+    "manualEntry": "Enter manually instead",
+    "retry": "Try again"
+  },
   "title": "Forms",
   "uploadForm": "Upload Form",
   "filter": {

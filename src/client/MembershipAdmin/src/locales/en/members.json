@@ -75,7 +75,9 @@
     "orgUnitRequired": "Org Unit is required",
     "jmbgTaken": "A member with this JMBG already exists.",
     "emailInvalid": "Invalid email",
-    "phoneRequired": "Required"
+    "phoneRequired": "Required",
+    "jmbgExists": "A member with this JMBG already exists — {{name}}.",
+    "viewMember": "View member"
   },
   "error": {
     "loadFailed": "Failed to load member.",
