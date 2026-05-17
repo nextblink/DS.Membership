@@ -32,7 +32,22 @@ export default function DashboardCard({ accent = '#2E6BAD', delay = '0ms', to, s
     <>
       <style>{css}</style>
       <Wrapper to={to} delay={delay}>
+        {/* Left accent stripe */}
         <div className="absolute inset-y-0 left-0 w-[3px] rounded-l-xl" style={{ background: accent }} />
+
+        {/* Decorative oversized icon — top-right overflow */}
+        {icon && (
+          <div
+            className="pointer-events-none absolute -top-3 -right-3 flex h-20 w-20 items-center justify-center"
+            style={{ color: accent, opacity: 0.12 }}
+            aria-hidden
+          >
+            {/* Clone the icon at large size */}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-full w-full">
+              {icon.props.children}
+            </svg>
+          </div>
+        )}
 
         <div className="db-card-inner flex h-full items-center justify-between gap-4 px-6 py-5 pl-8 rounded-xl transition-colors duration-150">
           {/* Left: stats */}
@@ -42,16 +57,8 @@ export default function DashboardCard({ accent = '#2E6BAD', delay = '0ms', to, s
             ))}
           </div>
 
-          {/* Right: pie / icon */}
+          {/* Right: pie slot */}
           {right && <div className="shrink-0">{right}</div>}
-          {!right && icon && (
-            <div
-              className="ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
-              style={{ background: `${accent}1a` }}
-            >
-              {icon}
-            </div>
-          )}
         </div>
       </Wrapper>
     </>
@@ -75,7 +82,7 @@ function StatBlock({ value, label, primary, accent }) {
 
 function Wrapper({ to, delay, children }) {
   const base =
-    'db-card db-card-link relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm'
+    'db-card db-card-link relative rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm'
 
   if (to) {
     return (
