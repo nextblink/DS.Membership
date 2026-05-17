@@ -6,8 +6,8 @@ namespace Marsipan.Membership.Middleware.DTOs;
 /// <remarks>
 /// Scope rules (enforced in <c>DashboardService</c>):
 /// <list type="bullet">
-///   <item>SuperAdmin / Admin — totals and rows cover every OrgUnit.</item>
-///   <item>LocalAdmin — totals and the single row cover only the caller's own OrgUnit.</item>
+///   <item>SuperAdmin / Admin — totals and rows cover every Committee.</item>
+///   <item>LocalAdmin — totals and the single row cover only the caller's own Committee.</item>
 ///   <item>Viewer / Operator — excluded at the controller layer (role-based <c>[Authorize]</c>); the service is not expected to be invoked for them.</item>
 /// </list>
 /// Member counts honour the soft-delete query filter (<c>IsDeleted == false</c>).
@@ -17,24 +17,24 @@ public class DashboardStatsDto
     public int TotalMembers { get; set; }
     public int FemaleCount { get; set; }
     public int MaleCount { get; set; }
-    public List<OrgUnitMembershipDto> MembersByOrgUnit { get; set; } = new();
+    public List<CommitteeMembershipDto> MembersByCommittee { get; set; } = new();
     public FormStatusCountsDto FormsByStatus { get; set; } = new();
-    public int TotalOrgUnits { get; set; }
-    public int NonTrustworthyOrgUnits { get; set; }
+    public int TotalCommittees { get; set; }
+    public int NonTrustworthyCommittees { get; set; }
     public decimal NonTrustworthyPercentage { get; set; }
 }
 
 /// <summary>
-/// Per-OrgUnit row of the membership breakdown table on the dashboard.
+/// Per-Committee row of the membership breakdown table on the dashboard.
 /// </summary>
 /// <remarks>
 /// <c>Percentage</c> is <c>MemberCount / VoterCount * 100</c>, and is set to
 /// <c>0</c> when <c>VoterCount == 0</c> to avoid divide-by-zero on freshly
 /// seeded units.
 /// </remarks>
-public class OrgUnitMembershipDto
+public class CommitteeMembershipDto
 {
-    public int OrgUnitId { get; set; }
+    public int CommitteeId { get; set; }
     public string Name { get; set; } = null!;
     public int MemberCount { get; set; }
     public int VoterCount { get; set; }

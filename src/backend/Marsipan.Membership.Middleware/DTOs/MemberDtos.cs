@@ -9,8 +9,8 @@ public class MemberListItemDto
     public int Id { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string JMBG { get; set; } = string.Empty;
-    public int OrgUnitId { get; set; }
-    public string OrgUnitName { get; set; } = string.Empty;
+    public int CommitteeId { get; set; }
+    public string CommitteeName { get; set; } = string.Empty;
     public DateOnly MembershipDate { get; set; }
     public string Gender { get; set; } = string.Empty;
     public List<string> Functions { get; set; } = new();
@@ -39,8 +39,8 @@ public class MemberDetailsDto
     public string? JobTitle { get; set; }
     public string? Occupation { get; set; }
     public DateOnly MembershipDate { get; set; }
-    public int OrgUnitId { get; set; }
-    public string OrgUnitName { get; set; } = string.Empty;
+    public int CommitteeId { get; set; }
+    public string CommitteeName { get; set; } = string.Empty;
     public List<PhoneDto> Phones { get; set; } = new();
     public List<MemberFunctionDto> Functions { get; set; } = new();
 }
@@ -99,7 +99,7 @@ public class CreateMemberDto
     [MaxLength(200)] public string? JobTitle { get; set; }
     [MaxLength(200)] public string? Occupation { get; set; }
     [Required] public DateOnly MembershipDate { get; set; }
-    [Required] public int OrgUnitId { get; set; }
+    [Required] public int CommitteeId { get; set; }
 
     public List<AddPhoneDto> Phones { get; set; } = new();
     public List<AddMemberFunctionDto> Functions { get; set; } = new();
@@ -131,5 +131,5 @@ public class UpdateMemberDto
     [MaxLength(200)] public string? JobTitle { get; set; }
     [MaxLength(200)] public string? Occupation { get; set; }
     [Required] public DateOnly MembershipDate { get; set; }
-    [Required] public int OrgUnitId { get; set; }
+    [Required] public int CommitteeId { get; set; }
 }

@@ -11,7 +11,7 @@ public class MemberQuery
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public string? JMBG { get; set; }
-    public int? OrgUnitId { get; set; }
+    public int? CommitteeId { get; set; }
     public int? FunctionId { get; set; }
     public EducationLevel? EducationLevel { get; set; }
     public Gender? Gender { get; set; }

@@ -12,8 +12,8 @@ public class UserDto
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public string Role { get; set; } = string.Empty;
-    public int? OrgUnitId { get; set; }
-    public string? OrgUnitName { get; set; }
+    public int? CommitteeId { get; set; }
+    public string? CommitteeName { get; set; }
 }
 
 /// <summary>
@@ -34,7 +34,7 @@ public class CreateUserDto
     [Required]
     public string Role { get; set; } = string.Empty;
 
-    public int? OrgUnitId { get; set; }
+    public int? CommitteeId { get; set; }
 }
 
 /// <summary>
@@ -49,5 +49,5 @@ public class UpdateUserDto
     [Required]
     public string Role { get; set; } = string.Empty;
 
-    public int? OrgUnitId { get; set; }
+    public int? CommitteeId { get; set; }
 }

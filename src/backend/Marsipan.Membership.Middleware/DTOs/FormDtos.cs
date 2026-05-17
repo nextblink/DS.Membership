@@ -11,8 +11,8 @@ public class FormListItemDto
     public int Id { get; set; }
     public string? FormNumber { get; set; }
     public string? MemberFullName { get; set; }
-    public int? OrgUnitId { get; set; }
-    public string? OrgUnitName { get; set; }
+    public int? CommitteeId { get; set; }
+    public string? CommitteeName { get; set; }
     public string Status { get; set; } = string.Empty;
     public string CreatedByUserId { get; set; } = string.Empty;
     public string? CreatedByEmail { get; set; }
@@ -27,8 +27,8 @@ public class FormMemberSummaryDto
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string JMBG { get; set; } = string.Empty;
-    public int OrgUnitId { get; set; }
-    public string? OrgUnitName { get; set; }
+    public int CommitteeId { get; set; }
+    public string? CommitteeName { get; set; }
 }
 
 /// <summary>
@@ -113,7 +113,7 @@ public class UpdateFormStatusDto
 public class FormQuery
 {
     public string? FormNumber { get; set; }
-    public int? OrgUnitId { get; set; }
+    public int? CommitteeId { get; set; }
     public FormStatus? Status { get; set; }
     public string? MemberName { get; set; }
     public int? MemberId { get; set; }
@@ -152,7 +152,7 @@ public class ExtractedFormDataDto
     // Form record metadata (from the stamp in the top-right of the paper form)
     public string? FormNumber { get; set; }
     public string? FormDate { get; set; }         // ISO date: YYYY-MM-DD
-    public string? OrgUnitName { get; set; }      // e.g. "Opštinski odbor Lazarevac"
+    public string? CommitteeName { get; set; }      // e.g. "Opštinski odbor Lazarevac"
 
     // Party function written on the form (e.g. "Član OO")
     public string? Function { get; set; }
