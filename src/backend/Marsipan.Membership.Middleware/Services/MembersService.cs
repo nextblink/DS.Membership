@@ -157,6 +157,8 @@ public class MembersService : IMembersService
             OrgUnitId = dto.OrgUnitId,
             CreatedDate = now,
             CreatedByUserId = userId,
+            LastModifiedDate = now,
+            LastModifiedByUserId = userId,
         };
 
         foreach (var p in dto.Phones)
@@ -167,6 +169,8 @@ public class MembersService : IMembersService
                 Type = p.Type,
                 CreatedDate = now,
                 CreatedByUserId = userId,
+                LastModifiedDate = now,
+                LastModifiedByUserId = userId,
             });
         }
 
@@ -178,6 +182,8 @@ public class MembersService : IMembersService
                 AssignedDate = fn.AssignedDate,
                 CreatedDate = now,
                 CreatedByUserId = userId,
+                LastModifiedDate = now,
+                LastModifiedByUserId = userId,
             });
         }
 

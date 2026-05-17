@@ -239,12 +239,12 @@ export default function MemberForm({
   }, [initialExtracted, reset])
 
   // Reset only after lookups load so select options exist when values like orgUnitId='1' are set.
-  // Without this guard, the select has no matching option and the browser clears the value to ''.
+  // Skip if we came from extraction — the extraction useEffect already called reset with pre-filled values.
   useEffect(() => {
-    if (lookupsLoaded) {
+    if (lookupsLoaded && !initialExtracted) {
       reset(toFormValues(initialMember))
     }
-  }, [initialMember, lookupsLoaded, reset])
+  }, [initialMember, initialExtracted, lookupsLoaded, reset])
 
   useEffect(() => {
     let cancelled = false

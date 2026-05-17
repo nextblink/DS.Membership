@@ -43,12 +43,15 @@ function StatusBadge({ status }) {
 
 function imageUrl(img) {
   if (!img) return ''
-  const path = img.url || img.filePath || img.path
+  let path = img.url || img.filePath || img.path
   if (!path) return ''
   if (/^https?:\/\//i.test(path)) return path
-  const base = api.defaults.baseURL || ''
-  if (path.startsWith('/')) return `${base}${path}`
-  return `${base}/${path}`
+  // FilePath is stored as "wwwroot/uploads/..." — strip the wwwroot prefix so
+  // the path becomes "/uploads/..." which the static-files middleware serves.
+  path = path.replace(/^wwwroot\//, '/')
+  if (!path.startsWith('/')) path = `/${path}`
+  const base = (api.defaults.baseURL || '').replace(/\/$/, '')
+  return `${base}${path}`
 }
 
 export default function FormDetails() {

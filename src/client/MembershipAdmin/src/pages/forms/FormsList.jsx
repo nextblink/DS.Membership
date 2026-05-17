@@ -307,6 +307,7 @@ export default function FormsList() {
               !error &&
               items.map((f) => {
                 const memberName =
+                  f.memberFullName ||
                   f.memberName ||
                   (f.member ? `${f.member.firstName ?? ''} ${f.member.lastName ?? ''}`.trim() : '') ||
                   '—'
