@@ -7,14 +7,26 @@ import { resolve } from 'path'
 function autoBumpVersion() {
   return {
     name: 'auto-bump-version',
+    resolveId(id) {
+      if (id === 'virtual:app-version') {
+        return id
+      }
+    },
+    load(id) {
+      if (id === 'virtual:app-version') {
+        const pkgPath = resolve('./package.json')
+        const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'))
+        return `export const APP_VERSION = '${pkg.version}';`
+      }
+    },
     closeBundle() {
       const pkgPath = resolve('./package.json')
       const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'))
       const parts = pkg.version.split('.').map(Number)
-      parts[1]++
+      parts[parts.length - 1]++
       pkg.version = parts.join('.')
       writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n')
-      console.log(`\n  Version bumped to ${pkg.version}\n`)
+      console.log(`✓ Version bumped to ${pkg.version}`)
     },
   }
 }
