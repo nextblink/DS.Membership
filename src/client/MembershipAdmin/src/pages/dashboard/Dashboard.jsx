@@ -86,17 +86,18 @@ export default function Dashboard() {
   if (loading) return <LoadingState />
   if (error) return <ErrorState message={error} onRetry={() => setReloadKey((k) => k + 1)} />
 
-  const totalMembers    = stats?.totalMembers ?? 0
-  const femaleCount     = stats?.femaleCount ?? 0
-  const maleCount       = stats?.maleCount ?? 0
-  const membersByOrgUnit = stats?.membersByOrgUnit ?? []
-  const formsByStatus   = stats?.formsByStatus ?? {}
-  const pendingForms    = formsByStatus.pending  ?? 0
-  const verifiedForms   = formsByStatus.verified ?? 0
-  const orgUnitCount    = membersByOrgUnit.length
+  const totalMembers       = stats?.totalMembers ?? 0
+  const femaleCount        = stats?.femaleCount ?? 0
+  const maleCount          = stats?.maleCount ?? 0
+  const membersByCommittee = stats?.membersByCommittee ?? []
+  const formsByStatus      = stats?.formsByStatus ?? {}
+  const pendingForms       = formsByStatus.pending  ?? 0
+  const verifiedForms      = formsByStatus.verified ?? 0
+  const committeeCount     = stats?.totalCommittees ?? membersByCommittee.length
+  const nonTrustworthy     = stats?.nonTrustworthyCommittees ?? 0
 
-  const avgMembership = orgUnitCount > 0
-    ? membersByOrgUnit.reduce((s, r) => s + computePromille(r), 0) / orgUnitCount
+  const avgMembership = membersByCommittee.length > 0
+    ? membersByCommittee.reduce((s, r) => s + computePromille(r), 0) / membersByCommittee.length
     : 0
 
   return (
@@ -113,10 +114,10 @@ export default function Dashboard() {
         <DashboardCard
           accent="#4ABEA0"
           delay="80ms"
-          to="/orgunits"
+          to="/committees"
           stats={[
-            { value: orgUnitCount.toLocaleString(), label: t('stats.committees') },
-            { value: (stats?.nonTrustworthyOrgUnits ?? 0).toLocaleString(), label: t('stats.untrustworthy') },
+            { value: committeeCount.toLocaleString(), label: t('stats.committees') },
+            { value: nonTrustworthy.toLocaleString(), label: t('stats.untrustworthy') },
           ]}
           icon={
             <svg className="h-5 w-5" style={{ color: '#4ABEA0' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -156,10 +157,10 @@ export default function Dashboard() {
       {/* Main content */}
       <div className="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-12">
         <div className="xl:col-span-7">
-          <OrgUnitsTable rows={membersByOrgUnit} />
+          <OrgUnitsTable rows={membersByCommittee} />
         </div>
         <div className="xl:col-span-5">
-          <FormsStatusDonut membersByOrgUnit={membersByOrgUnit} />
+          <FormsStatusDonut membersByOrgUnit={membersByCommittee} />
         </div>
       </div>
     </div>
