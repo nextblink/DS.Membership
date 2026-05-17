@@ -9,13 +9,13 @@ namespace Marsipan.Membership.Web.Controllers.Admin;
 /// OrgUnit endpoints — tree retrieval plus SuperAdmin-only CRUD.
 /// </summary>
 [ApiController]
-[Route("api/orgunits")]
+[Route("api/committees")]
 [Authorize(Policy = "ApiPolicy")]
-public class OrgUnitsController : ControllerBase
+public class CommitteesController : ControllerBase
 {
     private readonly ICommitteesService _service;
 
-    public OrgUnitsController(ICommitteesService service)
+    public CommitteesController(ICommitteesService service)
     {
         _service = service;
     }

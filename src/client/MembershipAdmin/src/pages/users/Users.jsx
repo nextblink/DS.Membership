@@ -72,7 +72,7 @@ export default function Users() {
       if (name && name.trim()) params.name = name.trim()
       const [usersRes, orgRes] = await Promise.all([
         api.get('/api/users', { params }),
-        api.get('/api/orgunits'),
+        api.get('/api/committees'),
       ])
       setUsers(Array.isArray(usersRes.data) ? usersRes.data : usersRes.data?.items || [])
       setOrgUnits(Array.isArray(orgRes.data) ? orgRes.data : orgRes.data?.items || [])

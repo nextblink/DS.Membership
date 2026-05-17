@@ -1,6 +1,6 @@
 ﻿// Org Units tree page — SuperAdmin only (route enforces role).
 //
-// Renders the OrgUnit hierarchy (City -> Municipal) from GET /api/orgunits.
+// Renders the OrgUnit hierarchy (City -> Municipal) from GET /api/committees.
 // Supports inline VoterCount edit, add-root, add-child, and leaf delete.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -620,7 +620,7 @@ export default function OrgUnits() {
     setLoading(true)
     setError(null)
     try {
-      const res = await api.get('/api/orgunits')
+      const res = await api.get('/api/committees')
       setTree(buildTree(res.data))
     } catch (err) {
       setError(err?.response?.data?.message || err?.message || t('orgUnits:state.loadFailed'))
@@ -642,7 +642,7 @@ export default function OrgUnits() {
   }, [])
 
   const handleSaveEdit = useCallback(async (payload) => {
-    await api.put(`/api/orgunits/${payload.id}`, payload)
+    await api.put(`/api/committees/${payload.id}`, payload)
     setTree((prev) =>
       updateNode(prev, payload.id, (n) => ({ ...n, name: payload.name, type: payload.type, voterCount: payload.voterCount, trusteeId: payload.trusteeId, trusteeName: payload.trusteeName, isTrustful: payload.isTrustful }))
     )
@@ -654,7 +654,7 @@ export default function OrgUnits() {
 
   const handleCreate = useCallback(
     async (payload) => {
-      const res = await api.post('/api/orgunits', payload)
+      const res = await api.post('/api/committees', payload)
       const created = res.data
       setTree((prev) => {
         if (payload.parentId == null) {
@@ -676,7 +676,7 @@ export default function OrgUnits() {
       trusteeId: node.trusteeId ?? null,
       isTrustful: node.isTrustful ?? true,
     }
-    await api.put(`/api/orgunits/${node.id}`, payload)
+    await api.put(`/api/committees/${node.id}`, payload)
     setTree((prev) =>
       updateNode(prev, node.id, (n) => ({ ...n, voterCount: newVoterCount })),
     )
@@ -687,7 +687,7 @@ export default function OrgUnits() {
     if (!window.confirm(t('orgUnits:action.deleteConfirm'))) return
     setDeleteError(null)
     try {
-      await api.delete(`/api/orgunits/${node.id}`)
+      await api.delete(`/api/committees/${node.id}`)
       setTree((prev) => removeNode(prev, node.id))
       toast.success(t('orgUnits:toast.deleted'))
     } catch (err) {

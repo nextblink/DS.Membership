@@ -54,7 +54,7 @@ export default function MembersList() {
   // Load lookups once.
   useEffect(() => {
     let cancelled = false
-    Promise.all([api.get('/api/orgunits'), api.get('/api/functions')])
+    Promise.all([api.get('/api/committees'), api.get('/api/functions')])
       .then(([orgRes, fnRes]) => {
         if (cancelled) return
         setOrgUnits(flattenOrgUnits(orgRes.data))

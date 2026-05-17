@@ -64,7 +64,7 @@ export default function FormsList() {
   useEffect(() => {
     let cancelled = false
     api
-      .get('/api/orgunits')
+      .get('/api/committees')
       .then((res) => {
         if (cancelled) return
         const data = res.data

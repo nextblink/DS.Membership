@@ -251,7 +251,7 @@ export default function MemberForm({
     async function load() {
       try {
         const [orgRes, fnRes] = await Promise.all([
-          api.get('/api/orgunits'),
+          api.get('/api/committees'),
           api.get('/api/functions'),
         ])
         if (cancelled) return
@@ -714,7 +714,7 @@ function Field({ label, required, error, children }) {
   )
 }
 
-// /api/orgunits returns a tree; flatten to a labeled list for selects.
+// /api/committees returns a tree; flatten to a labeled list for selects.
 function flattenOrgUnits(data) {
   const out = []
   const list = Array.isArray(data) ? data : data?.items ?? []
