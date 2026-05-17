@@ -8,7 +8,7 @@ public static class OrgUnitsSeeder
 {
     private record MunicipalityHint(string Name, bool HasOo);
 
-    public static async Task SeedAsync(ApplicationContext context)
+    public static async Task SeedAsync(ApplicationContext context, string systemUserId)
     {
         var municipalities = await context.Municipalities.ToListAsync();
         if (!municipalities.Any()) return;
@@ -29,12 +29,12 @@ public static class OrgUnitsSeeder
             .ToDictionary(h => h.Name, h => h.HasOo);
 
         var toAdd = new List<OrgUnit>();
+        var now = DateTime.UtcNow;
 
         foreach (var m in municipalities)
         {
             var hasOo = hints.GetValueOrDefault(m.Name, true);
 
-            // GRO unit — for every city-level municipality.
             if (m.IsCity)
             {
                 toAdd.Add(new OrgUnit
@@ -44,11 +44,13 @@ public static class OrgUnitsSeeder
                     MunicipalityId = m.Id,
                     VoterCount = m.VoterCount,
                     IsTrustful = true,
-                    CreatedDate = DateTime.UtcNow
+                    CreatedDate = now,
+                    LastModifiedDate = now,
+                    CreatedByUserId = systemUserId,
+                    LastModifiedByUserId = systemUserId
                 });
             }
 
-            // OO unit — when the municipality has an opštinski odbor.
             if (hasOo)
             {
                 toAdd.Add(new OrgUnit
@@ -58,7 +60,10 @@ public static class OrgUnitsSeeder
                     MunicipalityId = m.Id,
                     VoterCount = m.VoterCount,
                     IsTrustful = true,
-                    CreatedDate = DateTime.UtcNow
+                    CreatedDate = now,
+                    LastModifiedDate = now,
+                    CreatedByUserId = systemUserId,
+                    LastModifiedByUserId = systemUserId
                 });
             }
         }

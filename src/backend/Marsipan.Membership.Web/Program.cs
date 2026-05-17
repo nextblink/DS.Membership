@@ -135,26 +135,43 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 var app = builder.Build();
 
 // --- Dev seed: ensure a default SuperAdmin user exists ---
-if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
 
-    const string defaultAdminEmail = "admin@local.com";
-    const string defaultAdminPassword = "Admin123!";
-    if (await userManager.FindByEmailAsync(defaultAdminEmail) is null)
+    // System user — used as the FK owner for all seeded data.
+    const string systemEmail = "system@marsipan.local";
+    var systemUser = await userManager.FindByEmailAsync(systemEmail);
+    if (systemUser is null)
     {
-        var admin = new ApplicationUser { UserName = defaultAdminEmail, Email = defaultAdminEmail, EmailConfirmed = true };
-        var createResult = await userManager.CreateAsync(admin, defaultAdminPassword);
-        if (createResult.Succeeded)
+        systemUser = new ApplicationUser
         {
-            await userManager.AddToRoleAsync(admin, "SuperAdmin");
+            UserName = systemEmail,
+            Email = systemEmail,
+            EmailConfirmed = true,
+            FirstName = "System",
+            LastName = "User"
+        };
+        await userManager.CreateAsync(systemUser, Guid.NewGuid().ToString("N") + "Aa1!");
+    }
+    var systemUserId = systemUser.Id;
+
+    if (app.Environment.IsDevelopment())
+    {
+        const string defaultAdminEmail = "admin@local.com";
+        const string defaultAdminPassword = "Admin123!";
+        if (await userManager.FindByEmailAsync(defaultAdminEmail) is null)
+        {
+            var admin = new ApplicationUser { UserName = defaultAdminEmail, Email = defaultAdminEmail, EmailConfirmed = true };
+            var createResult = await userManager.CreateAsync(admin, defaultAdminPassword);
+            if (createResult.Succeeded)
+                await userManager.AddToRoleAsync(admin, "SuperAdmin");
         }
     }
 
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
-    await MunicipalitiesSeeder.SeedAsync(dbContext);
-    await OrgUnitsSeeder.SeedAsync(dbContext);
+    await MunicipalitiesSeeder.SeedAsync(dbContext, systemUserId);
+    await OrgUnitsSeeder.SeedAsync(dbContext, systemUserId);
 }
 
 // Configure the HTTP request pipeline.

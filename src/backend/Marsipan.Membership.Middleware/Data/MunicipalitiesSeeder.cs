@@ -8,7 +8,7 @@ public static class MunicipalitiesSeeder
     private record MunicipalityRecord(
         string Name, bool IsCity, bool HasOo, string? ParentCity, string? PostalCode, int VoterCount);
 
-    public static async Task SeedAsync(ApplicationContext context)
+    public static async Task SeedAsync(ApplicationContext context, string systemUserId)
     {
         if (await context.Municipalities.AnyAsync())
             return;
@@ -17,6 +17,7 @@ public static class MunicipalitiesSeeder
 
         var cityLookup = new Dictionary<string, Municipality>();
         var toAdd = new List<Municipality>();
+        var now = DateTime.UtcNow;
 
         foreach (var r in records)
         {
@@ -26,7 +27,10 @@ public static class MunicipalitiesSeeder
                 IsCity = r.IsCity,
                 PostalCode = string.IsNullOrWhiteSpace(r.PostalCode) ? null : r.PostalCode,
                 VoterCount = r.VoterCount,
-                CreatedDate = DateTime.UtcNow
+                CreatedDate = now,
+                LastModifiedDate = now,
+                CreatedByUserId = systemUserId,
+                LastModifiedByUserId = systemUserId
             };
             toAdd.Add(m);
             if (r.IsCity) cityLookup[r.Name] = m;

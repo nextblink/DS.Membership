@@ -12,10 +12,10 @@ public abstract class BaseEntity
     public DateTime LastModifiedDate { get; set; }
 
     [MaxLength(450)]
-    public string CreatedByUserId { get; set; } = string.Empty;
+    public string CreatedByUserId { get; set; } = null!;
 
     [MaxLength(450)]
-    public string LastModifiedByUserId { get; set; } = string.Empty;
+    public string LastModifiedByUserId { get; set; } = null!;
 
     public bool IsDeleted { get; set; } = false;
 }
