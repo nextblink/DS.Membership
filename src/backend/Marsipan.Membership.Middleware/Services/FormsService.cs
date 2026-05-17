@@ -146,7 +146,9 @@ public class FormsService : IFormsService
             MemberId = meta.MemberId,
             Status = FormStatus.Pending,
             CreatedByUserId = _user.Id ?? string.Empty,
+            LastModifiedByUserId = _user.Id ?? string.Empty,
             CreatedDate = DateTime.UtcNow,
+            LastModifiedDate = DateTime.UtcNow,
             IsDeleted = false
         };
 
@@ -166,7 +168,9 @@ public class FormsService : IFormsService
                 UploadedAt = DateTime.UtcNow,
                 Order = order,
                 CreatedDate = DateTime.UtcNow,
+                LastModifiedDate = DateTime.UtcNow,
                 CreatedByUserId = _user.Id ?? string.Empty,
+                LastModifiedByUserId = _user.Id ?? string.Empty,
                 IsDeleted = false
             });
             order++;

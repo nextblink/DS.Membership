@@ -210,8 +210,8 @@ public class DevController : ControllerBase
             _db.Members.Add(member);
             await _db.SaveChangesAsync();
 
-            _db.Add(new Phone { Number = m.Phone, Type = m.PhoneType, MemberId = member.Id, CreatedDate = now, CreatedByUserId = adminUser.Id });
-            _db.Add(new MemberFunction { MemberId = member.Id, FunctionId = m.FuncId, AssignedDate = m.MemberDate, CreatedDate = now, CreatedByUserId = adminUser.Id });
+            _db.Add(new Phone { Number = m.Phone, Type = m.PhoneType, MemberId = member.Id, CreatedDate = now, LastModifiedDate = now, CreatedByUserId = adminUser.Id, LastModifiedByUserId = adminUser.Id });
+            _db.Add(new MemberFunction { MemberId = member.Id, FunctionId = m.FuncId, AssignedDate = m.MemberDate, CreatedDate = now, LastModifiedDate = now, CreatedByUserId = adminUser.Id, LastModifiedByUserId = adminUser.Id });
 
             var form = new Form
             {
@@ -221,7 +221,9 @@ public class DevController : ControllerBase
                 MemberId = member.Id,
                 Status = seeded % 3 == 0 ? FormStatus.Verified : seeded % 3 == 1 ? FormStatus.Pending : FormStatus.Rejected,
                 CreatedByUserId = adminUser.Id,
+                LastModifiedByUserId = adminUser.Id,
                 CreatedDate = now,
+                LastModifiedDate = now,
             };
             _db.Add(form);
             await _db.SaveChangesAsync();
