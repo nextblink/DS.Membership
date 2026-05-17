@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import StatsCard from './StatsCard'
+import FormStatsCard from './FormStatsCard'
 import OrgUnitsTable from './OrgUnitsTable'
 import FormsStatusDonut from './FormsStatusDonut'
 import GenderPie from './GenderPie'
@@ -127,33 +128,7 @@ export default function Dashboard() {
             <GenderPie femaleCount={femaleCount} maleCount={maleCount} />
           </div>
         </Link>
-        <StatsCard
-          delay="80ms"
-          accent="#4ABEA0"
-          label={t('stats.verifiedForms')}
-          value={verifiedForms.toLocaleString()}
-          to="/forms?status=Verified"
-          icon={
-            <svg {...iconProps('#4ABEA0')}>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          }
-        />
-        <StatsCard
-          delay="160ms"
-          accent="#f79009"
-          label={t('stats.pendingForms')}
-          value={pendingForms.toLocaleString()}
-          sublabel={pendingForms > 0 ? t('stats.pendingNote') : undefined}
-          to="/forms?status=Pending"
-          icon={
-            <svg {...iconProps('#f79009')}>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          }
-        />
+        <FormStatsCard verifiedCount={verifiedForms} pendingCount={pendingForms} />
         <StatsCard
           delay="240ms"
           accent="#3E8DC4"
