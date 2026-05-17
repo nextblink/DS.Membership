@@ -128,6 +128,43 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
         // Soft-delete filter on Announcement
         modelBuilder.Entity<Announcement>().HasQueryFilter(e => !e.IsDeleted);
 
+        // Prevent cascade cycles: Announcement→Member (author) and AnnouncementLike→Member
+        modelBuilder.Entity<Announcement>()
+            .HasOne(a => a.Author)
+            .WithMany()
+            .HasForeignKey(a => a.AuthorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<AnnouncementLike>()
+            .HasOne(al => al.Member)
+            .WithMany()
+            .HasForeignKey(al => al.MemberId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Announcement>()
+            .HasOne(a => a.TargetCommittee)
+            .WithMany()
+            .HasForeignKey(a => a.TargetCommitteeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Announcement>()
+            .HasOne(a => a.TargetFunction)
+            .WithMany()
+            .HasForeignKey(a => a.TargetFunctionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<FcmSubscription>()
+            .HasOne(f => f.Member)
+            .WithMany()
+            .HasForeignKey(f => f.MemberId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TelegramLink>()
+            .HasOne(t => t.Member)
+            .WithMany()
+            .HasForeignKey(t => t.MemberId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // ----------------------------------------------------------------------
         // Seed data — roles only; all other data is managed via admin UI
         // ----------------------------------------------------------------------

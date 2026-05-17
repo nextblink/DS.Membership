@@ -1,0 +1,6 @@
+@Marsipan.Membership.Telegram.API_HostAddress = http://localhost:5012
+
+GET {{Marsipan.Membership.Telegram.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
