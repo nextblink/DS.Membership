@@ -67,6 +67,12 @@ builder.Services.AddScoped<IFunctionsService, FunctionsService>();
 builder.Services.AddScoped<IMembersService, MembersService>();
 // --- end Members ---
 
+// --- Form AI extraction ---
+builder.Services.Configure<AnthropicOptions>(
+    builder.Configuration.GetSection("Anthropic"));
+builder.Services.AddHttpClient<IFormExtractionService, FormExtractionService>();
+// --- end Form AI extraction ---
+
 // --- Forms (issue #12) ---
 builder.Services.AddScoped<IFormsService, FormsService>();
 // --- end Forms ---
