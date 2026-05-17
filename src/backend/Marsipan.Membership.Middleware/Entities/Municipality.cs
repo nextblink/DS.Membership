@@ -25,8 +25,8 @@ public class Municipality : BaseEntity
     public ICollection<Municipality> Children { get; set; } = [];
 
     /// <summary>
-    /// FK to the OrgUnit that serves as the OO (Opštinski odbor) for this municipality.
-    /// Null means no OO unit exists. Set by OrgUnitsSeeder after units are created.
+    /// FK to the Committee that serves as the OO (Opštinski odbor) for this municipality.
+    /// Null means no OO unit exists. Set by CommitteesSeeder after units are created.
     /// </summary>
     public int? OoId { get; set; }
 }
