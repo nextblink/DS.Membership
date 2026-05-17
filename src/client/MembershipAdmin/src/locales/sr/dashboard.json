@@ -5,6 +5,7 @@
     "verifiedForms": "Верификовани обрасци",
     "pendingForms": "Обрасци на чекању",
     "orgUnits": "Орг. јединице",
+    "notTrusted": "Непоуздане",
     "formsTotal": "{{count}} образаца укупно",
     "avgMembership": "Просечно чланство",
     "orgUnitsCount": "{{count}} јединица",

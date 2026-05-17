@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import StatsCard from './StatsCard'
 import FormStatsCard from './FormStatsCard'
+import OrgUnitsStatsCard from './OrgUnitsStatsCard'
 import OrgUnitsTable from './OrgUnitsTable'
 import FormsStatusDonut from './FormsStatusDonut'
 import GenderPie from './GenderPie'
@@ -128,6 +129,7 @@ export default function Dashboard() {
             <GenderPie femaleCount={femaleCount} maleCount={maleCount} />
           </div>
         </Link>
+        <OrgUnitsStatsCard totalOrgUnits={orgUnitCount} nonTrustworthyCount={stats?.nonTrustworthyOrgUnits ?? 0} nonTrustworthyPercentage={stats?.nonTrustworthyPercentage ?? 0} />
         <FormStatsCard verifiedCount={verifiedForms} pendingCount={pendingForms} />
         <StatsCard
           delay="240ms"

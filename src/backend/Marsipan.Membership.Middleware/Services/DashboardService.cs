@@ -98,6 +98,13 @@ public class DashboardService : IDashboardService
             Rejected = rawCounts.TryGetValue(FormStatus.Rejected, out var r) ? r : 0,
         };
 
+        // OrgUnit trust statistics.
+        var totalOrgUnits = await orgUnitsQuery.CountAsync(ct);
+        var nonTrustworthyCount = await orgUnitsQuery.CountAsync(o => !o.IsTrustful, ct);
+        var nonTrustworthyPercentage = totalOrgUnits > 0
+            ? Math.Round((decimal)nonTrustworthyCount / totalOrgUnits * 100m, 2)
+            : 0m;
+
         return new DashboardStatsDto
         {
             TotalMembers = totalMembers,
@@ -105,6 +112,9 @@ public class DashboardService : IDashboardService
             MaleCount = maleCount,
             MembersByOrgUnit = membersByOrgUnit,
             FormsByStatus = formsByStatus,
+            TotalOrgUnits = totalOrgUnits,
+            NonTrustworthyOrgUnits = nonTrustworthyCount,
+            NonTrustworthyPercentage = nonTrustworthyPercentage,
         };
     }
 }

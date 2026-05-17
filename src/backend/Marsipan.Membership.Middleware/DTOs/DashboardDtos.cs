@@ -19,6 +19,9 @@ public class DashboardStatsDto
     public int MaleCount { get; set; }
     public List<OrgUnitMembershipDto> MembersByOrgUnit { get; set; } = new();
     public FormStatusCountsDto FormsByStatus { get; set; } = new();
+    public int TotalOrgUnits { get; set; }
+    public int NonTrustworthyOrgUnits { get; set; }
+    public decimal NonTrustworthyPercentage { get; set; }
 }
 
 /// <summary>

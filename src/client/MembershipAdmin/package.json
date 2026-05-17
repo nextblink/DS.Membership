@@ -1,7 +1,7 @@
 {
   "name": "membershipadmin",
   "private": true,
-  "version": "0.28.6",
+  "version": "0.28.9",
   "type": "module",
   "scripts": {
     "dev": "vite",
