@@ -48,7 +48,7 @@ export default function OrgUnitsTable({ rows }) {
   const normalized = useMemo(
     () =>
       (rows || []).map((r) => ({
-        orgUnitId:   r.orgUnitId,
+        committeeId:   r.committeeId || r.orgUnitId,
         name:        r.name,
         memberCount: r.memberCount ?? 0,
         voterCount:  r.voterCount  ?? 0,
@@ -157,7 +157,7 @@ export default function OrgUnitsTable({ rows }) {
             ) : (
               displayed.map((row, i) => (
                 <tr
-                  key={row.orgUnitId}
+                  key={row.committeeId}
                   className="border-t border-gray-100 dark:border-gray-800 hover:bg-brand-50/40 dark:hover:bg-brand-500/[0.04] transition-colors"
                 >
                   <td className="px-4 py-3 text-theme-sm font-medium text-gray-800 dark:text-gray-200">

@@ -40,7 +40,7 @@ function emptyDefaults() {
     city: '',
     email: '',
     phones: [],
-    orgUnitId: '',
+    committeeId: '',
     membershipDate: '',
     votingPlaceNumber: '',
     memberFunctions: [],
@@ -71,7 +71,7 @@ function toFormValues(member) {
       number: p.number ?? '',
       type: p.type ?? 'Mobile',
     })),
-    orgUnitId: member.orgUnitId != null ? String(member.orgUnitId) : '',
+    committeeId: member.committeeId != null ? String(member.committeeId) : '',
     membershipDate: member.membershipDate ?? '',
     votingPlaceNumber:
       member.votingPlaceNumber != null ? String(member.votingPlaceNumber) : '',
@@ -101,7 +101,7 @@ function buildPayload(values) {
     postalCode: values.postalCode?.trim() || null,
     city: values.city?.trim() || null,
     email: values.email?.trim() || null,
-    orgUnitId: values.orgUnitId ? Number(values.orgUnitId) : null,
+    committeeId: values.committeeId ? Number(values.committeeId) : null,
     membershipDate: values.membershipDate || null,
     votingPlaceNumber:
       values.votingPlaceNumber === '' || values.votingPlaceNumber == null
@@ -171,7 +171,7 @@ export default function MemberForm({
   const phones = useFieldArray({ control, name: 'phones' })
   const fns = useFieldArray({ control, name: 'memberFunctions' })
 
-  const [orgUnits, setOrgUnits] = useState([])
+  const [committees, setCommittees] = useState([])
   const [functionsList, setFunctionsList] = useState([])
   const [lookupsLoaded, setLookupsLoaded] = useState(false)
   const [extractedKeys, setExtractedKeys] = useState(new Set())
@@ -255,7 +255,7 @@ export default function MemberForm({
           api.get('/api/functions'),
         ])
         if (cancelled) return
-        setOrgUnits(flattenOrgUnits(orgRes.data))
+        setCommittees(flattenOrgUnits(orgRes.data))
         setFunctionsList(Array.isArray(fnRes.data) ? fnRes.data : fnRes.data?.items ?? [])
       } catch {
         // leave dropdowns empty; field-level validation still applies
@@ -503,13 +503,13 @@ export default function MemberForm({
       <section className={sectionClass}>
         <h2 className={sectionTitleClass}>{t('members:form.membership')}</h2>
         <div className="grid grid-cols-4 gap-4">
-          <Field label={t('members:form.orgUnit')} required error={errors.orgUnitId?.message}>
+          <Field label={t('members:form.committee')} required error={errors.committeeId?.message}>
             <select
               className={inputClass}
-              {...register('orgUnitId', { required: t('members:validation.orgUnitRequired') })}
+              {...register('committeeId', { required: t('members:validation.committeeRequired') })}
             >
-              <option value="">{lookupsLoaded ? t('members:form.selectOrgUnit') : t('members:form.loadingOrgUnit')}</option>
-              {orgUnits.map((o) => (
+              <option value="">{lookupsLoaded ? t('members:form.selectCommittee') : t('members:form.loadingCommittee')}</option>
+              {committees.map((o) => (
                 <option key={o.id} value={o.id}>
                   {o.label}
                 </option>

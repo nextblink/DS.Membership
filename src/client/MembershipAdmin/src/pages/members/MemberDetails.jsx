@@ -124,7 +124,7 @@ export default function MemberDetails() {
   }
 
   const fullName = [member.firstName, member.lastName].filter(Boolean).join(' ')
-  const orgUnitName = member.orgUnit?.name ?? member.orgUnitName ?? ''
+  const committeeName = member.committee?.name ?? member.committeeName ?? ''
   const fns = member.memberFunctions ?? member.functions ?? []
   const phones = member.phones ?? []
 
@@ -136,7 +136,7 @@ export default function MemberDetails() {
         <div>
           <h1 className="text-2xl font-semibold text-brand-500 dark:text-brand-400">
             {fullName}
-            {orgUnitName && <span className="ml-2 text-gray-400 dark:text-gray-500 font-normal">— {orgUnitName}</span>}
+            {committeeName && <span className="ml-2 text-gray-400 dark:text-gray-500 font-normal">— {committeeName}</span>}
           </h1>
           <p className="text-theme-sm text-gray-500 dark:text-gray-400">JMBG {member.jmbg}</p>
         </div>
@@ -232,7 +232,7 @@ export default function MemberDetails() {
           <section className={sectionClass}>
             <h2 className={sectionTitleClass}>{t('members:form.membership')}</h2>
             <div className="grid grid-cols-4 gap-4 mb-4">
-              <Field label={t('members:form.orgUnit')}>{orgUnitName}</Field>
+              <Field label={t('members:form.committee')}>{committeeName}</Field>
               <Field label={t('members:form.membershipDate')}>{formatDate(member.membershipDate)}</Field>
             </div>
             <div className="mt-2">

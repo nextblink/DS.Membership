@@ -35,7 +35,7 @@ export default function MembersList() {
   const [draft, setDraft] = useState(() => ({
     name: searchParams.get('firstName') ?? searchParams.get('lastName') ?? '',
     jmbg: searchParams.get('jmbg') ?? '',
-    orgUnitId: searchParams.get('orgUnitId') ?? '',
+    committeeId: searchParams.get('committeeId') ?? '',
     functionId: searchParams.get('functionId') ?? '',
     educationLevel: searchParams.get('educationLevel') ?? '',
     gender: searchParams.get('gender') ?? '',
@@ -45,7 +45,7 @@ export default function MembersList() {
   const page = Number(searchParams.get('page') ?? '1') || 1
   const pageSize = Number(searchParams.get('pageSize') ?? PAGE_SIZE_DEFAULT) || PAGE_SIZE_DEFAULT
 
-  const [orgUnits, setOrgUnits] = useState([])
+  const [committees, setCommittees] = useState([])
   const [functionsList, setFunctionsList] = useState([])
   const [data, setData] = useState({ items: [], totalCount: 0, page: 1, pageSize, totalPages: 0 })
   const [loading, setLoading] = useState(false)
@@ -57,7 +57,7 @@ export default function MembersList() {
     Promise.all([api.get('/api/committees'), api.get('/api/functions')])
       .then(([orgRes, fnRes]) => {
         if (cancelled) return
-        setOrgUnits(flattenOrgUnits(orgRes.data))
+        setCommittees(flattenOrgUnits(orgRes.data))
         setFunctionsList(Array.isArray(fnRes.data) ? fnRes.data : fnRes.data?.items ?? [])
       })
       .catch(() => {})
@@ -126,7 +126,7 @@ export default function MembersList() {
     setDraft({
       name: '',
       jmbg: '',
-      orgUnitId: '',
+      committeeId: '',
       functionId: '',
       educationLevel: '',
       gender: '',
@@ -193,16 +193,16 @@ export default function MembersList() {
             />
           </div>
 
-          {/* 3. OrgUnit */}
+          {/* 3. Committee */}
           <div>
-            <label className={labelClass}>{t('filter.orgUnit')}</label>
+            <label className={labelClass}>{t('filter.committee')}</label>
             <select
               className={inputClass}
-              value={draft.orgUnitId}
-              onChange={(e) => update('orgUnitId', e.target.value)}
+              value={draft.committeeId}
+              onChange={(e) => update('committeeId', e.target.value)}
             >
               <option value="">{t('enums:all')}</option>
-              {orgUnits.map((o) => (
+              {committees.map((o) => (
                 <option key={o.id} value={o.id}>
                   {o.label}
                 </option>
@@ -310,7 +310,7 @@ export default function MembersList() {
             <tr>
               <th className="px-4 py-3">{t('table.fullName')}</th>
               <th className="px-4 py-3">{t('table.jmbg')}</th>
-              <th className="px-4 py-3">{t('table.orgUnit')}</th>
+              <th className="px-4 py-3">{t('table.committee')}</th>
               <th className="px-4 py-3">{t('table.functions')}</th>
               <th className="px-4 py-3 w-36 whitespace-nowrap">{t('table.membershipDate')}</th>
               <th className="px-4 py-3 w-32 whitespace-nowrap">{t('table.seniority')}</th>
@@ -363,7 +363,7 @@ export default function MembersList() {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.jmbg}</td>
-                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.orgUnit?.name ?? m.orgUnitName ?? ''}</td>
+                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.committee?.name ?? m.committeeName ?? ''}</td>
                   <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{renderFunctions(m)}</td>
                   <td className="px-4 py-3 w-36 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">{formatDate(m.membershipDate)}</td>
                   <td className="px-4 py-3 w-32">

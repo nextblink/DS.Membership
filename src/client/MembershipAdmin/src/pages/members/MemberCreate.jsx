@@ -31,7 +31,7 @@ export default function MemberCreate() {
           const fd = new FormData()
           if (extracted?.formNumber) fd.append('formNumber', extracted.formNumber)
           if (extracted?.formDate) fd.append('formDate', extracted.formDate)
-          if (extracted?.orgUnitName) fd.append('municipalBoard', extracted.orgUnitName)
+          if (extracted?.committeeName) fd.append('municipalBoard', extracted.committeeName)
           fd.append('memberId', String(newId))
           scannedFiles.forEach((f) => fd.append('files', f, f.name))
           await api.post('/api/forms', fd, {

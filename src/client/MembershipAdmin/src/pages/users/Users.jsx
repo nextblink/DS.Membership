@@ -6,7 +6,7 @@ import { useToast, ToastContainer } from '../../components/Toast'
 import { ConfirmModal } from '../../components/ConfirmModal'
 
 const ROLES = ['SuperAdmin', 'Admin', 'LocalAdmin', 'Operator', 'Viewer']
-const ROLES_REQUIRING_ORG_UNIT = ['LocalAdmin', 'Operator', 'Viewer']
+const ROLES_REQUIRING_COMMITTEE = ['LocalAdmin', 'Operator', 'Viewer']
 
 const ROLE_KEY = {
   SuperAdmin: 'superAdmin',
@@ -47,7 +47,7 @@ export default function Users() {
   const { t } = useTranslation(['users', 'enums', 'common'])
   const toast = useToast()
   const [users, setUsers] = useState([])
-  const [orgUnits, setOrgUnits] = useState([])
+  const [committees, setCommittees] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
   const [nameFilter, setNameFilter] = useState('')
@@ -57,12 +57,12 @@ export default function Users() {
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState(null)
 
-  const orgUnitOptions = useMemo(() => flattenOrgUnits(orgUnits), [orgUnits])
-  const orgUnitNameById = useMemo(() => {
+  const committeeOptions = useMemo(() => flattenOrgUnits(committees), [committees])
+  const committeeNameById = useMemo(() => {
     const map = new Map()
-    for (const o of orgUnitOptions) map.set(o.id, o.name)
+    for (const o of committeeOptions) map.set(o.id, o.name)
     return map
-  }, [orgUnitOptions])
+  }, [committeeOptions])
 
   const loadUsers = useCallback(async (name) => {
     setLoading(true)
@@ -75,7 +75,7 @@ export default function Users() {
         api.get('/api/committees'),
       ])
       setUsers(Array.isArray(usersRes.data) ? usersRes.data : usersRes.data?.items || [])
-      setOrgUnits(Array.isArray(orgRes.data) ? orgRes.data : orgRes.data?.items || [])
+      setCommittees(Array.isArray(orgRes.data) ? orgRes.data : orgRes.data?.items || [])
     } catch (err) {
       setLoadError(extractErrorMessages(err).join(' '))
     } finally {
@@ -182,7 +182,7 @@ export default function Users() {
                   <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.name')}</th>
                   <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.email')}</th>
                   <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.role')}</th>
-                  <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.orgUnit')}</th>
+                  <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.committee')}</th>
                   <th className="py-4 px-4 text-right text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.actions')}</th>
                 </tr>
               </thead>
@@ -199,7 +199,7 @@ export default function Users() {
                       {t(`enums:role.${ROLE_KEY[u.role] || u.role}`)}
                     </td>
                     <td className="py-3 px-4 text-theme-sm text-gray-900 dark:text-white">
-                      {u.orgUnitId ? orgUnitNameById.get(u.orgUnitId) || `#${u.orgUnitId}` : '—'}
+                      {u.committeeId ? committeeNameById.get(u.committeeId) || `#${u.committeeId}` : '—'}
                     </td>
                     <td className="py-3 px-4 text-right">
                       <div className="inline-flex items-center gap-2">
@@ -308,10 +308,10 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated, onError }) {
     watch,
     formState: { errors, isSubmitting },
   } = useForm({
-    defaultValues: { firstName: '', lastName: '', email: '', password: '', role: 'Viewer', orgUnitId: '' },
+    defaultValues: { firstName: '', lastName: '', email: '', password: '', role: 'Viewer', committeeId: '' },
   })
   const role = watch('role')
-  const orgUnitRequired = ROLES_REQUIRING_ORG_UNIT.includes(role)
+  const committeeRequired = ROLES_REQUIRING_COMMITTEE.includes(role)
 
   const onSubmit = async (values) => {
     setServerErrors([])
@@ -321,7 +321,7 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated, onError }) {
       email: values.email,
       password: values.password,
       role: values.role,
-      orgUnitId: values.orgUnitId ? Number(values.orgUnitId) : null,
+      committeeId: values.committeeId ? Number(values.committeeId) : null,
     }
     try {
       await api.post('/api/users', payload)
@@ -408,27 +408,27 @@ function CreateUserModal({ orgUnitOptions, onClose, onCreated, onError }) {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="create-orgUnitId" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">
-            {t('users:form.orgUnit')}{orgUnitRequired ? ' *' : ''}
+          <label htmlFor="create-committeeId" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">
+            {t('users:form.committee')}{committeeRequired ? ' *' : ''}
           </label>
           <select
-            id="create-orgUnitId"
-            {...register('orgUnitId', {
+            id="create-committeeId"
+            {...register('committeeId', {
               validate: (v) =>
-                !orgUnitRequired || (v !== '' && v != null) || t('users:validation.orgUnitRequired'),
+                !committeeRequired || (v !== '' && v != null) || t('users:validation.committeeRequired'),
             })}
             className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
           >
-            <option value="">{t('users:form.noOrgUnit')}</option>
-            {orgUnitOptions.map((o) => (
+            <option value="">{t('users:form.noCommittee')}</option>
+            {committeeOptions.map((o) => (
               <option key={o.id} value={o.id}>
                 {' '.repeat(o.depth * 2)}
                 {o.name}
               </option>
             ))}
           </select>
-          {errors.orgUnitId && (
-            <p className="mt-1 text-theme-sm text-error-500">{errors.orgUnitId.message}</p>
+          {errors.committeeId && (
+            <p className="mt-1 text-theme-sm text-error-500">{errors.committeeId.message}</p>
           )}
         </div>
 
@@ -476,11 +476,11 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved, onError }) {
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       role: user.role || 'Viewer',
-      orgUnitId: user.orgUnitId != null ? String(user.orgUnitId) : '',
+      committeeId: user.committeeId != null ? String(user.committeeId) : '',
     },
   })
   const role = watch('role')
-  const orgUnitRequired = ROLES_REQUIRING_ORG_UNIT.includes(role)
+  const committeeRequired = ROLES_REQUIRING_COMMITTEE.includes(role)
 
   const onSubmit = async (values) => {
     setServerErrors([])
@@ -488,7 +488,7 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved, onError }) {
       firstName: values.firstName || null,
       lastName: values.lastName || null,
       role: values.role,
-      orgUnitId: values.orgUnitId ? Number(values.orgUnitId) : null,
+      committeeId: values.committeeId ? Number(values.committeeId) : null,
     }
     try {
       await api.put(`/api/users/${user.id}`, payload)
@@ -543,27 +543,27 @@ function EditUserModal({ user, orgUnitOptions, onClose, onSaved, onError }) {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="edit-orgUnitId" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">
-            {t('users:form.orgUnit')}{orgUnitRequired ? ' *' : ''}
+          <label htmlFor="edit-committeeId" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">
+            {t('users:form.committee')}{committeeRequired ? ' *' : ''}
           </label>
           <select
-            id="edit-orgUnitId"
-            {...register('orgUnitId', {
+            id="edit-committeeId"
+            {...register('committeeId', {
               validate: (v) =>
-                !orgUnitRequired || (v !== '' && v != null) || t('users:validation.orgUnitRequired'),
+                !committeeRequired || (v !== '' && v != null) || t('users:validation.committeeRequired'),
             })}
             className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
           >
-            <option value="">{t('users:form.noOrgUnit')}</option>
-            {orgUnitOptions.map((o) => (
+            <option value="">{t('users:form.noCommittee')}</option>
+            {committeeOptions.map((o) => (
               <option key={o.id} value={o.id}>
                 {' '.repeat(o.depth * 2)}
                 {o.name}
               </option>
             ))}
           </select>
-          {errors.orgUnitId && (
-            <p className="mt-1 text-theme-sm text-error-500">{errors.orgUnitId.message}</p>
+          {errors.committeeId && (
+            <p className="mt-1 text-theme-sm text-error-500">{errors.committeeId.message}</p>
           )}
         </div>
 

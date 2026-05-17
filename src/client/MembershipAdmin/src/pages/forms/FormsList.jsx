@@ -31,19 +31,19 @@ export default function FormsList() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const formNumber = searchParams.get('formNumber') || ''
-  const orgUnitId = searchParams.get('orgUnitId') || ''
+  const committeeId = searchParams.get('committeeId') || ''
   const status = searchParams.get('status') || ''
   const memberName = searchParams.get('memberName') || ''
   const page = parseInt(searchParams.get('page') || '1', 10) || 1
   const pageSize = parseInt(searchParams.get('pageSize') || String(PAGE_SIZE), 10) || PAGE_SIZE
 
   // Local form state — synced into URL on submit so URLs stay shareable.
-  const [draft, setDraft] = useState({ formNumber, orgUnitId, status, memberName })
+  const [draft, setDraft] = useState({ formNumber, committeeId, status, memberName })
 
   useEffect(() => {
-    setDraft({ formNumber, orgUnitId, status, memberName })
+    setDraft({ formNumber, committeeId, status, memberName })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formNumber, orgUnitId, status, memberName])
+  }, [formNumber, committeeId, status, memberName])
 
   const [items, setItems] = useState([])
   const [totalCount, setTotalCount] = useState(0)
@@ -51,7 +51,7 @@ export default function FormsList() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const [orgUnits, setOrgUnits] = useState([])
+  const [committees, setCommittees] = useState([])
 
   const [qrOpen, setQrOpen] = useState(false)
   const [qrToken, setQrToken] = useState(null)
@@ -79,10 +79,10 @@ export default function FormsList() {
         }
         if (Array.isArray(data)) walk(data)
         else if (data?.items) walk(data.items)
-        setOrgUnits(flat)
+        setCommittees(flat)
       })
       .catch(() => {
-        if (!cancelled) setOrgUnits([])
+        if (!cancelled) setCommittees([])
       })
     return () => {
       cancelled = true
@@ -95,7 +95,7 @@ export default function FormsList() {
     setError(null)
     const params = { page, pageSize }
     if (formNumber) params.formNumber = formNumber
-    if (orgUnitId) params.orgUnitId = orgUnitId
+    if (committeeId) params.committeeId = committeeId
     if (status) params.status = status
     if (memberName) params.memberName = memberName
 
@@ -121,13 +121,13 @@ export default function FormsList() {
     return () => {
       cancelled = true
     }
-  }, [formNumber, orgUnitId, status, memberName, page, pageSize])
+  }, [formNumber, committeeId, status, memberName, page, pageSize])
 
   const applyFilters = (e) => {
     e?.preventDefault?.()
     const next = new URLSearchParams()
     if (draft.formNumber) next.set('formNumber', draft.formNumber)
-    if (draft.orgUnitId) next.set('orgUnitId', draft.orgUnitId)
+    if (draft.committeeId) next.set('committeeId', draft.committeeId)
     if (draft.status) next.set('status', draft.status)
     if (draft.memberName) next.set('memberName', draft.memberName)
     next.set('page', '1')
@@ -136,7 +136,7 @@ export default function FormsList() {
   }
 
   const clearFilters = () => {
-    setDraft({ formNumber: '', orgUnitId: '', status: '', memberName: '' })
+    setDraft({ formNumber: '', committeeId: '', status: '', memberName: '' })
     setSearchParams(new URLSearchParams())
   }
 
@@ -204,14 +204,14 @@ export default function FormsList() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-[11px] font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.orgUnit')}</label>
+            <label className="mb-1 block text-[11px] font-medium text-gray-700 dark:text-gray-300">{t('forms:filter.committee')}</label>
             <select
-              value={draft.orgUnitId}
-              onChange={(e) => setDraft({ ...draft, orgUnitId: e.target.value })}
+              value={draft.committeeId}
+              onChange={(e) => setDraft({ ...draft, committeeId: e.target.value })}
               className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-theme-xs text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none"
             >
               <option value="">{t('enums:all')}</option>
-              {orgUnits.map((u) => (
+              {committees.map((u) => (
                 <option key={u.id} value={u.id}>
                   {u.name}
                 </option>
@@ -276,7 +276,7 @@ export default function FormsList() {
             <tr>
               <th className="px-4 py-3">{t('forms:table.formNumber')}</th>
               <th className="px-4 py-3">{t('forms:table.memberName')}</th>
-              <th className="px-4 py-3">{t('forms:table.orgUnit')}</th>
+              <th className="px-4 py-3">{t('forms:table.committee')}</th>
               <th className="px-4 py-3">{t('forms:table.status')}</th>
               <th className="px-4 py-3">{t('forms:table.uploadedBy')}</th>
             </tr>
@@ -311,7 +311,7 @@ export default function FormsList() {
                   f.memberName ||
                   (f.member ? `${f.member.firstName ?? ''} ${f.member.lastName ?? ''}`.trim() : '') ||
                   '—'
-                const orgUnitName = f.orgUnitName || f.member?.orgUnit?.name || f.member?.orgUnitName || '—'
+                const committeeName = f.committeeName || f.member?.committee?.name || f.member?.committeeName || '—'
                 const uploadedBy = f.createdByEmail || f.uploadedBy || f.createdBy?.email || '—'
                 return (
                   <tr key={f.id} data-testid="forms-row" className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30 cursor-pointer">
@@ -321,7 +321,7 @@ export default function FormsList() {
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{memberName}</td>
-                    <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{orgUnitName}</td>
+                    <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{committeeName}</td>
                     <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">
                       <StatusBadge status={f.status} />
                     </td>

@@ -244,7 +244,7 @@ export default function FormDetails() {
   }
 
   const member = form.member || form.Member
-  const orgUnitName = form.orgUnitName || member?.orgUnit?.name || member?.orgUnitName || '—'
+  const committeeName = form.committeeName || member?.committee?.name || member?.committeeName || '—'
   const uploadedBy = form.createdByEmail || form.uploadedBy || form.createdBy?.email || '—'
 
   return (
@@ -309,8 +309,8 @@ export default function FormDetails() {
                 <dd className="text-theme-sm text-gray-900 dark:text-white">{form.municipalBoard || '—'}</dd>
               </div>
               <div>
-                <dt className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.orgUnit')}</dt>
-                <dd className="text-theme-sm text-gray-900 dark:text-white">{orgUnitName}</dd>
+                <dt className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.committee')}</dt>
+                <dd className="text-theme-sm text-gray-900 dark:text-white">{committeeName}</dd>
               </div>
               <div>
                 <dt className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.uploadedBy')}</dt>
@@ -485,8 +485,8 @@ export default function FormDetails() {
                     {member.firstName} {member.lastName}
                   </div>
                   <div className="mt-1 text-theme-xs text-gray-500 dark:text-gray-400">JMBG: {member.jmbg}</div>
-                  {member.orgUnitName && (
-                    <div className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.orgUnitLabel')}: {member.orgUnitName}</div>
+                  {member.committeeName && (
+                    <div className="text-theme-xs text-gray-500 dark:text-gray-400">{t('forms:detail.committeeLabel')}: {member.committeeName}</div>
                   )}
                 </Link>
                 {isAdmin && (

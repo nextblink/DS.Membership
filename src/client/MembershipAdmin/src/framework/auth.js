@@ -44,8 +44,8 @@ export const auth = {
     return readUser()?.role ?? null
   },
 
-  getOrgUnitId() {
-    return readUser()?.orgUnitId ?? null
+  getCommitteeId() {
+    return readUser()?.committeeId ?? null
   },
 
   isAuthenticated() {

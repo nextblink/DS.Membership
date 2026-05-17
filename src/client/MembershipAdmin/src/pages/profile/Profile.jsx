@@ -82,10 +82,10 @@ export default function Profile() {
     }
   }
 
-  const orgUnitName =
-    user?.orgUnit?.name ??
-    user?.orgUnitName ??
-    (user?.orgUnitId ? `#${user.orgUnitId}` : null)
+  const committeeName =
+    user?.committee?.name ??
+    user?.committeeName ??
+    (user?.committeeId ? `#${user.committeeId}` : null)
 
   return (
     <div className="p-6">
@@ -114,8 +114,8 @@ export default function Profile() {
               <dd data-testid="profile-role" className="mt-1 text-theme-sm text-gray-900 dark:text-white">{user.role ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-theme-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('fields.orgUnit')}</dt>
-              <dd data-testid="profile-org-unit" className="mt-1 text-theme-sm text-gray-900 dark:text-white">{orgUnitName ?? '—'}</dd>
+              <dt className="text-theme-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('fields.committee')}</dt>
+              <dd data-testid="profile-org-unit" className="mt-1 text-theme-sm text-gray-900 dark:text-white">{committeeName ?? '—'}</dd>
             </div>
             {user.id && (
               <div>
