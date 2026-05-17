@@ -35,14 +35,13 @@ export default function DashboardCard({ accent = '#2E6BAD', delay = '0ms', to, s
         {/* Left accent stripe */}
         <div className="absolute inset-y-0 left-0 w-[3px] rounded-l-xl" style={{ background: accent }} />
 
-        {/* Decorative oversized icon — top-right overflow */}
+        {/* Decorative oversized icon — clipped in top-right corner */}
         {icon && (
           <div
-            className="pointer-events-none absolute -top-3 -right-3 flex h-20 w-20 items-center justify-center"
-            style={{ color: accent, opacity: 0.12 }}
+            className="pointer-events-none absolute -top-5 -right-5 flex h-24 w-24 items-center justify-center"
+            style={{ color: accent, opacity: 0.13 }}
             aria-hidden
           >
-            {/* Clone the icon at large size */}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-full w-full">
               {icon.props.children}
             </svg>
@@ -82,7 +81,7 @@ function StatBlock({ value, label, primary, accent }) {
 
 function Wrapper({ to, delay, children }) {
   const base =
-    'db-card db-card-link relative rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm'
+    'db-card db-card-link relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm'
 
   if (to) {
     return (
