@@ -9,6 +9,19 @@ import { useToast, ToastContainer } from '../../components/Toast'
 const ACCEPTED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf']
 const MAX_SIZE = 10 * 1024 * 1024 // 10 MB
 
+function flattenOrgUnits(data) {
+  const out = []
+  const list = Array.isArray(data) ? data : data?.items ?? []
+  function walk(nodes, depth) {
+    for (const n of nodes) {
+      out.push({ id: n.id, name: n.name, label: `${'— '.repeat(depth)}${n.name}` })
+      if (n.children?.length) walk(n.children, depth + 1)
+    }
+  }
+  walk(list, 0)
+  return out
+}
+
 export default function FormUpload() {
   const { t } = useTranslation(['forms', 'common'])
   const navigate = useNavigate()
@@ -19,6 +32,12 @@ export default function FormUpload() {
     formDate: '',
     municipalBoard: '',
   })
+
+  const [orgUnits, setOrgUnits] = useState([])
+
+  useEffect(() => {
+    api.get('/api/orgunits').then(r => setOrgUnits(flattenOrgUnits(r.data))).catch(() => {})
+  }, [])
 
   // Member typeahead
   const [memberQuery, setMemberQuery] = useState('')
@@ -214,12 +233,16 @@ export default function FormUpload() {
             </div>
             <div>
               <label className="mb-1 block text-theme-xs font-medium text-gray-600 dark:text-gray-400">{t('forms:upload.municipalBoard')}</label>
-              <input
-                type="text"
+              <select
                 value={meta.municipalBoard}
                 onChange={(e) => setMeta({ ...meta, municipalBoard: e.target.value })}
                 className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:outline-none focus:border-brand-500"
-              />
+              >
+                <option value=""></option>
+                {orgUnits.map(u => (
+                  <option key={u.id} value={u.name}>{u.label}</option>
+                ))}
+              </select>
             </div>
             <div className="relative sm:col-span-2">
               <label className="mb-1 block text-theme-xs font-medium text-gray-600 dark:text-gray-400">{t('forms:upload.member')}</label>
