@@ -152,6 +152,9 @@ if (app.Environment.IsDevelopment())
         }
     }
 
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+    await MunicipalitiesSeeder.SeedAsync(dbContext);
+    await OrgUnitsSeeder.SeedAsync(dbContext);
 }
 
 // Configure the HTTP request pipeline.
