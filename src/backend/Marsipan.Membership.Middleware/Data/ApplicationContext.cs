@@ -24,6 +24,11 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
     public DbSet<MemberFunction> MemberFunctions => Set<MemberFunction>();
     public DbSet<Form> Forms => Set<Form>();
     public DbSet<FormImage> FormImages => Set<FormImage>();
+    public DbSet<Announcement> Announcements => Set<Announcement>();
+    public DbSet<AnnouncementLike> AnnouncementLikes => Set<AnnouncementLike>();
+    public DbSet<Attachment> Attachments => Set<Attachment>();
+    public DbSet<FcmSubscription> FcmSubscriptions => Set<FcmSubscription>();
+    public DbSet<TelegramLink> TelegramLinks => Set<TelegramLink>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -101,6 +106,27 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<Function>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Member>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Form>().HasQueryFilter(e => !e.IsDeleted);
+
+        // AnnouncementLike unique: one like per member per announcement
+        modelBuilder.Entity<AnnouncementLike>()
+            .HasIndex(al => new { al.AnnouncementId, al.MemberId })
+            .IsUnique();
+
+        // FcmSubscription: unique FCM token
+        modelBuilder.Entity<FcmSubscription>()
+            .HasIndex(f => f.FcmToken)
+            .IsUnique();
+
+        // TelegramLink: one per member, unique Telegram user ID
+        modelBuilder.Entity<TelegramLink>()
+            .HasIndex(t => t.MemberId)
+            .IsUnique();
+        modelBuilder.Entity<TelegramLink>()
+            .HasIndex(t => t.TelegramUserId)
+            .IsUnique();
+
+        // Soft-delete filter on Announcement
+        modelBuilder.Entity<Announcement>().HasQueryFilter(e => !e.IsDeleted);
 
         // ----------------------------------------------------------------------
         // Seed data — roles only; all other data is managed via admin UI
