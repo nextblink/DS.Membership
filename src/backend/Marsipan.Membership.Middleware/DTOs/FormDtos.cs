@@ -120,3 +120,46 @@ public class FormQuery
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 20;
 }
+
+/// <summary>
+/// Data extracted from a paper "Евиденциони образац" form by the Claude vision API.
+/// All fields are nullable — null means Claude could not read that field.
+/// </summary>
+public class ExtractedFormDataDto
+{
+    // Member personal fields
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? ParentName { get; set; }
+    public string? DateOfBirth { get; set; }     // ISO date: YYYY-MM-DD
+    public string? Jmbg { get; set; }
+    public string? Gender { get; set; }           // "Male" | "Female"
+    public string? PostalCode { get; set; }
+    public string? IdCardNumber { get; set; }
+    public string? City { get; set; }
+    public string? Email { get; set; }
+    public List<ExtractedPhoneDto> Phones { get; set; } = new();
+    public string? MaritalStatus { get; set; }    // enum name: Single|Married|Divorced|Widowed
+    public string? VotingPlace { get; set; }
+    public int? VotingPlaceNumber { get; set; }
+    public string? EducationLevel { get; set; }   // enum name: Primary|Secondary|Higher|University|Masters|Doctorate
+    public string? Occupation { get; set; }
+    public string? JobTitle { get; set; }
+    public string? CompanyName { get; set; }
+    public string? CompanyCity { get; set; }
+    public bool? IsPublicCompany { get; set; }
+
+    // Form record metadata (from the stamp in the top-right of the paper form)
+    public string? FormNumber { get; set; }
+    public string? FormDate { get; set; }         // ISO date: YYYY-MM-DD
+    public string? OrgUnitName { get; set; }      // e.g. "Opštinski odbor Lazarevac"
+
+    // Party function written on the form (e.g. "Član OO")
+    public string? Function { get; set; }
+}
+
+public class ExtractedPhoneDto
+{
+    public string Number { get; set; } = string.Empty;
+    public string Type { get; set; } = "Mobile";   // "Mobile" | "Landline" | "Business"
+}
