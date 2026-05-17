@@ -17,8 +17,8 @@ public interface ICurrentUserContext
     /// <summary>The highest-precedence role name (see <c>ScopeFilters</c> for precedence), or null when unauthenticated/no role.</summary>
     string? Role { get; }
 
-    /// <summary>The organisation unit id (from the custom <c>orgUnitId</c> claim), or null when not set.</summary>
-    int? OrgUnitId { get; }
+    /// <summary>The committee id (from the custom <c>orgUnitId</c> claim), or null when not set.</summary>
+    int? CommitteeId { get; }
 
     /// <summary>True when the request carries an authenticated principal.</summary>
     bool IsAuthenticated { get; }

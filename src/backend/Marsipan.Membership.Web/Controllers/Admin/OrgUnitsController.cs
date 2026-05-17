@@ -13,17 +13,17 @@ namespace Marsipan.Membership.Web.Controllers.Admin;
 [Authorize(Policy = "ApiPolicy")]
 public class OrgUnitsController : ControllerBase
 {
-    private readonly IOrgUnitsService _service;
+    private readonly ICommitteesService _service;
 
-    public OrgUnitsController(IOrgUnitsService service)
+    public OrgUnitsController(ICommitteesService service)
     {
         _service = service;
     }
 
     /// <summary>Tree of all non-deleted OrgUnits. Any authenticated role.</summary>
     [HttpGet]
-    [ProducesResponseType(typeof(List<OrgUnitTreeDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<OrgUnitTreeDto>>> GetTree(CancellationToken ct)
+    [ProducesResponseType(typeof(List<CommitteeTreeDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<CommitteeTreeDto>>> GetTree(CancellationToken ct)
     {
         var tree = await _service.GetTreeAsync(ct);
         return Ok(tree);
@@ -31,9 +31,9 @@ public class OrgUnitsController : ControllerBase
 
     /// <summary>Single OrgUnit by id. Any authenticated role.</summary>
     [HttpGet("{id:int}")]
-    [ProducesResponseType(typeof(OrgUnitDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CommitteeDetailsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<OrgUnitDetailsDto>> GetById(int id, CancellationToken ct)
+    public async Task<ActionResult<CommitteeDetailsDto>> GetById(int id, CancellationToken ct)
     {
         var dto = await _service.GetByIdAsync(id, ct);
         if (dto is null)
@@ -45,10 +45,10 @@ public class OrgUnitsController : ControllerBase
     /// <summary>Create a new OrgUnit. SuperAdmin only.</summary>
     [HttpPost]
     [Authorize(Roles = "SuperAdmin")]
-    [ProducesResponseType(typeof(OrgUnitDetailsDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(CommitteeDetailsDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<OrgUnitDetailsDto>> Create(
-        [FromBody] CreateOrgUnitDto dto,
+    public async Task<ActionResult<CommitteeDetailsDto>> Create(
+        [FromBody] CreateCommitteeDto dto,
         CancellationToken ct)
     {
         if (!ModelState.IsValid)
@@ -66,7 +66,7 @@ public class OrgUnitsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(
         int id,
-        [FromBody] UpdateOrgUnitDto dto,
+        [FromBody] UpdateCommitteeDto dto,
         CancellationToken ct)
     {
         if (!ModelState.IsValid)

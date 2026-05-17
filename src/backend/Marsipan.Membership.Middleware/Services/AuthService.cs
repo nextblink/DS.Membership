@@ -16,7 +16,7 @@ namespace Marsipan.Membership.Middleware.Services;
 /// </summary>
 public class AuthService : IAuthService
 {
-    private const string OrgUnitIdClaim = "orgUnitId";
+    private const string CommitteeIdClaim = "orgUnitId";
 
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
@@ -55,7 +55,7 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Email = user.Email ?? string.Empty,
                 Role = role,
-                OrgUnitId = user.OrgUnitId,
+                CommitteeId = user.CommitteeId,
             },
         };
     }
@@ -75,17 +75,17 @@ public class AuthService : IAuthService
                    ?? user.FindFirstValue("role")
                    ?? string.Empty;
 
-        int? orgUnitId = null;
-        var orgUnitIdClaim = user.FindFirstValue(OrgUnitIdClaim);
-        if (!string.IsNullOrEmpty(orgUnitIdClaim) && int.TryParse(orgUnitIdClaim, out var parsed))
-            orgUnitId = parsed;
+        int? committeeId = null;
+        var committeeIdClaimValue = user.FindFirstValue(CommitteeIdClaim);
+        if (!string.IsNullOrEmpty(committeeIdClaimValue) && int.TryParse(committeeIdClaimValue, out var parsed))
+            committeeId = parsed;
 
         return Task.FromResult<CurrentUserDto?>(new CurrentUserDto
         {
             Id = id,
             Email = email,
             Role = role,
-            OrgUnitId = orgUnitId,
+            CommitteeId = committeeId,
         });
     }
 
@@ -110,7 +110,7 @@ public class AuthService : IAuthService
                 ClaimValueTypes.Integer64),
             new(ClaimTypes.NameIdentifier, user.Id),
             new(ClaimTypes.Role, role ?? string.Empty),
-            new(OrgUnitIdClaim, user.OrgUnitId?.ToString() ?? string.Empty),
+            new(CommitteeIdClaim, user.CommitteeId?.ToString() ?? string.Empty),
         };
 
         var token = new JwtSecurityToken(

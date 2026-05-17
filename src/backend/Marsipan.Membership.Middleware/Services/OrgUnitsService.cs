@@ -5,23 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Marsipan.Membership.Middleware.Services;
 
-/// <inheritdoc cref="IOrgUnitsService"/>
-public class OrgUnitsService : IOrgUnitsService
+/// <inheritdoc cref="ICommitteesService"/>
+public class CommitteesService : ICommitteesService
 {
     private readonly ApplicationContext _db;
     private readonly ICurrentUserContext _currentUser;
 
-    public OrgUnitsService(ApplicationContext db, ICurrentUserContext currentUser)
+    public CommitteesService(ApplicationContext db, ICurrentUserContext currentUser)
     {
         _db = db;
         _currentUser = currentUser;
     }
 
-    public async Task<List<OrgUnitTreeDto>> GetTreeAsync(CancellationToken ct = default)
+    public async Task<List<CommitteeTreeDto>> GetTreeAsync(CancellationToken ct = default)
     {
         // Pull units + their member counts in one round trip. The soft-delete
         // query filter on OrgUnit already strips deleted rows.
-        var units = await _db.OrgUnits
+        var units = await _db.Committees
             .AsNoTracking()
             .Select(o => new
             {
@@ -34,12 +34,12 @@ public class OrgUnitsService : IOrgUnitsService
                 o.TrusteeId,
                 o.IsTrustful,
                 TrusteeName = o.Trustee != null ? o.Trustee.FirstName + " " + o.Trustee.LastName : null,
-                MemberCount = _db.Members.Count(m => m.OrgUnitId == o.Id),
+                MemberCount = _db.Members.Count(m => m.CommitteeId == o.Id),
             })
             .ToListAsync(ct);
 
         // Build a single pass dictionary, then stitch parent/child references.
-        var nodes = units.ToDictionary(u => u.Id, u => new OrgUnitTreeDto
+        var nodes = units.ToDictionary(u => u.Id, u => new CommitteeTreeDto
         {
             Id = u.Id,
             Name = u.Name,
@@ -50,10 +50,10 @@ public class OrgUnitsService : IOrgUnitsService
             TrusteeName = u.TrusteeName,
             IsTrustful = u.IsTrustful,
             MemberCount = u.MemberCount,
-            Children = new List<OrgUnitTreeDto>(),
+            Children = new List<CommitteeTreeDto>(),
         });
 
-        var roots = new List<OrgUnitTreeDto>();
+        var roots = new List<CommitteeTreeDto>();
         foreach (var u in units)
         {
             var node = nodes[u.Id];
@@ -70,12 +70,12 @@ public class OrgUnitsService : IOrgUnitsService
         return roots;
     }
 
-    public async Task<OrgUnitDetailsDto?> GetByIdAsync(int id, CancellationToken ct = default)
+    public async Task<CommitteeDetailsDto?> GetByIdAsync(int id, CancellationToken ct = default)
     {
-        return await _db.OrgUnits
+        return await _db.Committees
             .AsNoTracking()
             .Where(o => o.Id == id)
-            .Select(o => new OrgUnitDetailsDto
+            .Select(o => new CommitteeDetailsDto
             {
                 Id = o.Id,
                 Name = o.Name,
@@ -86,17 +86,17 @@ public class OrgUnitsService : IOrgUnitsService
                 TrusteeId = o.TrusteeId,
                 TrusteeName = o.Trustee != null ? o.Trustee.FirstName + " " + o.Trustee.LastName : null,
                 IsTrustful = o.IsTrustful,
-                MemberCount = _db.Members.Count(m => m.OrgUnitId == o.Id),
+                MemberCount = _db.Members.Count(m => m.CommitteeId == o.Id),
             })
             .FirstOrDefaultAsync(ct);
     }
 
-    public async Task<OrgUnitDetailsDto> CreateAsync(CreateOrgUnitDto dto, CancellationToken ct = default)
+    public async Task<CommitteeDetailsDto> CreateAsync(CreateCommitteeDto dto, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(dto);
 
         var now = DateTime.UtcNow;
-        var entity = new OrgUnit
+        var entity = new Committee
         {
             Name = dto.Name,
             Type = dto.Type,
@@ -109,10 +109,10 @@ public class OrgUnitsService : IOrgUnitsService
             CreatedByUserId = _currentUser.Id ?? string.Empty,
         };
 
-        _db.OrgUnits.Add(entity);
+        _db.Committees.Add(entity);
         await _db.SaveChangesAsync(ct);
 
-        return new OrgUnitDetailsDto
+        return new CommitteeDetailsDto
         {
             Id = entity.Id,
             Name = entity.Name,
@@ -126,11 +126,11 @@ public class OrgUnitsService : IOrgUnitsService
         };
     }
 
-    public async Task<bool> UpdateAsync(int id, UpdateOrgUnitDto dto, CancellationToken ct = default)
+    public async Task<bool> UpdateAsync(int id, UpdateCommitteeDto dto, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(dto);
 
-        var entity = await _db.OrgUnits.FirstOrDefaultAsync(o => o.Id == id, ct);
+        var entity = await _db.Committees.FirstOrDefaultAsync(o => o.Id == id, ct);
         if (entity is null)
         {
             return false;
@@ -152,7 +152,7 @@ public class OrgUnitsService : IOrgUnitsService
 
     public async Task<bool> SoftDeleteAsync(int id, CancellationToken ct = default)
     {
-        var entity = await _db.OrgUnits.FirstOrDefaultAsync(o => o.Id == id, ct);
+        var entity = await _db.Committees.FirstOrDefaultAsync(o => o.Id == id, ct);
         if (entity is null)
         {
             return false;
@@ -160,7 +160,7 @@ public class OrgUnitsService : IOrgUnitsService
 
         // Refuse-on-children: safer than cascading, matches the OnDelete.Restrict
         // FK behavior already configured for the OrgUnit self-relationship.
-        var hasChildren = await _db.OrgUnits.AnyAsync(o => o.ParentId == id, ct);
+        var hasChildren = await _db.Committees.AnyAsync(o => o.ParentId == id, ct);
         if (hasChildren)
         {
             return false;

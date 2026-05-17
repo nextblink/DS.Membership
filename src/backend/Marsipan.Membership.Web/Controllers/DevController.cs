@@ -21,7 +21,7 @@ public class DevController : ControllerBase
     private readonly ApplicationContext _db;
     private readonly UserManager<ApplicationUser> _userManager;
     private static readonly int[] SeedFunctionIds = [1, 2, 3, 4, 5, 6];
-    private static readonly int[] SeedOrgUnitIds = [1, 2, 3];
+    private static readonly int[] SeedCommitteeIds = [1, 2, 3];
     private const string DevSuperAdminEmail = "admin@local.com";
     private const string TestPassword = "Test123!";
 
@@ -109,7 +109,7 @@ public class DevController : ControllerBase
     {
         if (!_env.IsDevelopment()) return NotFound();
 
-        var spec = new (string Email, string Role, int? OrgUnitId)[]
+        var spec = new (string Email, string Role, int? CommitteeId)[]
         {
             ("admin@test.local", "Admin", null),
             ("localadmin1@test.local", "LocalAdmin", 1),
@@ -136,7 +136,7 @@ public class DevController : ControllerBase
                 UserName = email,
                 Email = email,
                 EmailConfirmed = true,
-                OrgUnitId = orgUnitId,
+                CommitteeId = orgUnitId,
             };
 
             var createResult = await _userManager.CreateAsync(user, TestPassword);
@@ -204,7 +204,7 @@ public class DevController : ControllerBase
                 MaritalStatus = m.Marital, EducationLevel = m.Edu,
                 JobTitle = m.Job, CompanyName = m.Company, CompanyCity = m.CompanyCity,
                 IsPublicCompany = m.IsPublic, Occupation = m.Occupation,
-                MembershipDate = m.MemberDate, OrgUnitId = m.OrgUnit,
+                MembershipDate = m.MemberDate, CommitteeId = m.OrgUnit,
                 CreatedDate = now, CreatedByUserId = adminUser.Id,
             };
             _db.Members.Add(member);

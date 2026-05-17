@@ -23,8 +23,8 @@ public class UsersService : IUsersService
         ScopeFilters.RoleViewer,
     };
 
-    // Roles that require an OrgUnitId to be set on the user.
-    private static readonly HashSet<string> RolesRequiringOrgUnit = new(StringComparer.Ordinal)
+    // Roles that require an CommitteeId to be set on the user.
+    private static readonly HashSet<string> RolesRequiringCommittee = new(StringComparer.Ordinal)
     {
         ScopeFilters.RoleLocalAdmin,
         ScopeFilters.RoleOperator,
@@ -67,8 +67,8 @@ public class UsersService : IUsersService
                 u.Email,
                 u.FirstName,
                 u.LastName,
-                u.OrgUnitId,
-                OrgUnitName = u.OrgUnit != null ? u.OrgUnit.Name : null,
+                u.CommitteeId,
+                CommitteeName = u.Committee != null ? u.Committee.Name : null,
             })
             .ToListAsync(ct);
 
@@ -88,8 +88,8 @@ public class UsersService : IUsersService
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 Role = role,
-                OrgUnitId = u.OrgUnitId,
-                OrgUnitName = u.OrgUnitName,
+                CommitteeId = u.CommitteeId,
+                CommitteeName = u.CommitteeName,
             });
         }
 
@@ -100,7 +100,7 @@ public class UsersService : IUsersService
     {
         var user = await _db.Users
             .AsNoTracking()
-            .Include(u => u.OrgUnit)
+            .Include(u => u.Committee)
             .FirstOrDefaultAsync(u => u.Id == id, ct);
 
         if (user is null)
@@ -116,8 +116,8 @@ public class UsersService : IUsersService
             FirstName = user.FirstName,
             LastName = user.LastName,
             Role = role,
-            OrgUnitId = user.OrgUnitId,
-            OrgUnitName = user.OrgUnit?.Name,
+            CommitteeId = user.CommitteeId,
+            CommitteeName = user.Committee?.Name,
         };
     }
 
@@ -125,7 +125,7 @@ public class UsersService : IUsersService
     {
         ArgumentNullException.ThrowIfNull(dto);
 
-        await ValidateRoleAndOrgUnitAsync(dto.Role, dto.OrgUnitId, ct);
+        await ValidateRoleAndCommitteeAsync(dto.Role, dto.CommitteeId, ct);
 
         var existing = await _userManager.FindByEmailAsync(dto.Email);
         if (existing is not null)
@@ -137,7 +137,7 @@ public class UsersService : IUsersService
             Email = dto.Email,
             FirstName = dto.FirstName,
             LastName = dto.LastName,
-            OrgUnitId = dto.OrgUnitId,
+            CommitteeId = dto.CommitteeId,
         };
 
         var createResult = await _userManager.CreateAsync(user, dto.Password);
@@ -164,11 +164,11 @@ public class UsersService : IUsersService
                 string.Join("; ", roleResult.Errors.Select(e => e.Description)));
         }
 
-        // Re-load OrgUnit name for the response if applicable.
+        // Re-load Committee name for the response if applicable.
         string? orgUnitName = null;
-        if (user.OrgUnitId is int ouId)
+        if (user.CommitteeId is int ouId)
         {
-            orgUnitName = await _db.OrgUnits
+            orgUnitName = await _db.Committees
                 .Where(o => o.Id == ouId)
                 .Select(o => o.Name)
                 .FirstOrDefaultAsync(ct);
@@ -181,8 +181,8 @@ public class UsersService : IUsersService
             FirstName = user.FirstName,
             LastName = user.LastName,
             Role = dto.Role,
-            OrgUnitId = user.OrgUnitId,
-            OrgUnitName = orgUnitName,
+            CommitteeId = user.CommitteeId,
+            CommitteeName = orgUnitName,
         };
     }
 
@@ -194,7 +194,7 @@ public class UsersService : IUsersService
         if (user is null)
             return false;
 
-        await ValidateRoleAndOrgUnitAsync(dto.Role, dto.OrgUnitId, ct);
+        await ValidateRoleAndCommitteeAsync(dto.Role, dto.CommitteeId, ct);
 
         // Replace role membership: remove all current roles, then add the new one.
         var currentRoles = await _userManager.GetRolesAsync(user);
@@ -213,7 +213,7 @@ public class UsersService : IUsersService
 
         user.FirstName = dto.FirstName;
         user.LastName = dto.LastName;
-        user.OrgUnitId = dto.OrgUnitId;
+        user.CommitteeId = dto.CommitteeId;
         var updateResult = await _userManager.UpdateAsync(user);
         if (!updateResult.Succeeded)
             throw new UserValidationException(
@@ -236,7 +236,7 @@ public class UsersService : IUsersService
         return true;
     }
 
-    private async Task ValidateRoleAndOrgUnitAsync(string role, int? orgUnitId, CancellationToken ct)
+    private async Task ValidateRoleAndCommitteeAsync(string role, int? orgUnitId, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(role))
             throw new UserValidationException("Role is required.");
@@ -249,14 +249,14 @@ public class UsersService : IUsersService
         if (!await _roleManager.RoleExistsAsync(role))
             throw new UserValidationException($"Role '{role}' is not configured.");
 
-        if (RolesRequiringOrgUnit.Contains(role) && orgUnitId is null)
-            throw new UserValidationException($"Role '{role}' requires an OrgUnitId.");
+        if (RolesRequiringCommittee.Contains(role) && orgUnitId is null)
+            throw new UserValidationException($"Role '{role}' requires an CommitteeId.");
 
         if (orgUnitId is int ouId)
         {
-            var exists = await _db.OrgUnits.AnyAsync(o => o.Id == ouId, ct);
+            var exists = await _db.Committees.AnyAsync(o => o.Id == ouId, ct);
             if (!exists)
-                throw new UserValidationException($"OrgUnit '{ouId}' does not exist.");
+                throw new UserValidationException($"Committee '{ouId}' does not exist.");
         }
     }
 

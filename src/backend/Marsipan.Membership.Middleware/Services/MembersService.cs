@@ -45,9 +45,9 @@ public class MembersService : IMembersService
             var j = q.JMBG.Trim();
             query = query.Where(m => m.JMBG == j);
         }
-        if (q.OrgUnitId.HasValue)
+        if (q.CommitteeId.HasValue)
         {
-            query = query.Where(m => m.OrgUnitId == q.OrgUnitId.Value);
+            query = query.Where(m => m.CommitteeId == q.CommitteeId.Value);
         }
         if (q.FunctionId.HasValue)
         {
@@ -80,8 +80,8 @@ public class MembersService : IMembersService
                 Id = m.Id,
                 FullName = m.FirstName + " " + m.LastName,
                 JMBG = m.JMBG,
-                OrgUnitId = m.OrgUnitId,
-                OrgUnitName = m.OrgUnit.Name,
+                CommitteeId = m.CommitteeId,
+                CommitteeName = m.Committee.Name,
                 MembershipDate = m.MembershipDate,
                 Gender = m.Gender.ToString(),
                 Functions = m.MemberFunctions
@@ -108,7 +108,7 @@ public class MembersService : IMembersService
         var member = await _db.Members
             .AsNoTracking()
             .ApplyMemberScope(_currentUser)
-            .Include(m => m.OrgUnit)
+            .Include(m => m.Committee)
             .Include(m => m.Phones.Where(p => !p.IsDeleted))
             .Include(m => m.MemberFunctions.Where(mf => !mf.IsDeleted))
                 .ThenInclude(mf => mf.Function)
@@ -154,7 +154,7 @@ public class MembersService : IMembersService
             JobTitle = dto.JobTitle,
             Occupation = dto.Occupation,
             MembershipDate = dto.MembershipDate,
-            OrgUnitId = dto.OrgUnitId,
+            CommitteeId = dto.CommitteeId,
             CreatedDate = now,
             CreatedByUserId = userId,
             LastModifiedDate = now,
@@ -193,7 +193,7 @@ public class MembersService : IMembersService
         // Re-fetch with includes so we can map the full details shape consistently.
         var created = await _db.Members
             .AsNoTracking()
-            .Include(m => m.OrgUnit)
+            .Include(m => m.Committee)
             .Include(m => m.Phones.Where(p => !p.IsDeleted))
             .Include(m => m.MemberFunctions.Where(mf => !mf.IsDeleted))
                 .ThenInclude(mf => mf.Function)
@@ -243,7 +243,7 @@ public class MembersService : IMembersService
         member.JobTitle = dto.JobTitle;
         member.Occupation = dto.Occupation;
         member.MembershipDate = dto.MembershipDate;
-        member.OrgUnitId = dto.OrgUnitId;
+        member.CommitteeId = dto.CommitteeId;
         member.LastModifiedDate = DateTime.UtcNow;
         member.LastModifiedByUserId = _currentUser.Id ?? string.Empty;
 
@@ -449,8 +449,8 @@ public class MembersService : IMembersService
             JobTitle = m.JobTitle,
             Occupation = m.Occupation,
             MembershipDate = m.MembershipDate,
-            OrgUnitId = m.OrgUnitId,
-            OrgUnitName = m.OrgUnit?.Name ?? string.Empty,
+            CommitteeId = m.CommitteeId,
+            CommitteeName = m.Committee?.Name ?? string.Empty,
             Phones = m.Phones
                 .Where(p => !p.IsDeleted)
                 .Select(p => new PhoneDto

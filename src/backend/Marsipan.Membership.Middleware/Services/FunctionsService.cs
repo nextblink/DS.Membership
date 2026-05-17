@@ -24,7 +24,7 @@ public class FunctionsService : IFunctionsService
         return await _db.Functions
             .AsNoTracking()
             .OrderBy(f => f.Name)
-            .Select(f => new FunctionDto { Id = f.Id, Name = f.Name, OrgUnitType = f.OrgUnitType, MaxNumberOfPeople = f.MaxNumberOfPeople })
+            .Select(f => new FunctionDto { Id = f.Id, Name = f.Name, CommitteeType = f.CommitteeType, MaxNumberOfPeople = f.MaxNumberOfPeople })
             .ToListAsync(ct);
     }
 
@@ -33,7 +33,7 @@ public class FunctionsService : IFunctionsService
         return await _db.Functions
             .AsNoTracking()
             .Where(f => f.Id == id)
-            .Select(f => new FunctionDto { Id = f.Id, Name = f.Name, OrgUnitType = f.OrgUnitType, MaxNumberOfPeople = f.MaxNumberOfPeople })
+            .Select(f => new FunctionDto { Id = f.Id, Name = f.Name, CommitteeType = f.CommitteeType, MaxNumberOfPeople = f.MaxNumberOfPeople })
             .FirstOrDefaultAsync(ct);
     }
 
@@ -42,7 +42,7 @@ public class FunctionsService : IFunctionsService
         var entity = new Function
         {
             Name = dto.Name,
-            OrgUnitType = dto.OrgUnitType,
+            CommitteeType = dto.CommitteeType,
             MaxNumberOfPeople = dto.MaxNumberOfPeople,
             CreatedDate = DateTime.UtcNow,
             LastModifiedDate = DateTime.UtcNow,
@@ -53,7 +53,7 @@ public class FunctionsService : IFunctionsService
         _db.Functions.Add(entity);
         await _db.SaveChangesAsync(ct);
 
-        return new FunctionDto { Id = entity.Id, Name = entity.Name, OrgUnitType = entity.OrgUnitType, MaxNumberOfPeople = entity.MaxNumberOfPeople };
+        return new FunctionDto { Id = entity.Id, Name = entity.Name, CommitteeType = entity.CommitteeType, MaxNumberOfPeople = entity.MaxNumberOfPeople };
     }
 
     public async Task<bool> UpdateAsync(int id, UpdateFunctionDto dto, CancellationToken ct = default)
@@ -63,7 +63,7 @@ public class FunctionsService : IFunctionsService
             return false;
 
         entity.Name = dto.Name;
-        entity.OrgUnitType = dto.OrgUnitType;
+        entity.CommitteeType = dto.CommitteeType;
         entity.MaxNumberOfPeople = dto.MaxNumberOfPeople;
         entity.LastModifiedDate = DateTime.UtcNow;
         entity.LastModifiedByUserId = _currentUser.Id ?? string.Empty;

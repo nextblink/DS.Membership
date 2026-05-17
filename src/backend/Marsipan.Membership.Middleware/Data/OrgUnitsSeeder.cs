@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Marsipan.Membership.Middleware.Data;
 
-public static class OrgUnitsSeeder
+public static class CommitteesSeeder
 {
     private record MunicipalityHint(string Name, bool HasOo);
 
@@ -14,14 +14,14 @@ public static class OrgUnitsSeeder
         if (!municipalities.Any()) return;
 
         // Remove any legacy hardcoded org units (ids 1-3) if still present.
-        var legacy = await context.OrgUnits.Where(o => o.Id <= 3).ToListAsync();
+        var legacy = await context.Committees.Where(o => o.Id <= 3).ToListAsync();
         if (legacy.Any())
         {
-            context.OrgUnits.RemoveRange(legacy);
+            context.Committees.RemoveRange(legacy);
             await context.SaveChangesAsync();
         }
 
-        var existingCount = await context.OrgUnits.CountAsync();
+        var existingCount = await context.Committees.CountAsync();
         // +3 for the three national bodies seeded below
         if (existingCount >= municipalities.Count + 3) return;
 
@@ -29,7 +29,7 @@ public static class OrgUnitsSeeder
         var hints = SeedDataLoader.Load<MunicipalityHint[]>("municipalities.json")
             .ToDictionary(h => h.Name, h => h.HasOo);
 
-        var toAdd = new List<OrgUnit>();
+        var toAdd = new List<Committee>();
         var now = DateTime.UtcNow;
 
         foreach (var m in municipalities)
@@ -38,10 +38,10 @@ public static class OrgUnitsSeeder
 
             if (m.IsCity)
             {
-                toAdd.Add(new OrgUnit
+                toAdd.Add(new Committee
                 {
                     Name = $"{m.Name} ГРО",
-                    Type = OrgUnitType.City,
+                    Type = CommitteeType.City,
                     MunicipalityId = m.Id,
                     VoterCount = m.VoterCount,
                     IsTrustful = true,
@@ -54,10 +54,10 @@ public static class OrgUnitsSeeder
 
             if (hasOo)
             {
-                toAdd.Add(new OrgUnit
+                toAdd.Add(new Committee
                 {
                     Name = $"{m.Name} ОО",
-                    Type = OrgUnitType.Municipal,
+                    Type = CommitteeType.Municipal,
                     MunicipalityId = m.Id,
                     VoterCount = m.VoterCount,
                     IsTrustful = true,
@@ -69,7 +69,7 @@ public static class OrgUnitsSeeder
             }
         }
 
-        context.OrgUnits.AddRange(toAdd);
+        context.Committees.AddRange(toAdd);
         await context.SaveChangesAsync();
 
         var municipalityById = municipalities.ToDictionary(m => m.Id);
@@ -81,18 +81,18 @@ public static class OrgUnitsSeeder
         foreach (var m in municipalities)
         {
             if (!orgUnitsByMunicipalityId.TryGetValue(m.Id, out var units)) continue;
-            var ooUnit = units.FirstOrDefault(u => u.Type == OrgUnitType.Municipal);
+            var ooUnit = units.FirstOrDefault(u => u.Type == CommitteeType.Municipal);
             if (ooUnit != null) m.OoId = ooUnit.Id;
         }
 
-        // Wire up parent OrgUnit relationships following municipality hierarchy.
+        // Wire up parent Committee relationships following municipality hierarchy.
         foreach (var m in municipalities.Where(m => m.ParentId.HasValue))
         {
             if (!orgUnitsByMunicipalityId.TryGetValue(m.Id, out var childUnits)) continue;
             if (!municipalityById.TryGetValue(m.ParentId!.Value, out var parentMunicipality)) continue;
             if (!orgUnitsByMunicipalityId.TryGetValue(parentMunicipality.Id, out var parentUnits)) continue;
 
-            var parentUnit = parentUnits.FirstOrDefault(u => u.Type == OrgUnitType.City)
+            var parentUnit = parentUnits.FirstOrDefault(u => u.Type == CommitteeType.City)
                           ?? parentUnits.FirstOrDefault();
 
             if (parentUnit != null)
@@ -103,15 +103,15 @@ public static class OrgUnitsSeeder
         await context.SaveChangesAsync();
 
         // Seed 3 national bodies (no municipality, no parent, no voter count).
-        var hasNational = await context.OrgUnits
-            .AnyAsync(o => o.Type == OrgUnitType.MainCommittee);
+        var hasNational = await context.Committees
+            .AnyAsync(o => o.Type == CommitteeType.MainCommittee);
 
         if (!hasNational)
         {
-            context.OrgUnits.AddRange(
-                new OrgUnit { Name = "Главни одбор",  Type = OrgUnitType.MainCommittee,      MaxMembers = 150, IsTrustful = true, VoterCount = 0, CreatedDate = now, LastModifiedDate = now, CreatedByUserId = systemUserId, LastModifiedByUserId = systemUserId },
-                new OrgUnit { Name = "Извршни одбор", Type = OrgUnitType.ExecutiveCommittee, MaxMembers = 10,  IsTrustful = true, VoterCount = 0, CreatedDate = now, LastModifiedDate = now, CreatedByUserId = systemUserId, LastModifiedByUserId = systemUserId },
-                new OrgUnit { Name = "Председништво", Type = OrgUnitType.Presidency,         MaxMembers = 10,  IsTrustful = true, VoterCount = 0, CreatedDate = now, LastModifiedDate = now, CreatedByUserId = systemUserId, LastModifiedByUserId = systemUserId }
+            context.Committees.AddRange(
+                new Committee { Name = "Главни одбор",  Type = CommitteeType.MainCommittee,      MaxMembers = 150, IsTrustful = true, VoterCount = 0, CreatedDate = now, LastModifiedDate = now, CreatedByUserId = systemUserId, LastModifiedByUserId = systemUserId },
+                new Committee { Name = "Извршни одбор", Type = CommitteeType.ExecutiveCommittee, MaxMembers = 10,  IsTrustful = true, VoterCount = 0, CreatedDate = now, LastModifiedDate = now, CreatedByUserId = systemUserId, LastModifiedByUserId = systemUserId },
+                new Committee { Name = "Председништво", Type = CommitteeType.Presidency,         MaxMembers = 10,  IsTrustful = true, VoterCount = 0, CreatedDate = now, LastModifiedDate = now, CreatedByUserId = systemUserId, LastModifiedByUserId = systemUserId }
             );
             await context.SaveChangesAsync();
         }

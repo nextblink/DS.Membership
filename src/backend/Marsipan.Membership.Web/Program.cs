@@ -52,7 +52,7 @@ builder.Services.AddScoped<IFormImageStorage, FormImageStorage>();
 // --- end file storage ---
 
 // --- OrgUnits (issue #9) ---
-builder.Services.AddScoped<IOrgUnitsService, OrgUnitsService>();
+builder.Services.AddScoped<ICommitteesService, CommitteesService>();
 // --- end OrgUnits ---
 
 // --- Municipalities ---
@@ -177,7 +177,7 @@ var app = builder.Build();
     }
 
     await MunicipalitiesSeeder.SeedAsync(dbContext, systemUserId);
-    await OrgUnitsSeeder.SeedAsync(dbContext, systemUserId);
+    await CommitteesSeeder.SeedAsync(dbContext, systemUserId);
     await FunctionsSeeder.SeedAsync(dbContext, systemUserId);
     await MembersSeeder.SeedAsync(dbContext, systemUserId);
 }

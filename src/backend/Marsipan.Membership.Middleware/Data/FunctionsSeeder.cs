@@ -6,7 +6,7 @@ namespace Marsipan.Membership.Middleware.Data;
 
 public static class FunctionsSeeder
 {
-    private record FunctionRecord(string Name, int? OrgUnitType, int? MaxNumberOfPeople);
+    private record FunctionRecord(string Name, int? CommitteeType, int? MaxNumberOfPeople);
 
     public static async Task SeedAsync(ApplicationContext context, string systemUserId)
     {
@@ -19,7 +19,7 @@ public static class FunctionsSeeder
         var functions = records.Select(r => new Function
         {
             Name = r.Name,
-            OrgUnitType = r.OrgUnitType.HasValue ? (OrgUnitType)r.OrgUnitType.Value : null,
+            CommitteeType = r.CommitteeType.HasValue ? (CommitteeType)r.CommitteeType.Value : null,
             MaxNumberOfPeople = r.MaxNumberOfPeople,
             CreatedDate = now,
             LastModifiedDate = now,

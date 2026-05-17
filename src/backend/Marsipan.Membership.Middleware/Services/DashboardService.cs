@@ -9,7 +9,7 @@ namespace Marsipan.Membership.Middleware.Services;
 /// EF Core-backed dashboard aggregator. Honours role-based scope via
 /// <see cref="ICurrentUserContext"/>: SuperAdmin/Admin see every OrgUnit;
 /// LocalAdmin is restricted to a single row matching the caller's own
-/// <c>OrgUnitId</c>. Viewer/Operator are filtered out at the controller
+/// <c>CommitteeId</c>. Viewer/Operator are filtered out at the controller
 /// layer and never reach this service.
 /// </summary>
 /// <remarks>
@@ -31,27 +31,27 @@ public class DashboardService : IDashboardService
     public async Task<DashboardStatsDto> GetStatsAsync(CancellationToken ct = default)
     {
         // Scope: LocalAdmin (or any non-unrestricted role that reaches here)
-        // is constrained to their own OrgUnit. SuperAdmin/Admin see all units.
+        // is constrained to their own Committee. SuperAdmin/Admin see all units.
         var isUnrestricted =
             string.Equals(_user.Role, ScopeFilters.RoleSuperAdmin, StringComparison.Ordinal) ||
             string.Equals(_user.Role, ScopeFilters.RoleAdmin, StringComparison.Ordinal);
 
-        var orgUnitsQuery = _db.OrgUnits.AsNoTracking();
+        var committeesQuery = _db.Committees.AsNoTracking();
         var membersQuery = _db.Members.AsNoTracking();
         var formsQuery = _db.Forms.AsNoTracking();
 
         if (!isUnrestricted)
         {
-            // Authenticated LocalAdmin without OrgUnitId fails closed: no rows.
-            if (_user.OrgUnitId is null)
+            // Authenticated LocalAdmin without CommitteeId fails closed: no rows.
+            if (_user.CommitteeId is null)
             {
                 return new DashboardStatsDto();
             }
 
-            var scopedOrgUnitId = _user.OrgUnitId.Value;
-            orgUnitsQuery = orgUnitsQuery.Where(o => o.Id == scopedOrgUnitId);
-            membersQuery = membersQuery.Where(m => m.OrgUnitId == scopedOrgUnitId);
-            formsQuery = formsQuery.Where(f => f.Member!.OrgUnitId == scopedOrgUnitId);
+            var scopedCommitteeId = _user.CommitteeId.Value;
+            committeesQuery = committeesQuery.Where(o => o.Id == scopedCommitteeId);
+            membersQuery = membersQuery.Where(m => m.CommitteeId == scopedCommitteeId);
+            formsQuery = formsQuery.Where(f => f.Member!.CommitteeId == scopedCommitteeId);
         }
 
         // Members count (soft-delete filtered automatically by query filter).
@@ -59,23 +59,23 @@ public class DashboardService : IDashboardService
         var femaleCount = await membersQuery.CountAsync(m => m.Gender == Gender.Female, ct);
         var maleCount = await membersQuery.CountAsync(m => m.Gender == Gender.Male, ct);
 
-        // Members-per-OrgUnit. Use a left-join shape so units with zero members
+        // Members-per-Committee. Use a left-join shape so units with zero members
         // still appear, then map to DTO with the percentage rule.
-        var orgUnitsList = await orgUnitsQuery
+        var committeesList = await committeesQuery
             .OrderBy(o => o.Name)
             .Select(o => new
             {
                 o.Id,
                 o.Name,
                 o.VoterCount,
-                MemberCount = _db.Members.Count(m => m.OrgUnitId == o.Id)
+                MemberCount = _db.Members.Count(m => m.CommitteeId == o.Id)
             })
             .ToListAsync(ct);
 
-        var membersByOrgUnit = orgUnitsList
-            .Select(o => new OrgUnitMembershipDto
+        var membersByOrgUnit = committeesList
+            .Select(o => new CommitteeMembershipDto
             {
-                OrgUnitId = o.Id,
+                CommitteeId = o.Id,
                 Name = o.Name,
                 MemberCount = o.MemberCount,
                 VoterCount = o.VoterCount,
@@ -98,9 +98,9 @@ public class DashboardService : IDashboardService
             Rejected = rawCounts.TryGetValue(FormStatus.Rejected, out var r) ? r : 0,
         };
 
-        // OrgUnit trust statistics.
-        var totalOrgUnits = await orgUnitsQuery.CountAsync(ct);
-        var nonTrustworthyCount = await orgUnitsQuery.CountAsync(o => !o.IsTrustful, ct);
+        // Committee trust statistics.
+        var totalOrgUnits = await committeesQuery.CountAsync(ct);
+        var nonTrustworthyCount = await committeesQuery.CountAsync(o => !o.IsTrustful, ct);
         var nonTrustworthyPercentage = totalOrgUnits > 0
             ? Math.Round((decimal)nonTrustworthyCount / totalOrgUnits * 100m, 2)
             : 0m;
@@ -110,10 +110,10 @@ public class DashboardService : IDashboardService
             TotalMembers = totalMembers,
             FemaleCount = femaleCount,
             MaleCount = maleCount,
-            MembersByOrgUnit = membersByOrgUnit,
+            MembersByCommittee = membersByOrgUnit,
             FormsByStatus = formsByStatus,
-            TotalOrgUnits = totalOrgUnits,
-            NonTrustworthyOrgUnits = nonTrustworthyCount,
+            TotalCommittees = totalOrgUnits,
+            NonTrustworthyCommittees = nonTrustworthyCount,
             NonTrustworthyPercentage = nonTrustworthyPercentage,
         };
     }

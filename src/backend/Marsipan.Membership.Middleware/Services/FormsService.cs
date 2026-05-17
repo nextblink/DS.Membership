@@ -52,9 +52,9 @@ public class FormsService : IFormsService
             query = query.Where(f => f.FormNumber != null && f.FormNumber.Contains(fn));
         }
 
-        if (q.OrgUnitId is int orgUnitId)
+        if (q.CommitteeId is int orgUnitId)
         {
-            query = query.Where(f => f.Member!.OrgUnitId == orgUnitId);
+            query = query.Where(f => f.Member!.CommitteeId == orgUnitId);
         }
 
         if (q.Status is FormStatus status)
@@ -90,9 +90,9 @@ public class FormsService : IFormsService
                 MemberFullName = f.Member != null
                     ? (f.Member.FirstName + " " + f.Member.LastName)
                     : null,
-                OrgUnitId = f.Member != null ? (int?)f.Member.OrgUnitId : null,
-                OrgUnitName = f.Member != null && f.Member.OrgUnit != null
-                    ? f.Member.OrgUnit.Name
+                CommitteeId = f.Member != null ? (int?)f.Member.CommitteeId : null,
+                CommitteeName = f.Member != null && f.Member.Committee != null
+                    ? f.Member.Committee.Name
                     : null,
                 Status = f.Status.ToString(),
                 CreatedByUserId = f.CreatedByUserId,
@@ -118,7 +118,7 @@ public class FormsService : IFormsService
             .AsNoTracking()
             .Where(f => !f.IsDeleted && f.Id == id)
             .ApplyFormScope(_user)
-            .Include(f => f.Member)!.ThenInclude(m => m!.OrgUnit)
+            .Include(f => f.Member)!.ThenInclude(m => m!.Committee)
             .Include(f => f.CreatedBy)
             .Include(f => f.Images)
             .FirstOrDefaultAsync(ct);
@@ -183,7 +183,7 @@ public class FormsService : IFormsService
         var reloaded = await _db.Forms
             .AsNoTracking()
             .Where(f => f.Id == form.Id)
-            .Include(f => f.Member)!.ThenInclude(m => m!.OrgUnit)
+            .Include(f => f.Member)!.ThenInclude(m => m!.Committee)
             .Include(f => f.CreatedBy)
             .Include(f => f.Images)
             .FirstAsync(ct);
@@ -356,8 +356,8 @@ public class FormsService : IFormsService
             FirstName = f.Member.FirstName,
             LastName = f.Member.LastName,
             JMBG = f.Member.JMBG,
-            OrgUnitId = f.Member.OrgUnitId,
-            OrgUnitName = f.Member.OrgUnit?.Name
+            CommitteeId = f.Member.CommitteeId,
+            CommitteeName = f.Member.Committee?.Name
         },
         Status = f.Status,
         CreatedByUserId = f.CreatedByUserId,

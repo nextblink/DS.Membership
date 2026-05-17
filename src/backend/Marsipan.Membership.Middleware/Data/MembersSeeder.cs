@@ -17,7 +17,7 @@ public static class MembersSeeder
     {
         if (await context.Members.AnyAsync()) return;
 
-        var orgUnits  = await context.OrgUnits.Include(o => o.Parent).ToListAsync();
+        var orgUnits  = await context.Committees.Include(o => o.Parent).ToListAsync();
         var functions = await context.Functions.ToListAsync();
         if (!orgUnits.Any() || !functions.Any()) return;
 
@@ -45,7 +45,7 @@ public static class MembersSeeder
 
         // Local OO/GRO units only (skip national bodies for member seeding pass 1)
         var localUnits = orgUnits
-            .Where(u => u.Type == OrgUnitType.City || u.Type == OrgUnitType.Municipal)
+            .Where(u => u.Type == CommitteeType.City || u.Type == CommitteeType.Municipal)
             .ToList();
 
         var allSeededMembers = new List<Member>();
@@ -57,8 +57,8 @@ public static class MembersSeeder
 
             var promil      = 0.7 + Rng.NextDouble() * 0.6;
             var memberCount = Math.Max(1, (int)Math.Round(unit.VoterCount * promil / 1000));
-            var memberFn    = unit.Type == OrgUnitType.City ? fnMemberGro : fnMemberOo;
-            var presidentFn = unit.Type == OrgUnitType.City ? fnPresidentGro : fnPresidentOo;
+            var memberFn    = unit.Type == CommitteeType.City ? fnMemberGro : fnMemberOo;
+            var presidentFn = unit.Type == CommitteeType.City ? fnPresidentGro : fnPresidentOo;
 
             var unitMembers = new List<Member>();
             for (int i = 0; i < memberCount; i++)
@@ -86,7 +86,7 @@ public static class MembersSeeder
                     JobTitle             = Rng.Next(2) == 0 ? Pick(names.JobTitles) : null,
                     Occupation           = Rng.Next(2) == 0 ? Pick(names.Occupations) : null,
                     MembershipDate       = DateOnly.FromDateTime(now.AddDays(-Rng.Next(365, 2920))),
-                    OrgUnitId            = unit.Id,
+                    CommitteeId            = unit.Id,
                     CreatedDate          = now,
                     LastModifiedDate     = now,
                     CreatedByUserId      = systemUserId,
@@ -141,20 +141,20 @@ public static class MembersSeeder
 
         // ─── Pass 2: city GRO dual membership (~20% of OO members under a GRO) ──
         var groByMunicipalityId = localUnits
-            .Where(u => u.Type == OrgUnitType.City)
+            .Where(u => u.Type == CommitteeType.City)
             .ToDictionary(u => u.MunicipalityId!.Value);
 
         var ooUnitsWithParentGro = localUnits
-            .Where(u => u.Type == OrgUnitType.Municipal && u.ParentId.HasValue)
+            .Where(u => u.Type == CommitteeType.Municipal && u.ParentId.HasValue)
             .ToList();
 
         foreach (var oo in ooUnitsWithParentGro)
         {
-            // Find the parent GRO through the OrgUnit parent chain
-            var parentGro = orgUnits.FirstOrDefault(u => u.Id == oo.ParentId && u.Type == OrgUnitType.City);
+            // Find the parent GRO through the Committee parent chain
+            var parentGro = orgUnits.FirstOrDefault(u => u.Id == oo.ParentId && u.Type == CommitteeType.City);
             if (parentGro == null) continue;
 
-            var ooMembers = allSeededMembers.Where(m => m.OrgUnitId == oo.Id).ToList();
+            var ooMembers = allSeededMembers.Where(m => m.CommitteeId == oo.Id).ToList();
             var delegates = ooMembers.OrderBy(_ => Rng.Next()).Take((int)Math.Ceiling(ooMembers.Count * 0.2));
 
             foreach (var m in delegates)
@@ -163,9 +163,9 @@ public static class MembersSeeder
         await context.SaveChangesAsync();
 
         // ─── Pass 3: national body memberships ───────────────────────────────────
-        var mainCommittee = orgUnits.First(u => u.Type == OrgUnitType.MainCommittee);
-        var execCommittee = orgUnits.First(u => u.Type == OrgUnitType.ExecutiveCommittee);
-        var presidency    = orgUnits.First(u => u.Type == OrgUnitType.Presidency);
+        var mainCommittee = orgUnits.First(u => u.Type == CommitteeType.MainCommittee);
+        var execCommittee = orgUnits.First(u => u.Type == CommitteeType.ExecutiveCommittee);
+        var presidency    = orgUnits.First(u => u.Type == CommitteeType.Presidency);
 
         var shuffled = allSeededMembers.OrderBy(_ => Rng.Next()).ToList();
 
@@ -188,7 +188,7 @@ public static class MembersSeeder
         new()
         {
             FunctionId           = fnId,
-            OrgUnitId            = orgUnitId,
+            CommitteeId            = orgUnitId,
             AssignedDate         = date,
             CreatedDate          = now,
             LastModifiedDate     = now,

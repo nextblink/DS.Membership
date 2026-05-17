@@ -16,7 +16,7 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
     {
     }
 
-    public DbSet<OrgUnit> OrgUnits => Set<OrgUnit>();
+    public DbSet<Committee> Committees => Set<Committee>();
     public DbSet<Municipality> Municipalities => Set<Municipality>();
     public DbSet<Function> Functions => Set<Function>();
     public DbSet<Member> Members => Set<Member>();
@@ -35,9 +35,9 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
             .HasIndex(m => m.JMBG)
             .IsUnique();
 
-        // Self-referential one-to-many for OrgUnit (City -> Municipal).
+        // Self-referential one-to-many for Committee (City -> Municipal).
         // Restrict delete so cascading a city wipe doesn't take its children with it.
-        modelBuilder.Entity<OrgUnit>()
+        modelBuilder.Entity<Committee>()
             .HasOne(o => o.Parent)
             .WithMany(o => o.Children)
             .HasForeignKey(o => o.ParentId)
@@ -51,35 +51,35 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(m => m.ParentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // OrgUnit.MunicipalityId → Municipality (nullable, restrict delete).
-        modelBuilder.Entity<OrgUnit>()
+        // Committee.MunicipalityId → Municipality (nullable, restrict delete).
+        modelBuilder.Entity<Committee>()
             .HasOne(o => o.Municipality)
             .WithMany()
             .HasForeignKey(o => o.MunicipalityId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Municipality.OoId → OrgUnit (nullable back-reference to the OO unit).
-        // NoAction prevents circular cascade: OrgUnit→Municipality and Municipality→OrgUnit.
+        // Municipality.OoId → Committee (nullable back-reference to the OO unit).
+        // NoAction prevents circular cascade: Committee→Municipality and Municipality→Committee.
         modelBuilder.Entity<Municipality>()
-            .HasOne<OrgUnit>()
+            .HasOne<Committee>()
             .WithMany()
             .HasForeignKey(m => m.OoId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        // MemberFunction.OrgUnitId → OrgUnit (nullable — set for secondary/national body memberships).
+        // MemberFunction.CommitteeId → Committee (nullable — set for secondary/national body memberships).
         modelBuilder.Entity<MemberFunction>()
-            .HasOne(mf => mf.OrgUnit)
+            .HasOne(mf => mf.Committee)
             .WithMany()
-            .HasForeignKey(mf => mf.OrgUnitId)
+            .HasForeignKey(mf => mf.CommitteeId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Unique: a member can hold each function in a given org unit only once.
+        // Unique: a member can hold each function in a given committee only once.
         modelBuilder.Entity<MemberFunction>()
-            .HasIndex(mf => new { mf.MemberId, mf.FunctionId, mf.OrgUnitId })
+            .HasIndex(mf => new { mf.MemberId, mf.FunctionId, mf.CommitteeId })
             .IsUnique();
 
-        // OrgUnit.TrusteeId → Member (nullable, restrict delete so you can't remove a trustee member).
-        modelBuilder.Entity<OrgUnit>()
+        // Committee.TrusteeId → Member (nullable, restrict delete so you can't remove a trustee member).
+        modelBuilder.Entity<Committee>()
             .HasOne(o => o.Trustee)
             .WithMany()
             .HasForeignKey(o => o.TrusteeId)
@@ -96,7 +96,7 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
         // Soft-delete query filters on aggregate roots only. Owned children
         // (Phone, MemberFunction, FormImage) ride along with their parent and
         // intentionally do not get an independent filter.
-        modelBuilder.Entity<OrgUnit>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Committee>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Municipality>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Function>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Member>().HasQueryFilter(e => !e.IsDeleted);

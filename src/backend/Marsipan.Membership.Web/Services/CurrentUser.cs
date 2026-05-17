@@ -90,7 +90,7 @@ public sealed class CurrentUser : ICurrentUser
         }
     }
 
-    public int? OrgUnitId
+    public int? CommitteeId
     {
         get
         {

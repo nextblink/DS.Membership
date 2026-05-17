@@ -15,7 +15,7 @@ namespace Marsipan.Membership.Middleware.Services;
 /// </para>
 /// <para>
 /// <b>Empty-result rule:</b> when a restricted role (anything other than
-/// <c>SuperAdmin</c> / <c>Admin</c>) is bound to no <c>OrgUnitId</c>, the
+/// <c>SuperAdmin</c> / <c>Admin</c>) is bound to no <c>CommitteeId</c>, the
 /// applicable scope cannot be evaluated safely. Rather than silently returning
 /// all rows, the helpers return an empty <see cref="IQueryable{T}"/>
 /// (<c>q.Where(_ =&gt; false)</c>). The same rule applies to an unauthenticated
@@ -41,7 +41,7 @@ public static class ScopeFilters
     /// <summary>
     /// Restricts a Members query to the rows the caller is allowed to see.
     /// SuperAdmin/Admin see everything; all other roles are scoped to their
-    /// <c>OrgUnitId</c>; missing <c>OrgUnitId</c> yields an empty result.
+    /// <c>CommitteeId</c>; missing <c>CommitteeId</c> yields an empty result.
     /// </summary>
     public static IQueryable<Member> ApplyMemberScope(this IQueryable<Member> q, ICurrentUserContext user)
     {
@@ -58,20 +58,20 @@ public static class ScopeFilters
             return q;
         }
 
-        if (user.OrgUnitId is null)
+        if (user.CommitteeId is null)
         {
             return q.Where(_ => false);
         }
 
-        var orgUnitId = user.OrgUnitId.Value;
-        return q.Where(m => m.OrgUnitId == orgUnitId);
+        var orgUnitId = user.CommitteeId.Value;
+        return q.Where(m => m.CommitteeId == orgUnitId);
     }
 
     /// <summary>
     /// Restricts a Forms query to the rows the caller is allowed to see.
     /// SuperAdmin/Admin see everything; Operator sees forms they created;
     /// every other restricted role sees forms whose linked Member belongs
-    /// to their <c>OrgUnitId</c>. Missing required claim yields an empty
+    /// to their <c>CommitteeId</c>. Missing required claim yields an empty
     /// result.
     /// </summary>
     public static IQueryable<Form> ApplyFormScope(this IQueryable<Form> q, ICurrentUserContext user)
@@ -100,13 +100,13 @@ public static class ScopeFilters
             return q.Where(f => f.CreatedByUserId == userId);
         }
 
-        if (user.OrgUnitId is null)
+        if (user.CommitteeId is null)
         {
             return q.Where(_ => false);
         }
 
-        var orgUnitId = user.OrgUnitId.Value;
-        return q.Where(f => f.Member!.OrgUnitId == orgUnitId);
+        var orgUnitId = user.CommitteeId.Value;
+        return q.Where(f => f.Member!.CommitteeId == orgUnitId);
     }
 
     private static bool IsUnrestricted(string? role) =>
