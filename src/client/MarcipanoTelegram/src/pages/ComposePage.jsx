@@ -1,20 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { api } from '../framework/api.js';
 import { db } from '../db/schema.js';
 import { sync } from '../sync/syncEngine.js';
 
 export default function ComposePage() {
   const navigate = useNavigate();
+  const [canSend, setCanSend] = useState(null); // null = loading
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [targetLevel, setTargetLevel] = useState('');
-  const [targetCommitteeId, setTargetCommitteeId] = useState('');
+  const [targetType, setTargetType] = useState('committee'); // 'committee' | 'event'
   const [targetFunctionId, setTargetFunctionId] = useState('');
+  const [targetEventId, setTargetEventId] = useState('');
   const [attachmentIds, setAttachmentIds] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  const events = useLiveQuery(() => db.events.where('isActive').equals(1).toArray(), []);
+
+  useEffect(() => {
+    api.get('/api/announcements/can-send')
+      .then(r => setCanSend(r.canSend))
+      .catch(() => setCanSend(false));
+  }, []);
+
+  // Redirect non-senders away
+  useEffect(() => {
+    if (canSend === false) navigate('/');
+  }, [canSend, navigate]);
+
+  if (canSend === null) return null; // loading
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
@@ -23,7 +40,7 @@ export default function ComposePage() {
     setError('');
     try {
       const result = await api.upload('/api/attachments/upload', file);
-      setAttachmentIds((prev) => [...prev, result.id]);
+      setAttachmentIds(prev => [...prev, result.id]);
     } catch {
       setError('Failed to upload file.');
     } finally {
@@ -33,10 +50,7 @@ export default function ComposePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim() || !body.trim()) {
-      setError('Title and body are required.');
-      return;
-    }
+    if (!title.trim() || !body.trim()) { setError('Title and body are required.'); return; }
     setSubmitting(true);
     setError('');
     try {
@@ -45,9 +59,8 @@ export default function ComposePage() {
         payload: {
           title: title.trim(),
           body: body.trim(),
-          targetLevel: targetLevel || null,
-          targetCommitteeId: targetCommitteeId ? parseInt(targetCommitteeId, 10) : null,
-          targetFunctionId: targetFunctionId ? parseInt(targetFunctionId, 10) : null,
+          targetFunctionId: targetType === 'committee' && targetFunctionId ? parseInt(targetFunctionId, 10) : null,
+          targetEventId: targetType === 'event' && targetEventId ? parseInt(targetEventId, 10) : null,
           attachmentIds,
         },
         status: 'pending',
@@ -63,15 +76,10 @@ export default function ComposePage() {
   };
 
   const inputStyle = {
-    backgroundColor: 'var(--color-surface)',
-    color: 'var(--color-text)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '0.5rem',
-    padding: '0.6rem 0.75rem',
-    width: '100%',
-    fontSize: '0.875rem',
+    backgroundColor: 'var(--color-surface)', color: 'var(--color-text)',
+    border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem',
+    padding: '0.6rem 0.75rem', width: '100%', fontSize: '0.875rem',
   };
-
   const labelStyle = { fontSize: '0.75rem', color: 'var(--color-hint)', marginBottom: '0.25rem', display: 'block' };
 
   return (
@@ -79,42 +87,43 @@ export default function ComposePage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label style={labelStyle}>Title *</label>
-          <input style={inputStyle} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Announcement title" />
+          <input style={inputStyle} value={title} onChange={e => setTitle(e.target.value)} placeholder="Announcement title" />
         </div>
 
         <div>
           <label style={labelStyle}>Body *</label>
-          <textarea
-            style={{ ...inputStyle, minHeight: '120px', resize: 'vertical' }}
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Write your announcement…"
-          />
+          <textarea style={{ ...inputStyle, minHeight: '120px', resize: 'vertical' }}
+            value={body} onChange={e => setBody(e.target.value)} placeholder="Write your announcement…" />
         </div>
 
         <div>
-          <label style={labelStyle}>Target Level (optional)</label>
-          <select style={inputStyle} value={targetLevel} onChange={(e) => setTargetLevel(e.target.value)}>
-            <option value="">All levels</option>
-            <option value="City">City (ГРО)</option>
-            <option value="Municipal">Municipal (ОО)</option>
-            <option value="MainCommittee">Main Committee</option>
-            <option value="ExecutiveCommittee">Executive Committee</option>
-            <option value="Presidency">Presidency</option>
+          <label style={labelStyle}>Target</label>
+          <select style={inputStyle} value={targetType} onChange={e => setTargetType(e.target.value)}>
+            <option value="committee">My Committee</option>
+            <option value="event">Event</option>
           </select>
         </div>
 
-        <div>
-          <label style={labelStyle}>Target Committee ID (optional)</label>
-          <input style={inputStyle} type="number" value={targetCommitteeId}
-            onChange={(e) => setTargetCommitteeId(e.target.value)} placeholder="Leave blank for all committees" />
-        </div>
+        {targetType === 'committee' && (
+          <div>
+            <label style={labelStyle}>Filter by Function (optional)</label>
+            <input style={inputStyle} type="number" value={targetFunctionId}
+              onChange={e => setTargetFunctionId(e.target.value)}
+              placeholder="Leave blank for all members" />
+          </div>
+        )}
 
-        <div>
-          <label style={labelStyle}>Target Function ID (optional)</label>
-          <input style={inputStyle} type="number" value={targetFunctionId}
-            onChange={(e) => setTargetFunctionId(e.target.value)} placeholder="Leave blank for all functions" />
-        </div>
+        {targetType === 'event' && (
+          <div>
+            <label style={labelStyle}>Event *</label>
+            <select style={inputStyle} value={targetEventId} onChange={e => setTargetEventId(e.target.value)}>
+              <option value="">Select an event…</option>
+              {(events ?? []).map(evt => (
+                <option key={evt.id} value={evt.id}>{evt.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div>
           <label style={labelStyle}>Attachment (optional)</label>
@@ -129,12 +138,9 @@ export default function ComposePage() {
 
         {error && <p className="text-xs" style={{ color: '#ef5350' }}>{error}</p>}
 
-        <button
-          type="submit"
-          disabled={submitting || uploading}
+        <button type="submit" disabled={submitting || uploading}
           className="w-full py-3 rounded-xl text-sm font-semibold transition-opacity disabled:opacity-50"
-          style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-accent-text)' }}
-        >
+          style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-accent-text)' }}>
           {submitting ? 'Sending…' : 'Publish Announcement'}
         </button>
       </form>

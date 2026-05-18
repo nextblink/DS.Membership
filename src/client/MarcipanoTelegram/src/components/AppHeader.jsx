@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { auth } from '../framework/auth.js';
 import { getTelegramWebApp } from '../framework/telegram.js';
@@ -10,6 +10,14 @@ export default function AppHeader() {
   const unread = useUnreadCount() ?? 0;
   const isDetail = location.pathname.startsWith('/announcement/');
   const isCompose = location.pathname === '/compose';
+  const [canSend, setCanSend] = useState(false);
+
+  useEffect(() => {
+    import('../framework/api.js').then(({ api }) =>
+      api.get('/api/announcements/can-send')
+        .then(r => setCanSend(r.canSend))
+        .catch(() => {}));
+  }, []);
   const tg = getTelegramWebApp();
 
   useEffect(() => {
@@ -40,7 +48,7 @@ export default function AppHeader() {
         </div>
       )}
       <div className="flex items-center gap-3">
-        {!isDetail && !isCompose && (
+        {!isDetail && !isCompose && canSend && (
           <button onClick={() => navigate('/compose')} className="text-xs px-3 py-1 rounded-full"
             style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-accent-text)' }}>
             + New
