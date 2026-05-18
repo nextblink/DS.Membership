@@ -16,6 +16,14 @@ public class AnnouncementService : IAnnouncementService
         _notifier = notifier;
     }
 
+    public async Task<bool> CanSendAsync(int memberId, CancellationToken ct = default)
+    {
+        // Stub: Check if member can send announcements (e.g., is an organizer or admin)
+        // This will be implemented properly in Task 4
+        var member = await _db.Members.FindAsync([memberId], ct);
+        return member is not null;
+    }
+
     public async Task<AnnouncementDto> CreateAsync(int authorMemberId, CreateAnnouncementRequest request, CancellationToken ct = default)
     {
         var author = await _db.Members.FindAsync([authorMemberId], ct)
@@ -26,9 +34,8 @@ public class AnnouncementService : IAnnouncementService
             Title = request.Title,
             Body = request.Body,
             AuthorId = authorMemberId,
-            TargetLevel = request.TargetLevel,
-            TargetCommitteeId = request.TargetCommitteeId,
             TargetFunctionId = request.TargetFunctionId,
+            TargetEventId = request.TargetEventId,
             CreatedDate = DateTime.UtcNow,
             LastModifiedDate = DateTime.UtcNow,
             CreatedByUserId = authorMemberId.ToString(),
@@ -54,6 +61,7 @@ public class AnnouncementService : IAnnouncementService
             announcement.Id, announcement.Title, announcement.Body,
             announcement.AuthorId, $"{author.FirstName} {author.LastName}",
             announcement.TargetLevel, announcement.TargetCommitteeId, announcement.TargetFunctionId,
+            announcement.TargetEventId,
             announcement.CreatedDate, 0, false,
             announcement.Attachments.Select(a => new AttachmentDto(a.Id, a.FileName, a.FileUrl, a.FileSize, a.MimeType)).ToList());
     }

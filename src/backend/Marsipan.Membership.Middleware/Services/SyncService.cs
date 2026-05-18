@@ -48,6 +48,7 @@ public class SyncService : ISyncService
             a.TargetLevel,
             a.TargetCommitteeId,
             a.TargetFunctionId,
+            a.TargetEventId,
             a.CreatedDate,
             a.Likes.Count,
             a.Likes.Any(l => l.MemberId == memberId),
@@ -56,6 +57,23 @@ public class SyncService : ISyncService
 
         var likeDtos = likes.Select(l => new AnnouncementLikeDto(l.AnnouncementId, l.MemberId)).ToList();
 
-        return new SyncResponseDto(announcementDtos, likeDtos, DateTime.UtcNow);
+        var events = await _db.Events
+            .Where(e => e.CommitteeId == member.CommitteeId)
+            .Include(e => e.Memberships)
+            .ToListAsync(ct);
+
+        var myEventIds = events
+            .Where(e => e.Memberships.Any(em => em.MemberId == memberId))
+            .Select(e => e.Id)
+            .ToList();
+
+        var eventDtos = events.Select(e => new EventDto(
+            e.Id, e.Name, e.Description, e.CommitteeId, e.CreatedByMemberId,
+            e.IsActive, e.StartDate,
+            e.Memberships.Count,
+            e.Memberships.Any(em => em.MemberId == memberId)
+        )).ToList();
+
+        return new SyncResponseDto(announcementDtos, likeDtos, eventDtos, myEventIds, DateTime.UtcNow);
     }
 }
