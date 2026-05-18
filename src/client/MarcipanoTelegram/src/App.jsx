@@ -5,9 +5,12 @@ import { auth } from './framework/auth.js';
 import { startSyncLoop } from './sync/syncEngine.js';
 import AppHeader from './components/AppHeader.jsx';
 import SyncStatusBar from './components/SyncStatusBar.jsx';
+import TabBar from './components/TabBar.jsx';
 import FeedPage from './pages/FeedPage.jsx';
 import AnnouncementDetailPage from './pages/AnnouncementDetailPage.jsx';
 import ComposePage from './pages/ComposePage.jsx';
+import EventsPage from './pages/EventsPage.jsx';
+import EventDetailPage from './pages/EventDetailPage.jsx';
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -125,14 +128,17 @@ export default function App() {
     <BrowserRouter>
       <AppHeader />
       <SyncStatusBar />
-      <main className="page-content">
+      <main className="page-content pb-14">
         <Routes>
           <Route path="/" element={<FeedPage />} />
           <Route path="/announcement/:id" element={<AnnouncementDetailPage />} />
           <Route path="/compose" element={<ComposePage />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/events/:id" element={<EventDetailPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <TabBar />
     </BrowserRouter>
   );
 }
