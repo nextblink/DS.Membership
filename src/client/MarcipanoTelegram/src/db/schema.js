@@ -8,3 +8,12 @@ db.version(1).stores({
   outbox: '++id, action, status, createdAt',
   syncMeta: 'key',
 });
+
+db.version(2).stores({
+  announcements: 'id, createdDate, authorId, targetCommitteeId, targetLevel, targetEventId',
+  announcementLikes: '[announcementId+memberId], announcementId, memberId',
+  outbox: '++id, action, status, createdAt',
+  syncMeta: 'key',
+  events: 'id, committeeId, isActive',
+  eventMemberships: 'eventId',
+});
