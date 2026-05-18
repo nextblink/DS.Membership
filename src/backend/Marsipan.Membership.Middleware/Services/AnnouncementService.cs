@@ -18,10 +18,13 @@ public class AnnouncementService : IAnnouncementService
 
     public async Task<bool> CanSendAsync(int memberId, CancellationToken ct = default)
     {
-        // Stub: Check if member can send announcements (e.g., is an organizer or admin)
-        // This will be implemented properly in Task 4
-        var member = await _db.Members.FindAsync([memberId], ct);
-        return member is not null;
+        var member = await _db.Members
+            .Include(m => m.Committee)
+            .Include(m => m.MemberFunctions)
+            .FirstOrDefaultAsync(m => m.Id == memberId, ct);
+        if (member is null) return false;
+        if (member.Committee.TrusteeId == memberId) return true;
+        return member.MemberFunctions.Any();
     }
 
     public async Task<AnnouncementDto> CreateAsync(int authorMemberId, CreateAnnouncementRequest request, CancellationToken ct = default)
@@ -29,11 +32,15 @@ public class AnnouncementService : IAnnouncementService
         var author = await _db.Members.FindAsync([authorMemberId], ct)
             ?? throw new KeyNotFoundException($"Member {authorMemberId} not found.");
 
+        // TargetCommitteeId is always forced server-side; null only when targeting an event
+        int? targetCommitteeId = request.TargetEventId.HasValue ? null : author.CommitteeId;
+
         var announcement = new Announcement
         {
             Title = request.Title,
             Body = request.Body,
             AuthorId = authorMemberId,
+            TargetCommitteeId = targetCommitteeId,
             TargetFunctionId = request.TargetFunctionId,
             TargetEventId = request.TargetEventId,
             CreatedDate = DateTime.UtcNow,
@@ -60,8 +67,7 @@ public class AnnouncementService : IAnnouncementService
         return new AnnouncementDto(
             announcement.Id, announcement.Title, announcement.Body,
             announcement.AuthorId, $"{author.FirstName} {author.LastName}",
-            announcement.TargetLevel, announcement.TargetCommitteeId, announcement.TargetFunctionId,
-            announcement.TargetEventId,
+            null, announcement.TargetCommitteeId, announcement.TargetFunctionId, announcement.TargetEventId,
             announcement.CreatedDate, 0, false,
             announcement.Attachments.Select(a => new AttachmentDto(a.Id, a.FileName, a.FileUrl, a.FileSize, a.MimeType)).ToList());
     }
@@ -70,7 +76,6 @@ public class AnnouncementService : IAnnouncementService
     {
         var exists = await _db.AnnouncementLikes.AnyAsync(l => l.AnnouncementId == announcementId && l.MemberId == memberId, ct);
         if (exists) return;
-
         _db.AnnouncementLikes.Add(new AnnouncementLike
         {
             AnnouncementId = announcementId,
