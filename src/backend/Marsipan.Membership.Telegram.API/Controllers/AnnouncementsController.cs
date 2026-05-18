@@ -19,6 +19,7 @@ public class AnnouncementsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<AnnouncementDto>> Create([FromBody] CreateAnnouncementRequest request, CancellationToken ct)
     {
+        if (!await _announcements.CanSendAsync(MemberId, ct)) return Forbid();
         var result = await _announcements.CreateAsync(MemberId, request, ct);
         return CreatedAtAction(nameof(Create), new { id = result.Id }, result);
     }

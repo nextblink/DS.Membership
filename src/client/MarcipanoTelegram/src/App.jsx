@@ -11,6 +11,7 @@ import AnnouncementDetailPage from './pages/AnnouncementDetailPage.jsx';
 import ComposePage from './pages/ComposePage.jsx';
 import EventsPage from './pages/EventsPage.jsx';
 import EventDetailPage from './pages/EventDetailPage.jsx';
+import EventNewPage from './pages/EventNewPage.jsx';
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -134,6 +135,7 @@ export default function App() {
           <Route path="/announcement/:id" element={<AnnouncementDetailPage />} />
           <Route path="/compose" element={<ComposePage />} />
           <Route path="/events" element={<EventsPage />} />
+          <Route path="/events/new" element={<EventNewPage />} />
           <Route path="/events/:id" element={<EventDetailPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
