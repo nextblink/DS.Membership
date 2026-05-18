@@ -44,26 +44,44 @@ public class TelegramBotService : IAnnouncementNotifier, IHostedService
         using var scope = _scopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
 
-        var memberFunctionIds = announcement.TargetFunctionId.HasValue
-            ? await db.MemberFunctions
-                .Where(mf => mf.FunctionId == announcement.TargetFunctionId.Value)
-                .Select(mf => mf.MemberId).ToHashSetAsync(ct)
-            : null;
+        List<TelegramLink> links;
 
-        var linksQuery = db.TelegramLinks
-            .Include(t => t.Member).ThenInclude(m => m.Committee)
-            .Where(t => !t.IsDeleted);
+        if (announcement.TargetEventId.HasValue)
+        {
+            // Event-targeted: notify all members who joined the event
+            var memberIds = await db.EventMemberships
+                .Where(em => em.EventId == announcement.TargetEventId.Value)
+                .Select(em => em.MemberId)
+                .ToHashSetAsync(ct);
 
-        if (announcement.TargetCommitteeId.HasValue)
-            linksQuery = linksQuery.Where(t => t.Member.CommitteeId == announcement.TargetCommitteeId.Value);
+            links = await db.TelegramLinks
+                .Where(t => !t.IsDeleted && memberIds.Contains(t.MemberId))
+                .ToListAsync(ct);
+        }
+        else
+        {
+            // Committee-targeted: existing logic
+            var memberFunctionIds = announcement.TargetFunctionId.HasValue
+                ? await db.MemberFunctions
+                    .Where(mf => mf.FunctionId == announcement.TargetFunctionId.Value)
+                    .Select(mf => mf.MemberId).ToHashSetAsync(ct)
+                : null;
 
-        if (announcement.TargetLevel.HasValue)
-            linksQuery = linksQuery.Where(t => t.Member.Committee.Type == announcement.TargetLevel.Value);
+            var linksQuery = db.TelegramLinks
+                .Include(t => t.Member).ThenInclude(m => m.Committee)
+                .Where(t => !t.IsDeleted);
 
-        var links = await linksQuery.ToListAsync(ct);
+            if (announcement.TargetCommitteeId.HasValue)
+                linksQuery = linksQuery.Where(t => t.Member.CommitteeId == announcement.TargetCommitteeId.Value);
 
-        if (memberFunctionIds is not null)
-            links = links.Where(t => memberFunctionIds.Contains(t.MemberId)).ToList();
+            if (announcement.TargetLevel.HasValue)
+                linksQuery = linksQuery.Where(t => t.Member.Committee.Type == announcement.TargetLevel.Value);
+
+            links = await linksQuery.ToListAsync(ct);
+
+            if (memberFunctionIds is not null)
+                links = links.Where(t => memberFunctionIds.Contains(t.MemberId)).ToList();
+        }
 
         var button = new InlineKeyboardMarkup(
             InlineKeyboardButton.WithWebApp("Read", new global::Telegram.Bot.Types.WebAppInfo { Url = _opts.MiniAppUrl }));

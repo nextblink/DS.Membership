@@ -27,7 +27,8 @@ public class SyncService : ISyncService
             .Where(a =>
                 (a.TargetCommitteeId == null || a.TargetCommitteeId == member.CommitteeId) &&
                 (a.TargetLevel == null || a.TargetLevel == member.Committee.Type) &&
-                (a.TargetFunctionId == null || memberFunctionIds.Contains(a.TargetFunctionId.Value)));
+                (a.TargetFunctionId == null || memberFunctionIds.Contains(a.TargetFunctionId.Value)) &&
+                (a.TargetEventId == null || _db.EventMemberships.Any(em => em.EventId == a.TargetEventId && em.MemberId == memberId)));
 
         if (since.HasValue)
             query = query.Where(a => a.LastModifiedDate > since.Value);
@@ -57,17 +58,21 @@ public class SyncService : ISyncService
 
         var likeDtos = likes.Select(l => new AnnouncementLikeDto(l.AnnouncementId, l.MemberId)).ToList();
 
-        var events = await _db.Events
+        // Events for member's committee (filtered by since if provided)
+        var eventsQuery = _db.Events
             .Where(e => e.CommitteeId == member.CommitteeId)
-            .Include(e => e.Memberships)
+            .Include(e => e.Memberships);
+
+        var filteredEvents = since.HasValue
+            ? await eventsQuery.Where(e => e.LastModifiedDate > since.Value).ToListAsync(ct)
+            : await eventsQuery.ToListAsync(ct);
+
+        var myEventIds = await _db.EventMemberships
+            .Where(em => em.MemberId == memberId)
+            .Select(em => em.EventId)
             .ToListAsync(ct);
 
-        var myEventIds = events
-            .Where(e => e.Memberships.Any(em => em.MemberId == memberId))
-            .Select(e => e.Id)
-            .ToList();
-
-        var eventDtos = events.Select(e => new EventDto(
+        var eventDtos = filteredEvents.Select(e => new EventDto(
             e.Id, e.Name, e.Description, e.CommitteeId, e.CreatedByMemberId,
             e.IsActive, e.StartDate,
             e.Memberships.Count,
