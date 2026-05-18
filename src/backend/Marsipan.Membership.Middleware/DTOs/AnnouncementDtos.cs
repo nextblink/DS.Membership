@@ -18,6 +18,7 @@ public record AnnouncementDto(
     CommitteeType? TargetLevel,
     int? TargetCommitteeId,
     int? TargetFunctionId,
+    int? TargetEventId,
     DateTime CreatedDate,
     int LikeCount,
     bool LikedByMe,
@@ -30,9 +31,8 @@ public record AnnouncementLikeDto(
 public record CreateAnnouncementRequest(
     string Title,
     string Body,
-    CommitteeType? TargetLevel,
-    int? TargetCommitteeId,
     int? TargetFunctionId,
+    int? TargetEventId,
     IReadOnlyList<int> AttachmentIds);
 
 public record TelegramAuthResultDto(string Token, int MemberId, string DisplayName, int CommitteeId, IReadOnlyList<int> FunctionIds);
