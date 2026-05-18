@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5147';
+const BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
 async function request(method, path, body) {
   const token = sessionStorage.getItem('access_token');
@@ -11,8 +11,14 @@ async function request(method, path, body) {
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   if (res.status === 401) {
-    sessionStorage.clear();
-    window.location.href = '/';
+    if (!import.meta.env.DEV) {
+      sessionStorage.clear();
+      window.location.href = '/';
+    }
+    const body = await res.json().catch(() => null);
+    const err = new Error(`HTTP 401: ${body?.reason ?? 'unauthorized'}`);
+    err.response = { body };
+    throw err;
   }
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   if (res.status === 204) return null;

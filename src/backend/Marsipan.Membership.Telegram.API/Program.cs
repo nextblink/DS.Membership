@@ -79,7 +79,10 @@ builder.Services.AddAuthorization(opts =>
 
 builder.Services.AddCors(opts =>
     opts.AddPolicy("AllowMiniApp", policy =>
-        policy.WithOrigins("http://localhost:5182", "https://localhost:5182")
+        policy.WithOrigins(
+                "http://localhost:5182",
+                "https://localhost:5182",
+                "https://dagger-roster-manual.ngrok-free.dev")
               .AllowAnyMethod()
               .AllowAnyHeader()));
 

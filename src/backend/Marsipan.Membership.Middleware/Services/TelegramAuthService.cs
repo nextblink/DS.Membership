@@ -15,7 +15,7 @@ namespace Marsipan.Membership.Middleware.Services;
 
 public class TelegramAuthService : ITelegramAuthService
 {
-    private static readonly TimeSpan MaxAge = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan MaxAge = TimeSpan.FromHours(1);
 
     private readonly TelegramOptions _tgOptions;
     private readonly JwtOptions? _jwtOptions;
@@ -63,18 +63,26 @@ public class TelegramAuthService : ITelegramAuthService
         var usernameMatch = System.Text.RegularExpressions.Regex.Match(userJson, @"""username""\s*:\s*""([^""]+)""");
         var username = usernameMatch.Success ? usernameMatch.Groups[1].Value : null;
 
+        // phone_number comes from requestContact() result appended as contact={json}
         var contactJson = fields.GetValueOrDefault("contact") ?? string.Empty;
         var phoneMatch = System.Text.RegularExpressions.Regex.Match(contactJson, @"""phone_number""\s*:\s*""([^""]+)""");
-        if (!phoneMatch.Success) return null;
-        var phone = phoneMatch.Groups[1].Value;
+        var phone = phoneMatch.Success ? phoneMatch.Groups[1].Value : null;
+
+        // Also check raw phone_number field (some Telegram clients use this)
+        if (phone is null && fields.TryGetValue("phone_number", out var rawPhone))
+            phone = rawPhone;
 
         return new TelegramInitDataPayload(telegramUserId, username, phone);
     }
 
-    public async Task<TelegramAuthResultDto?> AuthenticateAsync(string initData, CancellationToken ct = default)
+    public async Task<TelegramAuthResultDto?> AuthenticateAsync(string initData, string? phoneOverride = null, CancellationToken ct = default)
     {
         var payload = ValidateInitData(initData);
         if (payload is null || _db is null || _jwtOptions is null) return null;
+
+        // Phone override: user typed their number manually — use it instead of initData contact
+        if (!string.IsNullOrWhiteSpace(phoneOverride))
+            payload = payload with { PhoneNumber = phoneOverride.Trim() };
 
         var link = await _db.TelegramLinks
             .Include(t => t.Member).ThenInclude(m => m.MemberFunctions)
@@ -83,11 +91,14 @@ public class TelegramAuthService : ITelegramAuthService
 
         if (link is null)
         {
-            var normalised = payload.PhoneNumber.Replace(" ", "").Replace("-", "");
+            if (payload.PhoneNumber is null) return null;
+
+            var normalised = payload.PhoneNumber.Replace(" ", "").Replace("-", "").TrimStart('+');
+            var withPlus = "+" + normalised;
             var phone = await _db.Phones
                 .Include(p => p.Member).ThenInclude(m => m.MemberFunctions)
                 .Include(p => p.Member).ThenInclude(m => m.Committee)
-                .FirstOrDefaultAsync(p => p.Number == normalised || p.Number == payload.PhoneNumber, ct);
+                .FirstOrDefaultAsync(p => p.Number == normalised || p.Number == withPlus, ct);
 
             if (phone is null) return null;
 
