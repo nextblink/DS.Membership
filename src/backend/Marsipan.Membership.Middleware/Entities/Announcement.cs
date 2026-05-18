@@ -31,6 +31,11 @@ public class Announcement : BaseEntity
     [ForeignKey(nameof(TargetFunctionId))]
     public Function? TargetFunction { get; set; }
 
+    public int? TargetEventId { get; set; }
+
+    [ForeignKey(nameof(TargetEventId))]
+    public Event? TargetEvent { get; set; }
+
     public ICollection<Attachment> Attachments { get; set; } = [];
     public ICollection<AnnouncementLike> Likes { get; set; } = [];
 }

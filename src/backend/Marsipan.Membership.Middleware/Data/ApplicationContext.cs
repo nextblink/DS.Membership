@@ -29,6 +29,8 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
     public DbSet<Attachment> Attachments => Set<Attachment>();
     public DbSet<FcmSubscription> FcmSubscriptions => Set<FcmSubscription>();
     public DbSet<TelegramLink> TelegramLinks => Set<TelegramLink>();
+    public DbSet<Event> Events => Set<Event>();
+    public DbSet<EventMembership> EventMemberships => Set<EventMembership>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -164,6 +166,54 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
             .WithMany()
             .HasForeignKey(t => t.MemberId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // EventMembership: unique per (event, member)
+        modelBuilder.Entity<EventMembership>()
+            .HasIndex(em => new { em.EventId, em.MemberId })
+            .IsUnique();
+
+        // Prevent cascade cycles for Event → Committee and Event → Member (CreatedBy)
+        modelBuilder.Entity<Event>()
+            .HasOne(e => e.Committee)
+            .WithMany()
+            .HasForeignKey(e => e.CommitteeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Event>()
+            .HasOne(e => e.CreatedBy)
+            .WithMany()
+            .HasForeignKey(e => e.CreatedByMemberId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // EventMembership → Member (no cascade to avoid cycles)
+        modelBuilder.Entity<EventMembership>()
+            .HasOne(em => em.Member)
+            .WithMany()
+            .HasForeignKey(em => em.MemberId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<EventMembership>()
+            .HasOne(em => em.AddedBy)
+            .WithMany()
+            .HasForeignKey(em => em.AddedByMemberId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // EventMembership → Event (cascade delete memberships when event is hard-deleted)
+        modelBuilder.Entity<EventMembership>()
+            .HasOne(em => em.Event)
+            .WithMany(e => e.Memberships)
+            .HasForeignKey(em => em.EventId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Announcement → Event (restrict delete so you can't remove an event with announcements)
+        modelBuilder.Entity<Announcement>()
+            .HasOne(a => a.TargetEvent)
+            .WithMany()
+            .HasForeignKey(a => a.TargetEventId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Soft-delete filter on Event
+        modelBuilder.Entity<Event>().HasQueryFilter(e => !e.IsDeleted);
 
         // ----------------------------------------------------------------------
         // Seed data — roles only; all other data is managed via admin UI
