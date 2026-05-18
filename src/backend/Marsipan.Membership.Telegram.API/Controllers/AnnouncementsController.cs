@@ -36,4 +36,11 @@ public class AnnouncementsController : ControllerBase
         await _announcements.UnlikeAsync(id, MemberId, ct);
         return NoContent();
     }
+
+    [HttpGet("can-send")]
+    public async Task<IActionResult> CanSend(CancellationToken ct)
+    {
+        var canSend = await _announcements.CanSendAsync(MemberId, ct);
+        return Ok(new { canSend });
+    }
 }
