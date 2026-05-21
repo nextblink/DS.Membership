@@ -15,6 +15,11 @@ public interface ICommitteesService
     Task<List<CommitteeTreeDto>> GetTreeAsync(CancellationToken ct = default);
 
     /// <summary>
+    /// Load all non-deleted non-municipality Committees (MainCommittee, ExecutiveCommittee, Presidency).
+    /// </summary>
+    Task<List<CommitteeDetailsDto>> GetBodiesAsync(CancellationToken ct = default);
+
+    /// <summary>
     /// Load a single non-deleted Committee by id, or <c>null</c> if not found.
     /// </summary>
     Task<CommitteeDetailsDto?> GetByIdAsync(int id, CancellationToken ct = default);

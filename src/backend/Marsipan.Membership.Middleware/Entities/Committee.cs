@@ -34,6 +34,8 @@ public class Committee : BaseEntity
 
     public int? MaxMembers { get; set; }
 
+    public bool NonMunicipality => MunicipalityId == null;
+
     public ICollection<Committee> Children { get; set; } = [];
 
     public ICollection<Member> Members { get; set; } = [];

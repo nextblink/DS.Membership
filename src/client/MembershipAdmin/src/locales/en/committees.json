@@ -1,5 +1,5 @@
 {
-  "title": "Org Units",
+  "title": "Place Committees",
   "addCity": "Add City",
   "addMunicipal": "Add Municipal",
   "form": {
@@ -14,11 +14,16 @@
     "typeRequired": "Type is required",
     "voterCountInvalid": "Invalid number",
     "saveFailed": "Save failed.",
-    "voterCountTooltip": "Click to edit voter count"
+    "voterCountTooltip": "Click to edit voter count",
+    "maxMembers": "Max Members",
+    "chairman": "Chairman"
   },
   "type": {
     "city": "City",
-    "municipal": "Municipal"
+    "municipal": "Municipal",
+    "maincommittee": "Main Committee",
+    "executivecommittee": "Executive Committee",
+    "presidency": "Presidency"
   },
   "state": {
     "noOrgUnits": "No org units found.",

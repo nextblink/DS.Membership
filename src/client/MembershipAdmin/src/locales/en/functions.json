@@ -2,7 +2,8 @@
   "title": "Functions",
   "placeholder": "Function name",
   "form": {
-    "name": "Name"
+    "name": "Name",
+    "sortOrder": "Sort Order"
   },
   "modal": {
     "addTitle": "Add Function",
@@ -36,7 +37,8 @@
     "actions": "Actions"
   },
   "filter": {
-    "allTypes": "All types"
+    "allTypes": "All types",
+    "namePlaceholder": "Search by name…"
   },
   "orgUnitType": {
     "null": "Universal",

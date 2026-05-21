@@ -76,6 +76,28 @@ public class CommitteesService : ICommitteesService
         return roots;
     }
 
+    public async Task<List<CommitteeDetailsDto>> GetBodiesAsync(CancellationToken ct = default)
+    {
+        return await _db.Committees
+            .AsNoTracking()
+            .Where(o => o.MunicipalityId == null)
+            .Select(o => new CommitteeDetailsDto
+            {
+                Id = o.Id,
+                Name = o.Name,
+                Type = o.Type,
+                ParentId = o.ParentId,
+                MunicipalityId = null,
+                VoterCount = o.VoterCount,
+                TrusteeId = o.TrusteeId,
+                TrusteeName = o.Trustee != null ? o.Trustee.FirstName + " " + o.Trustee.LastName : null,
+                IsTrustful = o.IsTrustful,
+                MemberCount = _db.Members.Count(m => m.CommitteeId == o.Id),
+                MaxMembers = o.MaxMembers,
+            })
+            .ToListAsync(ct);
+    }
+
     public async Task<CommitteeDetailsDto?> GetByIdAsync(int id, CancellationToken ct = default)
     {
         return await _db.Committees

@@ -2,14 +2,15 @@
   "title": "Функције",
   "placeholder": "Назив функције",
   "form": {
-    "name": "Назив"
+    "name": "Назив",
+    "sortOrder": "Редослед"
   },
   "modal": {
     "addTitle": "Додај функцију",
     "editTitle": "Измени функцију"
   },
   "adding": "Додавање…",
-  "add": "Додај",
+  "add": "Додај функцију",
   "saving": "Чување…",
   "save": "Сачувај",
   "cancel": "Откажи",
@@ -36,7 +37,8 @@
     "actions": "Акције"
   },
   "filter": {
-    "allTypes": "Сви типови"
+    "allTypes": "Сви типови",
+    "namePlaceholder": "Претражи по називу…"
   },
   "orgUnitType": {
     "null": "Универзална",

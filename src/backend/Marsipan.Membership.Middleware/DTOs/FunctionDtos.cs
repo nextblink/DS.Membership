@@ -9,6 +9,7 @@ public class FunctionDto
     public string Name { get; set; } = string.Empty;
     public CommitteeType? CommitteeType { get; set; }
     public int? MaxNumberOfPeople { get; set; }
+    public int SortOrder { get; set; }
 }
 
 public class CreateFunctionDto
@@ -17,6 +18,7 @@ public class CreateFunctionDto
     public string Name { get; set; } = string.Empty;
     public CommitteeType? CommitteeType { get; set; }
     public int? MaxNumberOfPeople { get; set; }
+    public int SortOrder { get; set; }
 }
 
 public class UpdateFunctionDto
@@ -25,4 +27,5 @@ public class UpdateFunctionDto
     public string Name { get; set; } = string.Empty;
     public CommitteeType? CommitteeType { get; set; }
     public int? MaxNumberOfPeople { get; set; }
+    public int SortOrder { get; set; }
 }

@@ -18,6 +18,9 @@ function extractError(e) {
 function FunctionModal({ item, onClose, onSaved, onSuccess }) {
   const { t } = useTranslation(['functions', 'common'])
   const [name, setName] = useState(item?.name ?? '')
+  const [committeeType, setCommitteeType] = useState(item?.committeeType ?? 'Municipal')
+  const [sortOrder, setSortOrder] = useState(item?.sortOrder ?? 0)
+  const [maxPeople, setMaxPeople] = useState(item?.maxNumberOfPeople ?? '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const isEdit = !!item
@@ -28,11 +31,17 @@ function FunctionModal({ item, onClose, onSaved, onSuccess }) {
     if (!trimmed) return
     setSaving(true)
     setError(null)
+    const payload = {
+      name: trimmed,
+      committeeType: committeeType === '' ? null : committeeType,
+      sortOrder: Number(sortOrder) || 0,
+      maxNumberOfPeople: maxPeople !== '' ? Number(maxPeople) : null,
+    }
     try {
       if (isEdit) {
-        await api.put(`/api/functions/${item.id}`, { id: item.id, name: trimmed })
+        await api.put(`/api/functions/${item.id}`, { id: item.id, ...payload })
       } else {
-        await api.post('/api/functions', { name: trimmed })
+        await api.post('/api/functions', payload)
       }
       await onSaved()
       onSuccess(isEdit ? t('toast.saved') : t('toast.created'))
@@ -69,6 +78,49 @@ function FunctionModal({ item, onClose, onSaved, onSuccess }) {
             autoFocus
             className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/10"
           />
+          <div className="mt-4">
+            <label className="mb-1.5 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">
+              {t('table.type')}
+            </label>
+            <select
+              value={committeeType}
+              onChange={e => setCommitteeType(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/10"
+            >
+              <option value="Municipal">{t('orgUnitType.Municipal')}</option>
+              <option value="City">{t('orgUnitType.City')}</option>
+              <option value="MainCommittee">{t('orgUnitType.MainCommittee')}</option>
+              <option value="ExecutiveCommittee">{t('orgUnitType.ExecutiveCommittee')}</option>
+              <option value="Presidency">{t('orgUnitType.Presidency')}</option>
+            </select>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1.5 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('form.sortOrder')}
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={sortOrder}
+                onChange={e => setSortOrder(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/10"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('table.maxPeople')}
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={maxPeople}
+                onChange={e => setMaxPeople(e.target.value)}
+                placeholder="—"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/10"
+              />
+            </div>
+          </div>
           {error && <p className="mt-2 text-theme-xs text-error-500">{error}</p>}
           <div className="mt-5 flex justify-end gap-2">
             <button type="button" onClick={onClose}
@@ -104,7 +156,7 @@ export default function Functions() {
   const [error, setError] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
   const [modal, setModal] = useState(null)
-  const [typeFilter, setTypeFilter] = useState('')
+  const [typeFilter, setTypeFilter] = useState('Municipal')
 
   const isSuperAdmin = auth.getRole() === 'SuperAdmin'
 
@@ -143,9 +195,7 @@ export default function Functions() {
 
   const typeLabel = (type) => t(`orgUnitType.${type == null ? 'null' : type}`)
 
-  const filtered = items.filter(i =>
-    !typeFilter || (typeFilter === 'null' ? i.orgUnitType == null : i.orgUnitType === typeFilter)
-  )
+  const filtered = typeFilter ? items.filter(i => i.committeeType === typeFilter) : items
 
   return (
     <div>
@@ -158,35 +208,46 @@ export default function Functions() {
       )}
 
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
           <h2 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('title')}</h2>
-          <div className="flex items-center gap-3">
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-theme-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+          {isSuperAdmin && (
+            <button
+              type="button"
+              onClick={() => setModal('add')}
+              className="inline-flex items-center gap-1 rounded-md bg-brand-500 hover:bg-brand-600 px-2.5 py-1 text-theme-xs font-medium text-white"
             >
-              <option value="">{t('filter.allTypes')}</option>
-              <option value="null">{t('orgUnitType.null')}</option>
-              <option value="City">{t('orgUnitType.City')}</option>
-              <option value="Municipal">{t('orgUnitType.Municipal')}</option>
-              <option value="MainCommittee">{t('orgUnitType.MainCommittee')}</option>
-              <option value="ExecutiveCommittee">{t('orgUnitType.ExecutiveCommittee')}</option>
-              <option value="Presidency">{t('orgUnitType.Presidency')}</option>
-            </select>
-            {isSuperAdmin && (
-              <button
-                type="button"
-                onClick={() => setModal('add')}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                {t('add')}
-              </button>
-            )}
-          </div>
+              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              {t('add')}
+            </button>
+          )}
+        </div>
+
+        {/* Filter bar */}
+        <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-3 flex flex-wrap items-center gap-1.5">
+            {[
+              { key: 'Municipal',          label: t('orgUnitType.Municipal'),          color: '#0d9488' },
+              { key: 'City',               label: t('orgUnitType.City'),               color: '#3b82f6' },
+              { key: 'MainCommittee',      label: t('orgUnitType.MainCommittee'),      color: '#a855f7' },
+              { key: 'ExecutiveCommittee', label: t('orgUnitType.ExecutiveCommittee'), color: '#f97316' },
+              { key: 'Presidency',         label: t('orgUnitType.Presidency'),         color: '#ef4444' },
+            ].map(({ key, label, color }) => {
+              const active = typeFilter === key
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setTypeFilter(prev => prev === key ? '' : key)}
+                  style={active ? { background: color, borderColor: color, color: '#fff' } : {}}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-theme-xs font-medium border transition-colors
+                    ${active ? '' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'}`}
+                >
+                  <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: active ? '#fff' : color }} />
+                  {label}
+                </button>
+              )
+            })}
         </div>
 
         <div className="overflow-x-auto">
@@ -220,13 +281,13 @@ export default function Functions() {
 
               {!loading && filtered.map((item) => {
                 const isDeleting = deletingId === item.id
-                const typeKey = item.orgUnitType == null ? 'null' : item.orgUnitType
+                const typeKey = item.committeeType == null ? 'null' : item.committeeType
                 return (
                   <tr key={item.id} className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30">
                     <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">{item.name}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${TYPE_COLORS[typeKey]}`}>
-                        {typeLabel(item.orgUnitType)}
+                        {typeLabel(item.committeeType)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center text-theme-sm text-gray-500 dark:text-gray-400">

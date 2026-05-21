@@ -20,6 +20,15 @@ public class CommitteesController : ControllerBase
         _service = service;
     }
 
+    /// <summary>Flat list of non-municipality bodies (national committees). Any authenticated role.</summary>
+    [HttpGet("bodies")]
+    [ProducesResponseType(typeof(List<CommitteeDetailsDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<CommitteeDetailsDto>>> GetBodies(CancellationToken ct)
+    {
+        var bodies = await _service.GetBodiesAsync(ct);
+        return Ok(bodies);
+    }
+
     /// <summary>Tree of all non-deleted OrgUnits. Any authenticated role.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(List<CommitteeTreeDto>), StatusCodes.Status200OK)]

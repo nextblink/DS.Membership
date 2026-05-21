@@ -118,16 +118,13 @@ export default function Users() {
       <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-          <div>
-            <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('users:title')}</h1>
-            <p className="mt-0.5 text-theme-xs text-gray-500 dark:text-gray-400">{t('users:subtitle')}</p>
-          </div>
+          <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('users:title')}</h1>
           <button
             type="button"
             onClick={() => setCreateOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
+            className="inline-flex items-center gap-1 rounded-md bg-brand-500 hover:bg-brand-600 px-2.5 py-1 text-theme-xs font-medium text-white"
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             {t('users:addUser')}

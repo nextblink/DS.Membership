@@ -23,8 +23,8 @@ public class FunctionsService : IFunctionsService
     {
         return await _db.Functions
             .AsNoTracking()
-            .OrderBy(f => f.Name)
-            .Select(f => new FunctionDto { Id = f.Id, Name = f.Name, CommitteeType = f.CommitteeType, MaxNumberOfPeople = f.MaxNumberOfPeople })
+            .OrderBy(f => f.SortOrder).ThenBy(f => f.Name)
+            .Select(f => new FunctionDto { Id = f.Id, Name = f.Name, CommitteeType = f.CommitteeType, MaxNumberOfPeople = f.MaxNumberOfPeople, SortOrder = f.SortOrder })
             .ToListAsync(ct);
     }
 
@@ -33,7 +33,7 @@ public class FunctionsService : IFunctionsService
         return await _db.Functions
             .AsNoTracking()
             .Where(f => f.Id == id)
-            .Select(f => new FunctionDto { Id = f.Id, Name = f.Name, CommitteeType = f.CommitteeType, MaxNumberOfPeople = f.MaxNumberOfPeople })
+            .Select(f => new FunctionDto { Id = f.Id, Name = f.Name, CommitteeType = f.CommitteeType, MaxNumberOfPeople = f.MaxNumberOfPeople, SortOrder = f.SortOrder })
             .FirstOrDefaultAsync(ct);
     }
 
@@ -44,6 +44,7 @@ public class FunctionsService : IFunctionsService
             Name = dto.Name,
             CommitteeType = dto.CommitteeType,
             MaxNumberOfPeople = dto.MaxNumberOfPeople,
+            SortOrder = dto.SortOrder,
             CreatedDate = DateTime.UtcNow,
             LastModifiedDate = DateTime.UtcNow,
             CreatedByUserId = _currentUser.Id ?? string.Empty,
@@ -53,7 +54,7 @@ public class FunctionsService : IFunctionsService
         _db.Functions.Add(entity);
         await _db.SaveChangesAsync(ct);
 
-        return new FunctionDto { Id = entity.Id, Name = entity.Name, CommitteeType = entity.CommitteeType, MaxNumberOfPeople = entity.MaxNumberOfPeople };
+        return new FunctionDto { Id = entity.Id, Name = entity.Name, CommitteeType = entity.CommitteeType, MaxNumberOfPeople = entity.MaxNumberOfPeople, SortOrder = entity.SortOrder };
     }
 
     public async Task<bool> UpdateAsync(int id, UpdateFunctionDto dto, CancellationToken ct = default)
@@ -65,6 +66,7 @@ public class FunctionsService : IFunctionsService
         entity.Name = dto.Name;
         entity.CommitteeType = dto.CommitteeType;
         entity.MaxNumberOfPeople = dto.MaxNumberOfPeople;
+        entity.SortOrder = dto.SortOrder;
         entity.LastModifiedDate = DateTime.UtcNow;
         entity.LastModifiedByUserId = _currentUser.Id ?? string.Empty;
 

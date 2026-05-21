@@ -24,6 +24,7 @@ import FormsList from '../pages/forms/FormsList'
 import FormUpload from '../pages/forms/FormUpload'
 import FormDetails from '../pages/forms/FormDetails'
 import Committees from '../pages/committees/Committees'
+import CommitteeBodies from '../pages/bodies/CommitteeBodies'
 import Functions from '../pages/functions/Functions'
 import Users from '../pages/users/Users'
 import Profile from '../pages/profile/Profile'
@@ -56,6 +57,7 @@ export default function AppRouter() {
         <Route path="/forms/:id" element={guarded(<FormDetails />, FORMS_ROLES)} />
 
         <Route path="/committees" element={guarded(<Committees />, ORG_UNITS_ROLES)} />
+        <Route path="/bodies" element={guarded(<CommitteeBodies />, ORG_UNITS_ROLES)} />
         <Route path="/functions" element={guarded(<Functions />, FUNCTIONS_ROLES)} />
         <Route path="/users" element={guarded(<Users />, USERS_ROLES)} />
 

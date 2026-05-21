@@ -16,5 +16,7 @@ public class Function : BaseEntity
     /// <summary>Max number of holders per org unit instance. Null = unlimited.</summary>
     public int? MaxNumberOfPeople { get; set; }
 
+    public int SortOrder { get; set; }
+
     public ICollection<MemberFunction> MemberFunctions { get; set; } = [];
 }

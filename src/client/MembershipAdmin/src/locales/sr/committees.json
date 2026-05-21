@@ -1,5 +1,5 @@
 {
-  "title": "Одбори",
+  "title": "Одбори по местима",
   "addCity": "Додај град",
   "addMunicipal": "Додај општину",
   "form": {
@@ -14,11 +14,16 @@
     "typeRequired": "Врста је обавезна",
     "voterCountInvalid": "Неисправан број",
     "saveFailed": "Чување није успело.",
-    "voterCountTooltip": "Кликните да измените број бирача"
+    "voterCountTooltip": "Кликните да измените број бирача",
+    "maxMembers": "Макс. чланова",
+    "chairman": "Председник"
   },
   "type": {
     "city": "Град",
-    "municipal": "Општина"
+    "municipal": "Општина",
+    "maincommittee": "Главни одбор",
+    "executivecommittee": "Извршни одбор",
+    "presidency": "Председништво"
   },
   "filter": {
     "namePlaceholder": "Претражи по називу…",
