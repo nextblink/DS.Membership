@@ -15,6 +15,8 @@ public class CommitteeTreeDto
     public bool IsTrustful { get; set; }
     public int MemberCount { get; set; }
     public int? MaxMembers { get; set; }
+    public double? Lat { get; set; }
+    public double? Lng { get; set; }
     public List<CommitteeTreeDto> Children { get; set; } = new();
 }
 

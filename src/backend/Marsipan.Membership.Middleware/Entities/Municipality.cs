@@ -29,4 +29,7 @@ public class Municipality : BaseEntity
     /// Null means no OO unit exists. Set by CommitteesSeeder after units are created.
     /// </summary>
     public int? OoId { get; set; }
+
+    public double? Lat { get; set; }
+    public double? Lng { get; set; }
 }

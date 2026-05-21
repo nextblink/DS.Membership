@@ -183,6 +183,8 @@ var app = builder.Build();
         await FunctionsSeeder.SeedAsync(dbContext, systemUserId);
         await MembersSeeder.SeedAsync(dbContext, systemUserId);
     }
+
+    await MunicipalitiesSeeder.PatchCoordinatesAsync(dbContext);
 }
 
 // Configure the HTTP request pipeline.

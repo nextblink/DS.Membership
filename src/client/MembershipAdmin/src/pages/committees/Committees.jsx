@@ -2,8 +2,11 @@
 //
 // Renders the committee hierarchy (City -> Municipal) from GET /api/committees.
 // Supports inline VoterCount edit, add-root, add-child, and leaf delete.
+// View can be toggled between table and Leaflet map.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import api from '../../framework/api'
 import { useToast, ToastContainer } from '../../components/Toast'
 
@@ -605,6 +608,87 @@ function TableRow({
   )
 }
 
+function CommitteesMap({ rows }) {
+  const mapRef = useRef(null)
+  const instanceRef = useRef(null)
+
+  useEffect(() => {
+    if (!mapRef.current) return
+    if (instanceRef.current) {
+      instanceRef.current.remove()
+      instanceRef.current = null
+    }
+
+    const map = L.map(mapRef.current, { zoomControl: true }).setView([44.0, 21.0], 7)
+    instanceRef.current = map
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+      maxZoom: 18,
+    }).addTo(map)
+
+    const withCoords = rows.filter((r) => r.lat != null && r.lng != null)
+
+    // Compute promille for sizing
+    const pms = withCoords.map((r) => computePromille(r))
+    const maxPm = Math.max(...pms.filter((v) => v > 0), 0.001)
+    const minPm = Math.min(...pms.filter((v) => v > 0), maxPm)
+
+    withCoords.forEach((r) => {
+      const pm = computePromille(r)
+      const pmStr = pm.toFixed(2) + '‰'
+      const r2 = pm > 0 && maxPm > minPm
+        ? 6 + ((pm - minPm) / (maxPm - minPm)) * 20
+        : 6
+      const color = barColor(pm)
+
+      const marker = L.circleMarker([r.lat, r.lng], {
+        radius: r2,
+        color,
+        weight: 1.5,
+        fillColor: color,
+        fillOpacity: 0.55,
+      })
+
+      marker.bindTooltip(
+        `<strong>${r.name}</strong><br/>` +
+        `${r.memberCount} чланова · <b>${pmStr}</b>` +
+        (r.voterCount > 0 ? `<br/><span style="color:#aaa">${r.voterCount.toLocaleString()} бирача</span>` : ''),
+        { direction: 'top', className: 'membership-map-tooltip' }
+      )
+      marker.addTo(map)
+    })
+
+    return () => {
+      map.remove()
+      instanceRef.current = null
+    }
+  }, [rows])
+
+  return (
+    <div className="relative">
+      <div ref={mapRef} style={{ height: 'calc(100vh - 260px)', minHeight: 420 }} />
+      <style>{`.membership-map-tooltip { font-size: 13px; padding: 6px 10px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,.15); }`}</style>
+    </div>
+  )
+}
+
+function IconTable() {
+  return (
+    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18M10 4v16M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" />
+    </svg>
+  )
+}
+
+function IconMap() {
+  return (
+    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+    </svg>
+  )
+}
+
 export default function Committees() {
   const { t } = useTranslation(['committees', 'common'])
   const toast = useToast()
@@ -615,6 +699,9 @@ export default function Committees() {
   const [modal, setModal] = useState({ open: false, parent: null })
   const [editModal, setEditModal] = useState(null) // node | null
   const [filterName, setFilterName] = useState('')
+  const [filterEngagement, setFilterEngagement] = useState(new Set()) // Set of 'low' | 'medium' | 'high'
+  const [filterTrustful, setFilterTrustful] = useState(false)
+  const [view, setView] = useState('table') // 'table' | 'map'
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -713,10 +800,23 @@ export default function Committees() {
   }, [tree])
 
   const visibleRows = useMemo(() => {
-    if (!filterName.trim()) return flattenedRows
-    const q = filterName.toLowerCase()
-    return flattenedRows.filter(n => n.name.toLowerCase().includes(q))
-  }, [flattenedRows, filterName])
+    let rows = flattenedRows
+    if (filterName.trim()) {
+      const q = filterName.toLowerCase()
+      rows = rows.filter(n => n.name.toLowerCase().includes(q))
+    }
+    if (filterEngagement.size > 0) {
+      rows = rows.filter(n => {
+        const pm = computePromille(n)
+        if (filterEngagement.has('high') && pm >= 1) return true
+        if (filterEngagement.has('medium') && pm >= 0.8 && pm < 1) return true
+        if (filterEngagement.has('low') && pm < 0.8) return true
+        return false
+      })
+    }
+    if (filterTrustful) rows = rows.filter(n => !n.isTrustful)
+    return rows
+  }, [flattenedRows, filterName, filterEngagement, filterTrustful])
 
   const content = useMemo(() => {
     if (loading) {
@@ -769,22 +869,43 @@ export default function Committees() {
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
           <h2 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('committees:title')}</h2>
-          <button
-            type="button"
-            onClick={handleAddRoot}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
-            data-testid="add-root-unit-btn"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            {t('action.addRoot')}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* View toggle */}
+            <div className="flex gap-0.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-0.5">
+              <button
+                type="button"
+                onClick={() => setView('table')}
+                title="Table view"
+                className={`rounded-md p-1.5 transition-colors ${view === 'table' ? 'bg-white dark:bg-gray-700 text-brand-500 shadow-theme-xs' : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+              >
+                <IconTable />
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('map')}
+                title="Map view"
+                className={`rounded-md p-1.5 transition-colors ${view === 'map' ? 'bg-white dark:bg-gray-700 text-brand-500 shadow-theme-xs' : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+              >
+                <IconMap />
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={handleAddRoot}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 px-4 py-2.5 text-theme-sm font-medium text-white"
+              data-testid="add-root-unit-btn"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              {t('action.addRoot')}
+            </button>
+          </div>
         </div>
 
         {/* Filter bar */}
-        <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-3">
-          <div className="relative max-w-sm">
+        <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-3 flex flex-wrap items-center gap-3">
+          <div className="relative max-w-sm flex-1 min-w-[160px]">
             <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
             </svg>
@@ -808,6 +929,47 @@ export default function Committees() {
               </button>
             )}
           </div>
+          <div className="flex items-center gap-1.5">
+            {[
+              { key: 'high',   label: t('committees:filter.high'),   color: '#4ABEA0' },
+              { key: 'medium', label: t('committees:filter.medium'), color: '#f79009' },
+              { key: 'low',    label: t('committees:filter.low'),    color: '#f04438' },
+            ].map(({ key, label, color }) => {
+              const active = filterEngagement.has(key)
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setFilterEngagement(prev => {
+                    const next = new Set(prev)
+                    next.has(key) ? next.delete(key) : next.add(key)
+                    return next
+                  })}
+                  style={active ? { background: color, borderColor: color, color: '#fff' } : {}}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-theme-xs font-medium border transition-colors
+                    ${active
+                      ? ''
+                      : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
+                    }`}
+                >
+                  <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: active ? '#fff' : color }} />
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+          <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+            <button
+              type="button"
+              role="switch"
+              aria-checked={filterTrustful}
+              onClick={() => setFilterTrustful(v => !v)}
+              className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/40 ${filterTrustful ? 'bg-brand-500' : 'bg-gray-200 dark:bg-gray-700'}`}
+            >
+              <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 ${filterTrustful ? 'translate-x-4' : 'translate-x-0'}`} />
+            </button>
+            <span className="text-theme-xs font-medium text-gray-600 dark:text-gray-300">{t('committees:filter.onlyTrustees')}</span>
+          </label>
         </div>
 
         {deleteError && (
@@ -815,7 +977,15 @@ export default function Committees() {
             {deleteError}
           </p>
         )}
-        {content}
+        {view === 'map' ? (
+          loading
+            ? <p className="p-6 text-theme-sm text-gray-500 dark:text-gray-400">{t('common:state.loading')}</p>
+            : error
+              ? <p className="p-6 text-theme-sm text-error-500">{error}</p>
+              : <CommitteesMap rows={visibleRows} />
+        ) : (
+          content
+        )}
       </div>
 
       <AddUnitModal

@@ -37,6 +37,8 @@ public class CommitteesService : ICommitteesService
                 o.IsTrustful,
                 TrusteeName = o.Trustee != null ? o.Trustee.FirstName + " " + o.Trustee.LastName : null,
                 MemberCount = _db.Members.Count(m => m.CommitteeId == o.Id),
+                Lat = o.Municipality != null ? o.Municipality.Lat : (double?)null,
+                Lng = o.Municipality != null ? o.Municipality.Lng : (double?)null,
             })
             .ToListAsync(ct);
 
@@ -52,6 +54,8 @@ public class CommitteesService : ICommitteesService
             TrusteeName = u.TrusteeName,
             IsTrustful = u.IsTrustful,
             MemberCount = u.MemberCount,
+            Lat = u.Lat,
+            Lng = u.Lng,
             Children = new List<CommitteeTreeDto>(),
         });
 

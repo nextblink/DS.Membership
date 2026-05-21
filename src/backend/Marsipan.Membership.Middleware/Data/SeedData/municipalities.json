@@ -1,1330 +1,168 @@
-﻿[
-    {
-        "name":  "Ада",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "24430",
-        "voterCount":  12500
-    },
-    {
-        "name":  "Александровац",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "37230",
-        "voterCount":  22000
-    },
-    {
-        "name":  "Алексинац",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "18220",
-        "voterCount":  27000
-    },
-    {
-        "name":  "Алибунар",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "26310",
-        "voterCount":  15000
-    },
-    {
-        "name":  "Апатин",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "25260",
-        "voterCount":  20000
-    },
-    {
-        "name":  "Аранђеловац",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "34300",
-        "voterCount":  30000
-    },
-    {
-        "name":  "Ариље",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "31230",
-        "voterCount":  18000
-    },
-    {
-        "name":  "Бабушница",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18330",
-        "voterCount":  14000
-    },
-    {
-        "name":  "Бајина Башта",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "31250",
-        "voterCount":  22000
-    },
-    {
-        "name":  "Барајево",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11460",
-        "voterCount":  25000
-    },
-    {
-        "name":  "Баточина",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "34227",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Бач",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "21420",
-        "voterCount":  14000
-    },
-    {
-        "name":  "Бачка Паланка",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "21400",
-        "voterCount":  42000
-    },
-    {
-        "name":  "Бачка Топола",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "24300",
-        "voterCount":  19000
-    },
-    {
-        "name":  "Бачки Петровац",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "21470",
-        "voterCount":  13000
-    },
-    {
-        "name":  "Бела Цркава",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "26340",
-        "voterCount":  15000
-    },
-    {
-        "name":  "Бела Паланка",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18310",
-        "voterCount":  13000
-    },
-    {
-        "name":  "Београд",
-        "isCity":  true,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "11000",
-        "voterCount":  1620000
-    },
-    {
-        "name":  "Беочин",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "21300",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Бечеј",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "21220",
-        "voterCount":  23000
-    },
-    {
-        "name":  "Блаце",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18420",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Богатић",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "15350",
-        "voterCount":  22000
-    },
-    {
-        "name":  "Бојник",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "16205",
-        "voterCount":  11000
-    },
-    {
-        "name":  "Бољевац",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "19370",
-        "voterCount":  13000
-    },
-    {
-        "name":  "Бор",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "19210",
-        "voterCount":  37000
-    },
-    {
-        "name":  "Брус",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "37220",
-        "voterCount":  15000
-    },
-    {
-        "name":  "Бујановац",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "17520",
-        "voterCount":  32000
-    },
-    {
-        "name":  "Врање",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "17500",
-        "voterCount":  92000
-    },
-    {
-        "name":  "Врачар",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11000",
-        "voterCount":  57000
-    },
-    {
-        "name":  "Врбас",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "21460",
-        "voterCount":  21000
-    },
-    {
-        "name":  "Врњачка Бања",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "36210",
-        "voterCount":  24000
-    },
-    {
-        "name":  "Вршац",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "26300",
-        "voterCount":  68000
-    },
-    {
-        "name":  "Гаџин Хан",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18240",
-        "voterCount":  10000
-    },
-    {
-        "name":  "Голубац",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "12223",
-        "voterCount":  10000
-    },
-    {
-        "name":  "Горњи Милановац",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "32300",
-        "voterCount":  32000
-    },
-    {
-        "name":  "Гроцка",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11306",
-        "voterCount":  78000
-    },
-    {
-        "name":  "Деспотовац",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "35213",
-        "voterCount":  20000
-    },
-    {
-        "name":  "Димитровград",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18320",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Дољевац",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18410",
-        "voterCount":  18000
-    },
-    {
-        "name":  "Зајечар",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "19000",
-        "voterCount":  58000
-    },
-    {
-        "name":  "Земун",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11080",
-        "voterCount":  168000
-    },
-    {
-        "name":  "Зрењанин",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "23000",
-        "voterCount":  102000
-    },
-    {
-        "name":  "Звездара",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11050",
-        "voterCount":  172000
-    },
-    {
-        "name":  "Инђија",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "22320",
-        "voterCount":  38000
-    },
-    {
-        "name":  "Ириг",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "22406",
-        "voterCount":  9000
-    },
-    {
-        "name":  "Ивањица",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "32250",
-        "voterCount":  23000
-    },
-    {
-        "name":  "Јагодина",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "35000",
-        "voterCount":  67000
-    },
-    {
-        "name":  "Кањижа",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "24420",
-        "voterCount":  14000
-    },
-    {
-        "name":  "Качаник",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "",
-        "voterCount":  0
-    },
-    {
-        "name":  "Кикинда",
-        "isCity":  true,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "23300",
-        "voterCount":  55000
-    },
-    {
-        "name":  "Кладово",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "19320",
-        "voterCount":  20000
-    },
-    {
-        "name":  "Кнић",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "34240",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Књажевац",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "19350",
-        "voterCount":  30000
-    },
-    {
-        "name":  "Косјерић",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "31260",
-        "voterCount":  15000
-    },
-    {
-        "name":  "Ковачица",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "26210",
-        "voterCount":  22000
-    },
-    {
-        "name":  "Ковин",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "26220",
-        "voterCount":  25000
-    },
-    {
-        "name":  "Крагујевац",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "34000",
-        "voterCount":  170000
-    },
-    {
-        "name":  "Краљево",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "36000",
-        "voterCount":  110000
-    },
-    {
-        "name":  "Крупањ",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "15314",
-        "voterCount":  17000
-    },
-    {
-        "name":  "Крушевац",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "37000",
-        "voterCount":  130000
-    },
-    {
-        "name":  "Кула",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "25230",
-        "voterCount":  22000
-    },
-    {
-        "name":  "Куршумлија",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18430",
-        "voterCount":  18000
-    },
-    {
-        "name":  "Кучево",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "12240",
-        "voterCount":  14000
-    },
-    {
-        "name":  "Лајковац",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "14224",
-        "voterCount":  16000
-    },
-    {
-        "name":  "Лапово",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "34220",
-        "voterCount":  9000
-    },
-    {
-        "name":  "Лазаревац",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11550",
-        "voterCount":  44000
-    },
-    {
-        "name":  "Лебане",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "16230",
-        "voterCount":  18000
-    },
-    {
-        "name":  "Лепосавић",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "38218",
-        "voterCount":  15000
-    },
-    {
-        "name":  "Лесковац",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "16000",
-        "voterCount":  130000
-    },
-    {
-        "name":  "Љиг",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "14240",
-        "voterCount":  13000
-    },
-    {
-        "name":  "Љубовија",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "15320",
-        "voterCount":  14000
-    },
-    {
-        "name":  "Лозница",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "15300",
-        "voterCount":  65000
-    },
-    {
-        "name":  "Лучани",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "32240",
-        "voterCount":  20000
-    },
-    {
-        "name":  "Мајданпек",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "19250",
-        "voterCount":  18000
-    },
-    {
-        "name":  "Мали Иђош",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "24321",
-        "voterCount":  11000
-    },
-    {
-        "name":  "Мали Зворник",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "15318",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Мало Црниће",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "12311",
-        "voterCount":  10000
-    },
-    {
-        "name":  "Медвеђа",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "16240",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Мерошина",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18252",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Мионица",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "14242",
-        "voterCount":  14000
-    },
-    {
-        "name":  "Младеновац",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11400",
-        "voterCount":  42000
-    },
-    {
-        "name":  "Неготин",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "19300",
-        "voterCount":  30000
-    },
-    {
-        "name":  "Ниш",
-        "isCity":  true,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18000",
-        "voterCount":  250000
-    },
-    {
-        "name":  "Нишка Бања",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  "Ниш",
-        "postalCode":  "18205",
-        "voterCount":  35000
-    },
-    {
-        "name":  "Нова Црња",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "23218",
-        "voterCount":  9000
-    },
-    {
-        "name":  "Нова Варош",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "31320",
-        "voterCount":  16000
-    },
-    {
-        "name":  "Нови Београд",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11070",
-        "voterCount":  208000
-    },
-    {
-        "name":  "Нови Бечеј",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "23272",
-        "voterCount":  18000
-    },
-    {
-        "name":  "Нови Кнежевац",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "23330",
-        "voterCount":  11000
-    },
-    {
-        "name":  "Нови Пазар",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "36300",
-        "voterCount":  82000
-    },
-    {
-        "name":  "Нови Сад",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "21000",
-        "voterCount":  290000
-    },
-    {
-        "name":  "Обреновац",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11500",
-        "voterCount":  55000
-    },
-    {
-        "name":  "Оџаци",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "25250",
-        "voterCount":  22000
-    },
-    {
-        "name":  "Опово",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "26204",
-        "voterCount":  9000
-    },
-    {
-        "name":  "Осечина",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "14253",
-        "voterCount":  14000
-    },
-    {
-        "name":  "Палилула",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11060",
-        "voterCount":  168000
-    },
-    {
-        "name":  "Палилула Ниш",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  "Ниш",
-        "postalCode":  "18363",
-        "voterCount":  88000
-    },
-    {
-        "name":  "Пантелеј",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  "Ниш",
-        "postalCode":  "18000",
-        "voterCount":  78000
-    },
-    {
-        "name":  "Панчево",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "26000",
-        "voterCount":  118000
-    },
-    {
-        "name":  "Параћин",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "35250",
-        "voterCount":  40000
-    },
-    {
-        "name":  "Петровац на Млави",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "12300",
-        "voterCount":  28000
-    },
-    {
-        "name":  "Петроварадин",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  "Нови Сад",
-        "postalCode":  "21131",
-        "voterCount":  32000
-    },
-    {
-        "name":  "Пећинци",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "22410",
-        "voterCount":  16000
-    },
-    {
-        "name":  "Пирот",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18300",
-        "voterCount":  55000
-    },
-    {
-        "name":  "Планиште",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "26360",
-        "voterCount":  9000
-    },
-    {
-        "name":  "Пожаревац",
-        "isCity":  true,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "12000",
-        "voterCount":  72000
-    },
-    {
-        "name":  "Пожега",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "31210",
-        "voterCount":  28000
-    },
-    {
-        "name":  "Прешево",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "17523",
-        "voterCount":  26000
-    },
-    {
-        "name":  "Прибој",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "31330",
-        "voterCount":  25000
-    },
-    {
-        "name":  "Пријепоље",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "31300",
-        "voterCount":  30000
-    },
-    {
-        "name":  "Прокупље",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18400",
-        "voterCount":  42000
-    },
-    {
-        "name":  "Раковица",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11090",
-        "voterCount":  132000
-    },
-    {
-        "name":  "Рача",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18440",
-        "voterCount":  16000
-    },
-    {
-        "name":  "Рашка",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "36350",
-        "voterCount":  28000
-    },
-    {
-        "name":  "Ражањ",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "37215",
-        "voterCount":  13000
-    },
-    {
-        "name":  "Рековац",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "35260",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Рума",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "22400",
-        "voterCount":  40000
-    },
-    {
-        "name":  "Савски Венац",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11000",
-        "voterCount":  52000
-    },
-    {
-        "name":  "Сента",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "24400",
-        "voterCount":  14000
-    },
-    {
-        "name":  "Сечањ",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "23240",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Сјеница",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "36310",
-        "voterCount":  22000
-    },
-    {
-        "name":  "Смедерево",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "11300",
-        "voterCount":  98000
-    },
-    {
-        "name":  "Смедеревска Паланка",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "11420",
-        "voterCount":  42000
-    },
-    {
-        "name":  "Сокобања",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "18230",
-        "voterCount":  15000
-    },
-    {
-        "name":  "Сомбор",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "25000",
-        "voterCount":  77000
-    },
-    {
-        "name":  "Сопот",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11450",
-        "voterCount":  20000
-    },
-    {
-        "name":  "Србобран",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "21480",
-        "voterCount":  18000
-    },
-    {
-        "name":  "Сремска Митровица",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "22000",
-        "voterCount":  82000
-    },
-    {
-        "name":  "Сремски Карловци",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "21205",
-        "voterCount":  10000
-    },
-    {
-        "name":  "Стара Пазова",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "22300",
-        "voterCount":  52000
-    },
-    {
-        "name":  "Стари Град",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11000",
-        "voterCount":  56000
-    },
-    {
-        "name":  "Суботица",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "24000",
-        "voterCount":  115000
-    },
-    {
-        "name":  "Сурдулица",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "17530",
-        "voterCount":  22000
-    },
-    {
-        "name":  "Сурчин",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11271",
-        "voterCount":  48000
-    },
-    {
-        "name":  "Свилајнац",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "35210",
-        "voterCount":  25000
-    },
-    {
-        "name":  "Сврљиг",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18360",
-        "voterCount":  15000
-    },
-    {
-        "name":  "Темерин",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "21235",
-        "voterCount":  24000
-    },
-    {
-        "name":  "Тител",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "21240",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Топола",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "34310",
-        "voterCount":  22000
-    },
-    {
-        "name":  "Трговиште",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "17525",
-        "voterCount":  9000
-    },
-    {
-        "name":  "Трстеник",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "37240",
-        "voterCount":  42000
-    },
-    {
-        "name":  "Тутин",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "36320",
-        "voterCount":  26000
-    },
-    {
-        "name":  "Уб",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "14210",
-        "voterCount":  18000
-    },
-    {
-        "name":  "Ужице",
-        "isCity":  true,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "31000",
-        "voterCount":  62000
-    },
-    {
-        "name":  "Ваљево",
-        "isCity":  true,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "14000",
-        "voterCount":  88000
-    },
-    {
-        "name":  "Варварин",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "37260",
-        "voterCount":  16000
-    },
-    {
-        "name":  "Велика Плана",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "11320",
-        "voterCount":  36000
-    },
-    {
-        "name":  "Велико Градиште",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "12220",
-        "voterCount":  18000
-    },
-    {
-        "name":  "Владимирци",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "15225",
-        "voterCount":  16000
-    },
-    {
-        "name":  "Владичин Хан",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "17510",
-        "voterCount":  20000
-    },
-    {
-        "name":  "Власотинце",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "16210",
-        "voterCount":  28000
-    },
-    {
-        "name":  "Вождовац",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11010",
-        "voterCount":  188000
-    },
-    {
-        "name":  "Чајетина",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "31310",
-        "voterCount":  18000
-    },
-    {
-        "name":  "Чачак",
-        "isCity":  true,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "32000",
-        "voterCount":  115000
-    },
-    {
-        "name":  "Чока",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "23320",
-        "voterCount":  9000
-    },
-    {
-        "name":  "Чукарица",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  "Београд",
-        "postalCode":  "11030",
-        "voterCount":  178000
-    },
-    {
-        "name":  "Шабац",
-        "isCity":  true,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "15000",
-        "voterCount":  102000
-    },
-    {
-        "name":  "Шид",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "22240",
-        "voterCount":  22000
-    },
-    {
-        "name":  "Жабаљ",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "21230",
-        "voterCount":  18000
-    },
-    {
-        "name":  "Жабари",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "12374",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Жагубица",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "12320",
-        "voterCount":  12000
-    },
-    {
-        "name":  "Житиште",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "23210",
-        "voterCount":  16000
-    },
-    {
-        "name":  "Житорађа",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "18412",
-        "voterCount":  16000
-    },
-    {
-        "name":  "Ћићевац",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "37210",
-        "voterCount":  14000
-    },
-    {
-        "name":  "Ћуприја",
-        "isCity":  false,
-        "hasOo":  true,
-        "parentCity":  null,
-        "postalCode":  "35230",
-        "voterCount":  36000
-    },
-    {
-        "name":  "Црна Трава",
-        "isCity":  false,
-        "hasOo":  false,
-        "parentCity":  null,
-        "postalCode":  "16215",
-        "voterCount":  8000
-    }
+[
+    { "name": "Ада", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "24430", "voterCount": 12500, "lat": 45.7953, "lng": 20.1223 },
+    { "name": "Александровац", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "37230", "voterCount": 22000, "lat": 43.4558, "lng": 21.0450 },
+    { "name": "Алексинац", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "18220", "voterCount": 27000, "lat": 43.5472, "lng": 21.7053 },
+    { "name": "Алибунар", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "26310", "voterCount": 15000, "lat": 45.0831, "lng": 20.9636 },
+    { "name": "Апатин", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "25260", "voterCount": 20000, "lat": 45.6714, "lng": 18.9839 },
+    { "name": "Аранђеловац", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "34300", "voterCount": 30000, "lat": 44.3044, "lng": 20.5575 },
+    { "name": "Ариље", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "31230", "voterCount": 18000, "lat": 43.7556, "lng": 20.0950 },
+    { "name": "Бабушница", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18330", "voterCount": 14000, "lat": 43.0683, "lng": 22.4111 },
+    { "name": "Бајина Башта", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "31250", "voterCount": 22000, "lat": 43.9739, "lng": 19.5664 },
+    { "name": "Барајево", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11460", "voterCount": 25000, "lat": 44.4489, "lng": 20.3822 },
+    { "name": "Баточина", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "34227", "voterCount": 12000, "lat": 44.0528, "lng": 21.0708 },
+    { "name": "Бач", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "21420", "voterCount": 14000, "lat": 45.3897, "lng": 19.2361 },
+    { "name": "Бачка Паланка", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "21400", "voterCount": 42000, "lat": 45.2528, "lng": 19.3908 },
+    { "name": "Бачка Топола", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "24300", "voterCount": 19000, "lat": 45.8122, "lng": 19.6339 },
+    { "name": "Бачки Петровац", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "21470", "voterCount": 13000, "lat": 45.3569, "lng": 19.5881 },
+    { "name": "Бела Цркава", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "26340", "voterCount": 15000, "lat": 44.8986, "lng": 21.4158 },
+    { "name": "Бела Паланка", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18310", "voterCount": 13000, "lat": 43.2236, "lng": 22.3103 },
+    { "name": "Београд", "isCity": true, "hasOo": false, "parentCity": null, "postalCode": "11000", "voterCount": 1620000, "lat": 44.8176, "lng": 20.4569 },
+    { "name": "Беочин", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "21300", "voterCount": 12000, "lat": 45.1956, "lng": 19.7311 },
+    { "name": "Бечеј", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "21220", "voterCount": 23000, "lat": 45.6158, "lng": 20.0406 },
+    { "name": "Блаце", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18420", "voterCount": 12000, "lat": 43.2967, "lng": 21.2839 },
+    { "name": "Богатић", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "15350", "voterCount": 22000, "lat": 44.8389, "lng": 19.4803 },
+    { "name": "Бојник", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "16205", "voterCount": 11000, "lat": 42.9742, "lng": 21.7208 },
+    { "name": "Бољевац", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "19370", "voterCount": 13000, "lat": 43.8308, "lng": 21.9506 },
+    { "name": "Бор", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "19210", "voterCount": 37000, "lat": 44.0758, "lng": 22.0969 },
+    { "name": "Брус", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "37220", "voterCount": 15000, "lat": 43.3858, "lng": 21.0272 },
+    { "name": "Бујановац", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "17520", "voterCount": 32000, "lat": 42.4589, "lng": 21.7692 },
+    { "name": "Врање", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "17500", "voterCount": 92000, "lat": 42.5508, "lng": 21.9003 },
+    { "name": "Врачар", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11000", "voterCount": 57000, "lat": 44.7958, "lng": 20.4836 },
+    { "name": "Врбас", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "21460", "voterCount": 21000, "lat": 45.5700, "lng": 19.6367 },
+    { "name": "Врњачка Бања", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "36210", "voterCount": 24000, "lat": 43.6233, "lng": 20.8992 },
+    { "name": "Вршац", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "26300", "voterCount": 68000, "lat": 45.1189, "lng": 21.3003 },
+    { "name": "Гаџин Хан", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18240", "voterCount": 10000, "lat": 43.2222, "lng": 22.0347 },
+    { "name": "Голубац", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "12223", "voterCount": 10000, "lat": 44.6578, "lng": 21.6367 },
+    { "name": "Горњи Милановац", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "32300", "voterCount": 32000, "lat": 44.0261, "lng": 20.4611 },
+    { "name": "Гроцка", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11306", "voterCount": 78000, "lat": 44.6544, "lng": 20.7142 },
+    { "name": "Деспотовац", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "35213", "voterCount": 20000, "lat": 44.1017, "lng": 21.4264 },
+    { "name": "Димитровград", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18320", "voterCount": 12000, "lat": 43.0172, "lng": 22.7661 },
+    { "name": "Дољевац", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18410", "voterCount": 18000, "lat": 43.4711, "lng": 21.8300 },
+    { "name": "Зајечар", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "19000", "voterCount": 58000, "lat": 43.9042, "lng": 22.2758 },
+    { "name": "Земун", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11080", "voterCount": 168000, "lat": 44.8414, "lng": 20.4017 },
+    { "name": "Зрењанин", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "23000", "voterCount": 102000, "lat": 45.3797, "lng": 20.3833 },
+    { "name": "Звездара", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11050", "voterCount": 172000, "lat": 44.7906, "lng": 20.5142 },
+    { "name": "Инђија", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "22320", "voterCount": 38000, "lat": 45.0453, "lng": 20.0836 },
+    { "name": "Ириг", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "22406", "voterCount": 9000, "lat": 45.0961, "lng": 19.8519 },
+    { "name": "Ивањица", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "32250", "voterCount": 23000, "lat": 43.5822, "lng": 20.2275 },
+    { "name": "Јагодина", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "35000", "voterCount": 67000, "lat": 43.9769, "lng": 21.2622 },
+    { "name": "Кањижа", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "24420", "voterCount": 14000, "lat": 46.0642, "lng": 20.0544 },
+    { "name": "Качаник", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "", "voterCount": 0, "lat": 42.2281, "lng": 21.2581 },
+    { "name": "Кикинда", "isCity": true, "hasOo": false, "parentCity": null, "postalCode": "23300", "voterCount": 55000, "lat": 45.8283, "lng": 20.4644 },
+    { "name": "Кладово", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "19320", "voterCount": 20000, "lat": 44.6108, "lng": 22.6136 },
+    { "name": "Кнић", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "34240", "voterCount": 12000, "lat": 43.9278, "lng": 20.7225 },
+    { "name": "Књажевац", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "19350", "voterCount": 30000, "lat": 43.5669, "lng": 22.2572 },
+    { "name": "Косјерић", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "31260", "voterCount": 15000, "lat": 43.9944, "lng": 19.9219 },
+    { "name": "Ковачица", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "26210", "voterCount": 22000, "lat": 45.1056, "lng": 20.6197 },
+    { "name": "Ковин", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "26220", "voterCount": 25000, "lat": 44.7456, "lng": 20.9939 },
+    { "name": "Крагујевац", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "34000", "voterCount": 170000, "lat": 44.0128, "lng": 20.9114 },
+    { "name": "Краљево", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "36000", "voterCount": 110000, "lat": 43.7236, "lng": 20.6886 },
+    { "name": "Крупањ", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "15314", "voterCount": 17000, "lat": 44.3667, "lng": 19.3633 },
+    { "name": "Крушевац", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "37000", "voterCount": 130000, "lat": 43.5833, "lng": 21.3333 },
+    { "name": "Кула", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "25230", "voterCount": 22000, "lat": 45.6039, "lng": 19.5261 },
+    { "name": "Куршумлија", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18430", "voterCount": 18000, "lat": 43.1394, "lng": 21.2672 },
+    { "name": "Кучево", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "12240", "voterCount": 14000, "lat": 44.4806, "lng": 21.6700 },
+    { "name": "Лајковац", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "14224", "voterCount": 16000, "lat": 44.3622, "lng": 20.1597 },
+    { "name": "Лапово", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "34220", "voterCount": 9000, "lat": 44.0736, "lng": 21.0989 },
+    { "name": "Лазаревац", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11550", "voterCount": 44000, "lat": 44.3822, "lng": 20.2572 },
+    { "name": "Лебане", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "16230", "voterCount": 18000, "lat": 42.9294, "lng": 21.7361 },
+    { "name": "Лепосавић", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "38218", "voterCount": 15000, "lat": 43.1014, "lng": 20.8019 },
+    { "name": "Лесковац", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "16000", "voterCount": 130000, "lat": 42.9981, "lng": 21.9458 },
+    { "name": "Љиг", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "14240", "voterCount": 13000, "lat": 44.2261, "lng": 20.2425 },
+    { "name": "Љубовија", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "15320", "voterCount": 14000, "lat": 44.1869, "lng": 19.3758 },
+    { "name": "Лозница", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "15300", "voterCount": 65000, "lat": 44.5367, "lng": 19.2258 },
+    { "name": "Лучани", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "32240", "voterCount": 20000, "lat": 43.8611, "lng": 20.1444 },
+    { "name": "Мајданпек", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "19250", "voterCount": 18000, "lat": 44.4183, "lng": 21.9408 },
+    { "name": "Мали Иђош", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "24321", "voterCount": 11000, "lat": 45.7233, "lng": 19.6994 },
+    { "name": "Мали Зворник", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "15318", "voterCount": 12000, "lat": 44.3944, "lng": 19.1039 },
+    { "name": "Мало Црниће", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "12311", "voterCount": 10000, "lat": 44.5694, "lng": 21.2883 },
+    { "name": "Медвеђа", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "16240", "voterCount": 12000, "lat": 42.8314, "lng": 21.5897 },
+    { "name": "Мерошина", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18252", "voterCount": 12000, "lat": 43.2947, "lng": 21.7189 },
+    { "name": "Мионица", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "14242", "voterCount": 14000, "lat": 44.2497, "lng": 20.0906 },
+    { "name": "Младеновац", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11400", "voterCount": 42000, "lat": 44.4322, "lng": 20.6961 },
+    { "name": "Неготин", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "19300", "voterCount": 30000, "lat": 44.2281, "lng": 22.5294 },
+    { "name": "Ниш", "isCity": true, "hasOo": false, "parentCity": null, "postalCode": "18000", "voterCount": 250000, "lat": 43.3209, "lng": 21.8958 },
+    { "name": "Нишка Бања", "isCity": false, "hasOo": false, "parentCity": "Ниш", "postalCode": "18205", "voterCount": 35000, "lat": 43.3022, "lng": 22.0114 },
+    { "name": "Нова Црња", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "23218", "voterCount": 9000, "lat": 45.6631, "lng": 20.5897 },
+    { "name": "Нова Варош", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "31320", "voterCount": 16000, "lat": 43.4619, "lng": 19.7950 },
+    { "name": "Нови Београд", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11070", "voterCount": 208000, "lat": 44.8058, "lng": 20.4197 },
+    { "name": "Нови Бечеј", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "23272", "voterCount": 18000, "lat": 45.5972, "lng": 20.1344 },
+    { "name": "Нови Кнежевац", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "23330", "voterCount": 11000, "lat": 46.0453, "lng": 20.0944 },
+    { "name": "Нови Пазар", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "36300", "voterCount": 82000, "lat": 43.1367, "lng": 20.5119 },
+    { "name": "Нови Сад", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "21000", "voterCount": 290000, "lat": 45.2671, "lng": 19.8335 },
+    { "name": "Обреновац", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11500", "voterCount": 55000, "lat": 44.6506, "lng": 20.1989 },
+    { "name": "Оџаци", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "25250", "voterCount": 22000, "lat": 45.5058, "lng": 19.2625 },
+    { "name": "Опово", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "26204", "voterCount": 9000, "lat": 45.0517, "lng": 20.4281 },
+    { "name": "Осечина", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "14253", "voterCount": 14000, "lat": 44.3717, "lng": 19.5914 },
+    { "name": "Палилула", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11060", "voterCount": 168000, "lat": 44.8222, "lng": 20.4942 },
+    { "name": "Палилула Ниш", "isCity": false, "hasOo": false, "parentCity": "Ниш", "postalCode": "18363", "voterCount": 88000, "lat": 43.3458, "lng": 21.9422 },
+    { "name": "Пантелеј", "isCity": false, "hasOo": false, "parentCity": "Ниш", "postalCode": "18000", "voterCount": 78000, "lat": 43.2950, "lng": 22.0081 },
+    { "name": "Панчево", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "26000", "voterCount": 118000, "lat": 44.8703, "lng": 20.6408 },
+    { "name": "Параћин", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "35250", "voterCount": 40000, "lat": 43.8619, "lng": 21.4014 },
+    { "name": "Петровац на Млави", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "12300", "voterCount": 28000, "lat": 44.3797, "lng": 21.4239 },
+    { "name": "Петроварадин", "isCity": false, "hasOo": false, "parentCity": "Нови Сад", "postalCode": "21131", "voterCount": 32000, "lat": 45.2528, "lng": 19.8678 },
+    { "name": "Пећинци", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "22410", "voterCount": 16000, "lat": 44.9058, "lng": 19.9600 },
+    { "name": "Пирот", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18300", "voterCount": 55000, "lat": 43.1536, "lng": 22.5864 },
+    { "name": "Планиште", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "26360", "voterCount": 9000, "lat": 45.1819, "lng": 21.1239 },
+    { "name": "Пожаревац", "isCity": true, "hasOo": false, "parentCity": null, "postalCode": "12000", "voterCount": 72000, "lat": 44.6194, "lng": 21.1875 },
+    { "name": "Пожега", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "31210", "voterCount": 28000, "lat": 43.8494, "lng": 20.0342 },
+    { "name": "Прешево", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "17523", "voterCount": 26000, "lat": 42.3064, "lng": 21.6456 },
+    { "name": "Прибој", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "31330", "voterCount": 25000, "lat": 43.5817, "lng": 19.5300 },
+    { "name": "Пријепоље", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "31300", "voterCount": 30000, "lat": 43.3942, "lng": 19.6472 },
+    { "name": "Прокупље", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18400", "voterCount": 42000, "lat": 43.2339, "lng": 21.5875 },
+    { "name": "Раковица", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11090", "voterCount": 132000, "lat": 44.7597, "lng": 20.4039 },
+    { "name": "Рача", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18440", "voterCount": 16000, "lat": 44.2286, "lng": 21.0469 },
+    { "name": "Рашка", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "36350", "voterCount": 28000, "lat": 43.2853, "lng": 20.6156 },
+    { "name": "Ражањ", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "37215", "voterCount": 13000, "lat": 43.6786, "lng": 21.5547 },
+    { "name": "Рековац", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "35260", "voterCount": 12000, "lat": 43.8772, "lng": 21.1656 },
+    { "name": "Рума", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "22400", "voterCount": 40000, "lat": 44.9997, "lng": 19.8239 },
+    { "name": "Савски Венац", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11000", "voterCount": 52000, "lat": 44.8022, "lng": 20.4539 },
+    { "name": "Сента", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "24400", "voterCount": 14000, "lat": 45.9317, "lng": 20.0858 },
+    { "name": "Сечањ", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "23240", "voterCount": 12000, "lat": 45.3644, "lng": 20.7803 },
+    { "name": "Сјеница", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "36310", "voterCount": 22000, "lat": 43.2703, "lng": 20.0008 },
+    { "name": "Смедерево", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "11300", "voterCount": 98000, "lat": 44.6639, "lng": 20.9275 },
+    { "name": "Смедеревска Паланка", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "11420", "voterCount": 42000, "lat": 44.3672, "lng": 20.9567 },
+    { "name": "Сокобања", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "18230", "voterCount": 15000, "lat": 43.6453, "lng": 21.8742 },
+    { "name": "Сомбор", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "25000", "voterCount": 77000, "lat": 45.7764, "lng": 19.1139 },
+    { "name": "Сопот", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11450", "voterCount": 20000, "lat": 44.5219, "lng": 20.5814 },
+    { "name": "Србобран", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "21480", "voterCount": 18000, "lat": 45.5436, "lng": 19.7983 },
+    { "name": "Сремска Митровица", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "22000", "voterCount": 82000, "lat": 44.9764, "lng": 19.6131 },
+    { "name": "Сремски Карловци", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "21205", "voterCount": 10000, "lat": 45.2044, "lng": 19.9353 },
+    { "name": "Стара Пазова", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "22300", "voterCount": 52000, "lat": 44.9853, "lng": 20.1619 },
+    { "name": "Стари Град", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11000", "voterCount": 56000, "lat": 44.8183, "lng": 20.4608 },
+    { "name": "Суботица", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "24000", "voterCount": 115000, "lat": 46.1006, "lng": 19.6650 },
+    { "name": "Сурдулица", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "17530", "voterCount": 22000, "lat": 42.6953, "lng": 22.1633 },
+    { "name": "Сурчин", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11271", "voterCount": 48000, "lat": 44.7794, "lng": 20.2919 },
+    { "name": "Свилајнац", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "35210", "voterCount": 25000, "lat": 44.2339, "lng": 21.1978 },
+    { "name": "Сврљиг", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18360", "voterCount": 15000, "lat": 43.4139, "lng": 22.1231 },
+    { "name": "Темерин", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "21235", "voterCount": 24000, "lat": 45.4092, "lng": 19.8897 },
+    { "name": "Тител", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "21240", "voterCount": 12000, "lat": 45.2028, "lng": 20.2944 },
+    { "name": "Топола", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "34310", "voterCount": 22000, "lat": 44.2544, "lng": 20.6839 },
+    { "name": "Трговиште", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "17525", "voterCount": 9000, "lat": 42.3697, "lng": 21.9597 },
+    { "name": "Трстеник", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "37240", "voterCount": 42000, "lat": 43.6194, "lng": 21.0033 },
+    { "name": "Тутин", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "36320", "voterCount": 26000, "lat": 42.9856, "lng": 20.3333 },
+    { "name": "Уб", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "14210", "voterCount": 18000, "lat": 44.4539, "lng": 20.0736 },
+    { "name": "Ужице", "isCity": true, "hasOo": false, "parentCity": null, "postalCode": "31000", "voterCount": 62000, "lat": 43.8567, "lng": 19.8422 },
+    { "name": "Ваљево", "isCity": true, "hasOo": false, "parentCity": null, "postalCode": "14000", "voterCount": 88000, "lat": 44.2706, "lng": 19.8875 },
+    { "name": "Варварин", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "37260", "voterCount": 16000, "lat": 43.7194, "lng": 21.3647 },
+    { "name": "Велика Плана", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "11320", "voterCount": 36000, "lat": 44.3361, "lng": 21.0800 },
+    { "name": "Велико Градиште", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "12220", "voterCount": 18000, "lat": 44.7572, "lng": 21.5156 },
+    { "name": "Владимирци", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "15225", "voterCount": 16000, "lat": 44.6228, "lng": 19.7900 },
+    { "name": "Владичин Хан", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "17510", "voterCount": 20000, "lat": 42.7022, "lng": 22.0606 },
+    { "name": "Власотинце", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "16210", "voterCount": 28000, "lat": 42.9719, "lng": 22.1300 },
+    { "name": "Вождовац", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11010", "voterCount": 188000, "lat": 44.7617, "lng": 20.4658 },
+    { "name": "Чајетина", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "31310", "voterCount": 18000, "lat": 43.7547, "lng": 19.7242 },
+    { "name": "Чачак", "isCity": true, "hasOo": false, "parentCity": null, "postalCode": "32000", "voterCount": 115000, "lat": 43.8914, "lng": 20.3497 },
+    { "name": "Чока", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "23320", "voterCount": 9000, "lat": 45.9489, "lng": 20.1406 },
+    { "name": "Чукарица", "isCity": false, "hasOo": true, "parentCity": "Београд", "postalCode": "11030", "voterCount": 178000, "lat": 44.7658, "lng": 20.3981 },
+    { "name": "Шабац", "isCity": true, "hasOo": true, "parentCity": null, "postalCode": "15000", "voterCount": 102000, "lat": 44.7544, "lng": 19.6944 },
+    { "name": "Шид", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "22240", "voterCount": 22000, "lat": 45.1136, "lng": 19.3094 },
+    { "name": "Жабаљ", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "21230", "voterCount": 18000, "lat": 45.3758, "lng": 20.0575 },
+    { "name": "Жабари", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "12374", "voterCount": 12000, "lat": 44.3644, "lng": 21.2239 },
+    { "name": "Жагубица", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "12320", "voterCount": 12000, "lat": 44.1997, "lng": 21.7858 },
+    { "name": "Житиште", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "23210", "voterCount": 16000, "lat": 45.4856, "lng": 20.5492 },
+    { "name": "Житорађа", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "18412", "voterCount": 16000, "lat": 43.4119, "lng": 21.6069 },
+    { "name": "Ћићевац", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "37210", "voterCount": 14000, "lat": 43.7219, "lng": 21.4631 },
+    { "name": "Ћуприја", "isCity": false, "hasOo": true, "parentCity": null, "postalCode": "35230", "voterCount": 36000, "lat": 43.9297, "lng": 21.3678 },
+    { "name": "Црна Трава", "isCity": false, "hasOo": false, "parentCity": null, "postalCode": "16215", "voterCount": 8000, "lat": 42.9072, "lng": 22.3089 }
 ]
