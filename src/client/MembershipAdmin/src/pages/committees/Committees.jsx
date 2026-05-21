@@ -869,35 +869,14 @@ export default function Committees() {
       <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
           <h2 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('committees:title')}</h2>
-          <div className="flex items-center gap-2">
-            {/* View toggle */}
-            <div className="flex gap-0.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-0.5">
-              <button
-                type="button"
-                onClick={() => setView('table')}
-                title="Table view"
-                className={`rounded-md p-1.5 transition-colors ${view === 'table' ? 'bg-white dark:bg-gray-700 text-brand-500 shadow-theme-xs' : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
-              >
-                <IconTable />
-              </button>
-              <button
-                type="button"
-                onClick={() => setView('map')}
-                title="Map view"
-                className={`rounded-md p-1.5 transition-colors ${view === 'map' ? 'bg-white dark:bg-gray-700 text-brand-500 shadow-theme-xs' : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
-              >
-                <IconMap />
-              </button>
-            </div>
-            <button
-              type="button"
-              onClick={handleAddRoot}
-              className="inline-flex items-center rounded-md bg-brand-500 hover:bg-brand-600 px-2.5 py-1 text-theme-xs font-medium text-white"
-              data-testid="add-root-unit-btn"
-            >
-              {t('action.addRoot')}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleAddRoot}
+            className="inline-flex items-center rounded-md bg-brand-500 hover:bg-brand-600 px-2.5 py-1 text-theme-xs font-medium text-white"
+            data-testid="add-root-unit-btn"
+          >
+            {t('action.addRoot')}
+          </button>
         </div>
 
         {/* Filter bar */}
@@ -967,6 +946,24 @@ export default function Committees() {
             </button>
             <span className="text-theme-xs font-medium text-gray-600 dark:text-gray-300">{t('committees:filter.onlyTrustees')}</span>
           </label>
+          <div className="ml-auto flex gap-0.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-0.5">
+            <button
+              type="button"
+              onClick={() => setView('table')}
+              title="Table view"
+              className={`rounded-md p-1 transition-colors ${view === 'table' ? 'bg-brand-50 dark:bg-gray-700 text-brand-500 shadow-theme-xs' : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+            >
+              <IconTable />
+            </button>
+            <button
+              type="button"
+              onClick={() => setView('map')}
+              title="Map view"
+              className={`rounded-md p-1 transition-colors ${view === 'map' ? 'bg-brand-50 dark:bg-gray-700 text-brand-500 shadow-theme-xs' : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+            >
+              <IconMap />
+            </button>
+          </div>
         </div>
 
         {deleteError && (
