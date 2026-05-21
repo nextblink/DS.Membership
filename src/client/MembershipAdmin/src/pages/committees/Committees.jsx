@@ -9,6 +9,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import api from '../../framework/api'
 import { useToast, ToastContainer } from '../../components/Toast'
+import { makeScriptMatcher } from '../../services/transliteration'
 
 const TYPE_CITY = 'City'
 const TYPE_MUNICIPAL = 'Municipal'
@@ -701,6 +702,7 @@ export default function Committees() {
   const [filterName, setFilterName] = useState('')
   const [filterEngagement, setFilterEngagement] = useState(new Set()) // Set of 'low' | 'medium' | 'high'
   const [filterTrustful, setFilterTrustful] = useState(false)
+  const [sortPm, setSortPm] = useState(null) // null | 'asc' | 'desc'
   const [view, setView] = useState('table') // 'table' | 'map'
 
   const load = useCallback(async () => {
@@ -802,8 +804,8 @@ export default function Committees() {
   const visibleRows = useMemo(() => {
     let rows = flattenedRows
     if (filterName.trim()) {
-      const q = filterName.toLowerCase()
-      rows = rows.filter(n => n.name.toLowerCase().includes(q))
+      const matches = makeScriptMatcher(filterName.trim())
+      rows = rows.filter(n => matches(n.name))
     }
     if (filterEngagement.size > 0) {
       rows = rows.filter(n => {
@@ -818,6 +820,18 @@ export default function Committees() {
     return rows
   }, [flattenedRows, filterName, filterEngagement, filterTrustful])
 
+  const sortedRows = useMemo(() => {
+    if (!sortPm) return visibleRows
+    return [...visibleRows].sort((a, b) => {
+      const val = sortPm.key === 'pm'
+        ? computePromille(a) - computePromille(b)
+        : sortPm.key === 'name'
+          ? a.name.localeCompare(b.name, 'sr')
+          : (a.voterCount ?? 0) - (b.voterCount ?? 0)
+      return sortPm.dir === 'asc' ? val : -val
+    })
+  }, [visibleRows, sortPm])
+
   const content = useMemo(() => {
     if (loading) {
       return <p className="text-theme-sm text-gray-500 dark:text-gray-400" data-testid="org-units-loading">{t('common:state.loading')}</p>
@@ -831,23 +845,45 @@ export default function Committees() {
     if (visibleRows.length === 0) {
       return <p className="text-theme-sm text-gray-500 dark:text-gray-400">{t('committees:filter.noResults')}</p>
     }
+
+    const SortTh = ({ colKey, label, currentSort, onSort, className = '' }) => {
+      const active = currentSort?.key === colKey
+      const icon = active ? (currentSort.dir === 'asc' ? ' ↑' : ' ↓') : ' ↕'
+      return (
+        <th
+          className={`px-4 py-3 cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-200 ${active ? 'text-brand-500 dark:text-brand-400' : ''} ${className}`}
+          onClick={() => onSort(colKey)}
+        >
+          {label}<span className="ml-0.5 text-theme-xs opacity-60">{icon}</span>
+        </th>
+      )
+    }
+
+    const handleSort = (key) => {
+      setSortPm(prev => {
+        if (!prev || prev.key !== key) return { key, dir: 'desc' }
+        if (prev.dir === 'desc') return { key, dir: 'asc' }
+        return null
+      })
+    }
+
     return (
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm" data-testid="org-units-table">
           <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
             <tr>
               <th className="px-4 py-3 text-center w-20">{t('form.type')}</th>
-              <th className="px-4 py-3">{t('form.name')}</th>
+              <SortTh colKey="name" label={t('form.name')} currentSort={sortPm} onSort={handleSort} className="text-left" />
               <th className="px-4 py-3 text-center">{t('form.isTrustful')}</th>
               <th className="px-4 py-3">{t('form.trustee')}</th>
-              <th className="px-4 py-3 text-right">{t('form.voterCount')}</th>
+              <SortTh colKey="voterCount" label={t('form.voterCount')} currentSort={sortPm} onSort={handleSort} className="text-right" />
               <th className="px-4 py-3 text-right">{t('stats.members')}</th>
-              <th className="px-4 py-3 text-right">{t('stats.membership')}</th>
-              <th className="px-4 py-3 text-right">Actions</th>
+              <SortTh colKey="pm" label={t('stats.membership')} currentSort={sortPm} onSort={handleSort} className="text-center" />
+              <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody>
-            {visibleRows.map((node) => (
+            {sortedRows.map((node) => (
               <TableRow
                 key={node.id}
                 node={node}
@@ -861,7 +897,7 @@ export default function Committees() {
         </table>
       </div>
     )
-  }, [loading, error, tree, visibleRows, handleAddChild, handleEdit, handleSaveVoterCount, handleDelete, t])
+  }, [loading, error, tree, visibleRows, sortedRows, sortPm, handleAddChild, handleEdit, handleSaveVoterCount, handleDelete, t])
 
   return (
     <div>

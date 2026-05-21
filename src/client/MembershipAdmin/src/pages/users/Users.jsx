@@ -180,7 +180,7 @@ export default function Users() {
                   <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.email')}</th>
                   <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.role')}</th>
                   <th className="py-4 px-4 text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.committee')}</th>
-                  <th className="py-4 px-4 text-right text-theme-sm font-medium text-gray-900 dark:text-white">{t('users:table.actions')}</th>
+                  <th className="py-4 px-4" />
                 </tr>
               </thead>
               <tbody>

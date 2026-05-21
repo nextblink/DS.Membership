@@ -30,20 +30,46 @@ public class MembersService : IMembersService
             .AsNoTracking()
             .ApplyMemberScope(_currentUser);
 
-        if (!string.IsNullOrWhiteSpace(q.FirstName))
+        var firstName = q.FirstName?.Trim();
+        var lastName = q.LastName?.Trim();
+
+        // The UI sends the same value to both firstName and lastName as a combined name search.
+        // In that case use OR (firstName OR lastName starts with query).
+        // When they differ, the caller is filtering each independently — keep AND.
+        if (!string.IsNullOrWhiteSpace(firstName) && firstName == lastName)
         {
-            var f = q.FirstName.Trim();
-            query = query.Where(m => EF.Functions.Like(m.FirstName, $"%{f}%"));
+            var variants = SerbianTransliteration.GetVariants(firstName);
+            query = variants.Length == 1
+                ? query.Where(m => EF.Functions.Like(m.FirstName, $"{variants[0]}%")
+                               || EF.Functions.Like(m.LastName,  $"{variants[0]}%"))
+                : query.Where(m => EF.Functions.Like(m.FirstName, $"{variants[0]}%")
+                               || EF.Functions.Like(m.FirstName, $"{variants[1]}%")
+                               || EF.Functions.Like(m.LastName,  $"{variants[0]}%")
+                               || EF.Functions.Like(m.LastName,  $"{variants[1]}%"));
         }
-        if (!string.IsNullOrWhiteSpace(q.LastName))
+        else
         {
-            var l = q.LastName.Trim();
-            query = query.Where(m => EF.Functions.Like(m.LastName, $"%{l}%"));
+            if (!string.IsNullOrWhiteSpace(firstName))
+            {
+                var variants = SerbianTransliteration.GetVariants(firstName);
+                query = variants.Length == 1
+                    ? query.Where(m => EF.Functions.Like(m.FirstName, $"{variants[0]}%"))
+                    : query.Where(m => EF.Functions.Like(m.FirstName, $"{variants[0]}%")
+                                   || EF.Functions.Like(m.FirstName, $"{variants[1]}%"));
+            }
+            if (!string.IsNullOrWhiteSpace(lastName))
+            {
+                var variants = SerbianTransliteration.GetVariants(lastName);
+                query = variants.Length == 1
+                    ? query.Where(m => EF.Functions.Like(m.LastName, $"{variants[0]}%"))
+                    : query.Where(m => EF.Functions.Like(m.LastName, $"{variants[0]}%")
+                                   || EF.Functions.Like(m.LastName, $"{variants[1]}%"));
+            }
         }
         if (!string.IsNullOrWhiteSpace(q.JMBG))
         {
             var j = q.JMBG.Trim();
-            query = query.Where(m => m.JMBG == j);
+            query = query.Where(m => EF.Functions.Like(m.JMBG, $"{j}%"));
         }
         if (q.CommitteeId.HasValue)
         {
@@ -64,8 +90,11 @@ public class MembersService : IMembersService
         }
         if (!string.IsNullOrWhiteSpace(q.Occupation))
         {
-            var o = q.Occupation.Trim();
-            query = query.Where(m => m.Occupation != null && EF.Functions.Like(m.Occupation, $"%{o}%"));
+            var variants = SerbianTransliteration.GetVariants(q.Occupation.Trim());
+            query = variants.Length == 1
+                ? query.Where(m => m.Occupation != null && EF.Functions.Like(m.Occupation, $"%{variants[0]}%"))
+                : query.Where(m => m.Occupation != null && (EF.Functions.Like(m.Occupation, $"%{variants[0]}%")
+                                                         || EF.Functions.Like(m.Occupation, $"%{variants[1]}%")));
         }
 
         var totalCount = await query.CountAsync(ct);
@@ -77,7 +106,7 @@ public class MembersService : IMembersService
                 : query.OrderBy(m => m.MembershipDate).ThenBy(m => m.LastName),
             _ => q.SortDesc
                 ? query.OrderByDescending(m => m.LastName).ThenByDescending(m => m.FirstName)
-                : query.OrderBy(m => m.LastName).ThenBy(m => m.FirstName),
+                : query.OrderByDescending(m => m.MembershipDate).ThenBy(m => m.LastName),
         };
 
         var items = await ordered

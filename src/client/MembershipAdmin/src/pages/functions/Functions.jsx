@@ -258,7 +258,7 @@ export default function Functions() {
                 <th className="px-4 py-3 text-theme-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('table.type')}</th>
                 <th className="w-28 px-4 py-3 text-center text-theme-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('table.maxPeople')}</th>
                 {isSuperAdmin && (
-                  <th className="w-40 px-4 py-3 text-right text-theme-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('table.actions')}</th>
+                  <th className="w-40 px-4 py-3" />
                 )}
               </tr>
             </thead>
