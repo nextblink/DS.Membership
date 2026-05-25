@@ -4,6 +4,7 @@ import api from '../../framework/api'
 import auth from '../../framework/auth'
 import { useToast, ToastContainer } from '../../components/Toast'
 import { useConfirm } from '../../components/ConfirmModal'
+import { useCyrillicInput } from '../../hooks/useCyrillicInput'
 
 function extractError(e) {
   return (
@@ -18,6 +19,7 @@ function extractError(e) {
 function FunctionModal({ item, onClose, onSaved, onSuccess }) {
   const { t } = useTranslation(['functions', 'common'])
   const [name, setName] = useState(item?.name ?? '')
+  const cyrNameOnChange = useCyrillicInput(setName)
   const [committeeType, setCommitteeType] = useState(item?.committeeType ?? 'Municipal')
   const [sortOrder, setSortOrder] = useState(item?.sortOrder ?? 0)
   const [maxPeople, setMaxPeople] = useState(item?.maxNumberOfPeople ?? '')
@@ -73,7 +75,7 @@ function FunctionModal({ item, onClose, onSaved, onSuccess }) {
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={cyrNameOnChange}
             placeholder={t('placeholder')}
             autoFocus
             className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-theme-sm text-gray-900 dark:text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/10"
