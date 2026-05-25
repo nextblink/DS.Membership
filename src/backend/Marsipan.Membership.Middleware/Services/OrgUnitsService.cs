@@ -126,7 +126,7 @@ public class CommitteesService : ICommitteesService
         var now = DateTime.UtcNow;
         var entity = new Committee
         {
-            Name = dto.Name,
+            Name = SerbianTransliteration.ToCyrillic(dto.Name),
             Type = dto.Type,
             ParentId = dto.ParentId,
             MunicipalityId = dto.MunicipalityId,
@@ -164,7 +164,7 @@ public class CommitteesService : ICommitteesService
             return false;
         }
 
-        entity.Name = dto.Name;
+        entity.Name = SerbianTransliteration.ToCyrillic(dto.Name);
         entity.Type = dto.Type;
         entity.ParentId = dto.ParentId;
         entity.MunicipalityId = dto.MunicipalityId;

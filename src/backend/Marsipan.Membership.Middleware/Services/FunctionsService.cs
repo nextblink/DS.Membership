@@ -41,7 +41,7 @@ public class FunctionsService : IFunctionsService
     {
         var entity = new Function
         {
-            Name = dto.Name,
+            Name = SerbianTransliteration.ToCyrillic(dto.Name),
             CommitteeType = dto.CommitteeType,
             MaxNumberOfPeople = dto.MaxNumberOfPeople,
             SortOrder = dto.SortOrder,
@@ -63,7 +63,7 @@ public class FunctionsService : IFunctionsService
         if (entity is null)
             return false;
 
-        entity.Name = dto.Name;
+        entity.Name = SerbianTransliteration.ToCyrillic(dto.Name);
         entity.CommitteeType = dto.CommitteeType;
         entity.MaxNumberOfPeople = dto.MaxNumberOfPeople;
         entity.SortOrder = dto.SortOrder;

@@ -135,8 +135,8 @@ public class UsersService : IUsersService
         {
             UserName = dto.Email,
             Email = dto.Email,
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
+            FirstName = dto.FirstName != null ? SerbianTransliteration.ToCyrillic(dto.FirstName) : null,
+            LastName = dto.LastName != null ? SerbianTransliteration.ToCyrillic(dto.LastName) : null,
             CommitteeId = dto.CommitteeId,
         };
 
@@ -211,8 +211,8 @@ public class UsersService : IUsersService
             throw new UserValidationException(
                 string.Join("; ", addResult.Errors.Select(e => e.Description)));
 
-        user.FirstName = dto.FirstName;
-        user.LastName = dto.LastName;
+        user.FirstName = dto.FirstName != null ? SerbianTransliteration.ToCyrillic(dto.FirstName) : null;
+        user.LastName = dto.LastName != null ? SerbianTransliteration.ToCyrillic(dto.LastName) : null;
         user.CommitteeId = dto.CommitteeId;
         var updateResult = await _userManager.UpdateAsync(user);
         if (!updateResult.Succeeded)

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import { useToast, ToastContainer } from '../../components/Toast'
-import { useCyrillicInput } from '../../hooks/useCyrillicInput'
 
 function typeBadgeClass() {
   return 'inline-flex rounded-full bg-brand-50 dark:bg-brand-500/10 px-2.5 py-0.5 text-theme-xs font-medium text-brand-600 dark:text-brand-400'
@@ -27,7 +26,6 @@ function MemberBar({ count, max }) {
 function EditBodyModal({ body, onClose, onSave }) {
   const { t } = useTranslation(['committees', 'common'])
   const [name, setName] = useState(body.name ?? '')
-  const cyrNameOnChange = useCyrillicInput(setName)
   const [maxMembers, setMaxMembers] = useState(body.maxMembers ?? '')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
@@ -58,7 +56,7 @@ function EditBodyModal({ body, onClose, onSave }) {
         <form onSubmit={handleSubmit} className="px-6 py-4">
           <div className="mb-4">
             <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('committees:form.name')}</label>
-            <input type="text" value={name} onChange={cyrNameOnChange} autoFocus className={inputCls} />
+            <input type="text" value={name} onChange={e => setName(e.target.value)} autoFocus className={inputCls} />
           </div>
           <div className="mb-4">
             <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('committees:form.maxMembers')}</label>
@@ -84,7 +82,6 @@ function EditBodyModal({ body, onClose, onSave }) {
 function AddBodyModal({ open, onClose, onSubmit, onSuccess, onError }) {
   const { t } = useTranslation(['committees', 'common'])
   const [name, setName] = useState('')
-  const cyrNameOnChange = useCyrillicInput(setName)
   const [maxMembers, setMaxMembers] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
@@ -124,7 +121,7 @@ function AddBodyModal({ open, onClose, onSubmit, onSuccess, onError }) {
         <form onSubmit={handleSubmit} className="px-6 py-4">
           <div className="mb-4">
             <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('committees:form.name')}</label>
-            <input type="text" value={name} onChange={cyrNameOnChange} autoFocus className={inputCls} />
+            <input type="text" value={name} onChange={e => setName(e.target.value)} autoFocus className={inputCls} />
           </div>
           <div className="mb-4">
             <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('committees:form.maxMembers')}</label>

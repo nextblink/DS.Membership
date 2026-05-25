@@ -172,24 +172,24 @@ public class MembersService : IMembersService
 
         var member = new Member
         {
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            ParentName = dto.ParentName,
+            FirstName = SerbianTransliteration.ToCyrillic(dto.FirstName),
+            LastName = SerbianTransliteration.ToCyrillic(dto.LastName),
+            ParentName = dto.ParentName != null ? SerbianTransliteration.ToCyrillic(dto.ParentName) : null,
             DateOfBirth = dto.DateOfBirth,
             JMBG = jmbg,
             Gender = dto.Gender,
             PostalCode = dto.PostalCode,
             IdCardNumber = dto.IdCardNumber,
-            City = dto.City,
+            City = dto.City != null ? SerbianTransliteration.ToCyrillic(dto.City) : null,
             Email = dto.Email,
             MaritalStatus = dto.MaritalStatus,
             VotingPlaceNumber = dto.VotingPlaceNumber,
             EducationLevel = dto.EducationLevel,
-            CompanyName = dto.CompanyName,
-            CompanyCity = dto.CompanyCity,
+            CompanyName = dto.CompanyName != null ? SerbianTransliteration.ToCyrillic(dto.CompanyName) : null,
+            CompanyCity = dto.CompanyCity != null ? SerbianTransliteration.ToCyrillic(dto.CompanyCity) : null,
             IsPublicCompany = dto.IsPublicCompany,
-            JobTitle = dto.JobTitle,
-            Occupation = dto.Occupation,
+            JobTitle = dto.JobTitle != null ? SerbianTransliteration.ToCyrillic(dto.JobTitle) : null,
+            Occupation = dto.Occupation != null ? SerbianTransliteration.ToCyrillic(dto.Occupation) : null,
             MembershipDate = dto.MembershipDate,
             CommitteeId = dto.CommitteeId,
             CreatedDate = now,
@@ -261,24 +261,24 @@ public class MembersService : IMembersService
             }
         }
 
-        member.FirstName = dto.FirstName;
-        member.LastName = dto.LastName;
-        member.ParentName = dto.ParentName;
+        member.FirstName = SerbianTransliteration.ToCyrillic(dto.FirstName);
+        member.LastName = SerbianTransliteration.ToCyrillic(dto.LastName);
+        member.ParentName = dto.ParentName != null ? SerbianTransliteration.ToCyrillic(dto.ParentName) : null;
         member.DateOfBirth = dto.DateOfBirth;
         member.JMBG = newJmbg;
         member.Gender = dto.Gender;
         member.PostalCode = dto.PostalCode;
         member.IdCardNumber = dto.IdCardNumber;
-        member.City = dto.City;
+        member.City = dto.City != null ? SerbianTransliteration.ToCyrillic(dto.City) : null;
         member.Email = dto.Email;
         member.MaritalStatus = dto.MaritalStatus;
         member.VotingPlaceNumber = dto.VotingPlaceNumber;
         member.EducationLevel = dto.EducationLevel;
-        member.CompanyName = dto.CompanyName;
-        member.CompanyCity = dto.CompanyCity;
+        member.CompanyName = dto.CompanyName != null ? SerbianTransliteration.ToCyrillic(dto.CompanyName) : null;
+        member.CompanyCity = dto.CompanyCity != null ? SerbianTransliteration.ToCyrillic(dto.CompanyCity) : null;
         member.IsPublicCompany = dto.IsPublicCompany;
-        member.JobTitle = dto.JobTitle;
-        member.Occupation = dto.Occupation;
+        member.JobTitle = dto.JobTitle != null ? SerbianTransliteration.ToCyrillic(dto.JobTitle) : null;
+        member.Occupation = dto.Occupation != null ? SerbianTransliteration.ToCyrillic(dto.Occupation) : null;
         member.MembershipDate = dto.MembershipDate;
         member.CommitteeId = dto.CommitteeId;
         member.LastModifiedDate = DateTime.UtcNow;
