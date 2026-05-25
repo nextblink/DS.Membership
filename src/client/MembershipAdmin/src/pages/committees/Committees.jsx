@@ -10,6 +10,7 @@ import 'leaflet/dist/leaflet.css'
 import api from '../../framework/api'
 import { useToast, ToastContainer } from '../../components/Toast'
 import { makeScriptMatcher } from '../../services/transliteration'
+import { useCyrillicInput } from '../../hooks/useCyrillicInput'
 
 const TYPE_CITY = 'City'
 const TYPE_MUNICIPAL = 'Municipal'
@@ -230,6 +231,7 @@ function TrusteeField({ trusteeId, setTrusteeId, trusteeName, setTrusteeName, la
 function AddUnitModal({ open, parent, onClose, onSubmit, onSuccess, onError }) {
   const { t } = useTranslation('committees')
   const [name, setName] = useState('')
+  const cyrNameOnChange = useCyrillicInput(setName)
   const [type, setType] = useState(parent ? TYPE_MUNICIPAL : TYPE_CITY)
   const [voterCount, setVoterCount] = useState(0)
   const [trusteeId, setTrusteeId] = useState(null)
@@ -294,7 +296,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit, onSuccess, onError }) {
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={cyrNameOnChange}
               className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
               autoFocus
               data-testid="modal-name-input"
@@ -368,6 +370,7 @@ function AddUnitModal({ open, parent, onClose, onSubmit, onSuccess, onError }) {
 function EditUnitModal({ node, onClose, onSubmit, onSuccess, onError }) {
   const { t } = useTranslation('committees')
   const [name, setName] = useState(node.name ?? '')
+  const cyrNameOnChange = useCyrillicInput(setName)
   const [type, setType] = useState(node.type ?? TYPE_CITY)
   const [voterCount, setVoterCount] = useState(node.voterCount ?? 0)
   const [trusteeId, setTrusteeId] = useState(node.trusteeId ?? null)
@@ -404,7 +407,7 @@ function EditUnitModal({ node, onClose, onSubmit, onSuccess, onError }) {
           <div className="mb-4">
             <label className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('form.name')}</label>
             <input
-              type="text" value={name} onChange={(e) => setName(e.target.value)} autoFocus
+              type="text" value={name} onChange={cyrNameOnChange} autoFocus
               className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
             />
           </div>

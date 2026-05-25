@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
+import { useRhfCyrillicInput } from '../../hooks/useCyrillicInput'
 import { useToast, ToastContainer } from '../../components/Toast'
 import { ConfirmModal } from '../../components/ConfirmModal'
 
@@ -303,10 +304,12 @@ function CreateUserModal({ committeeOptions, onClose, onCreated, onError }) {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: { firstName: '', lastName: '', email: '', password: '', role: 'Viewer', committeeId: '' },
   })
+  const { cyrRhfOnChange } = useRhfCyrillicInput(setValue)
   const role = watch('role')
   const committeeRequired = ROLES_REQUIRING_COMMITTEE.includes(role)
 
@@ -340,7 +343,7 @@ function CreateUserModal({ committeeOptions, onClose, onCreated, onError }) {
               id="create-firstName"
               type="text"
               autoComplete="given-name"
-              {...register('firstName')}
+              {...register('firstName', { onChange: (e) => cyrRhfOnChange(e, 'firstName') })}
               className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
             />
           </div>
@@ -350,7 +353,7 @@ function CreateUserModal({ committeeOptions, onClose, onCreated, onError }) {
               id="create-lastName"
               type="text"
               autoComplete="family-name"
-              {...register('lastName')}
+              {...register('lastName', { onChange: (e) => cyrRhfOnChange(e, 'lastName') })}
               className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
             />
           </div>
@@ -467,6 +470,7 @@ function EditUserModal({ user, committeeOptions, onClose, onSaved, onError }) {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -476,6 +480,7 @@ function EditUserModal({ user, committeeOptions, onClose, onSaved, onError }) {
       committeeId: user.committeeId != null ? String(user.committeeId) : '',
     },
   })
+  const { cyrRhfOnChange } = useRhfCyrillicInput(setValue)
   const role = watch('role')
   const committeeRequired = ROLES_REQUIRING_COMMITTEE.includes(role)
 
@@ -507,7 +512,7 @@ function EditUserModal({ user, committeeOptions, onClose, onSaved, onError }) {
               id="edit-firstName"
               type="text"
               autoComplete="given-name"
-              {...register('firstName')}
+              {...register('firstName', { onChange: (e) => cyrRhfOnChange(e, 'firstName') })}
               className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
             />
           </div>
@@ -517,7 +522,7 @@ function EditUserModal({ user, committeeOptions, onClose, onSaved, onError }) {
               id="edit-lastName"
               type="text"
               autoComplete="family-name"
-              {...register('lastName')}
+              {...register('lastName', { onChange: (e) => cyrRhfOnChange(e, 'lastName') })}
               className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
             />
           </div>

@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
+import { useRhfCyrillicInput } from '../../hooks/useCyrillicInput'
 import {
   GENDER_OPTIONS,
   MARITAL_STATUS_OPTIONS,
@@ -168,6 +169,8 @@ export default function MemberForm({
     formState: { errors },
   } = useForm({ defaultValues: toFormValues(initialMember) })
 
+  const { cyrRhfOnChange } = useRhfCyrillicInput(setValue)
+
   const phones = useFieldArray({ control, name: 'phones' })
   const fns = useFieldArray({ control, name: 'memberFunctions' })
 
@@ -296,7 +299,7 @@ export default function MemberForm({
               className={`${inputClass}${extractedKeys.has('firstName') ? ' extracted-field' : ''}`}
               {...register('firstName', {
                 required: t('members:validation.firstNameRequired'),
-                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('firstName'); return s }),
+                onChange: (e) => { cyrRhfOnChange(e, 'firstName'); setExtractedKeys((prev) => { const s = new Set(prev); s.delete('firstName'); return s }) },
               })}
             />
           </Field>
@@ -305,7 +308,7 @@ export default function MemberForm({
               className={`${inputClass}${extractedKeys.has('lastName') ? ' extracted-field' : ''}`}
               {...register('lastName', {
                 required: t('members:validation.lastNameRequired'),
-                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('lastName'); return s }),
+                onChange: (e) => { cyrRhfOnChange(e, 'lastName'); setExtractedKeys((prev) => { const s = new Set(prev); s.delete('lastName'); return s }) },
               })}
             />
           </Field>
@@ -313,7 +316,7 @@ export default function MemberForm({
             <input
               className={`${inputClass}${extractedKeys.has('parentName') ? ' extracted-field' : ''}`}
               {...register('parentName', {
-                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('parentName'); return s }),
+                onChange: (e) => { cyrRhfOnChange(e, 'parentName'); setExtractedKeys((prev) => { const s = new Set(prev); s.delete('parentName'); return s }) },
               })}
             />
           </Field>
@@ -398,7 +401,7 @@ export default function MemberForm({
             <input
               className={`${inputClass}${extractedKeys.has('city') ? ' extracted-field' : ''}`}
               {...register('city', {
-                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('city'); return s }),
+                onChange: (e) => { cyrRhfOnChange(e, 'city'); setExtractedKeys((prev) => { const s = new Set(prev); s.delete('city'); return s }) },
               })}
             />
           </Field>
@@ -588,7 +591,7 @@ export default function MemberForm({
             <input
               className={`${inputClass}${extractedKeys.has('occupation') ? ' extracted-field' : ''}`}
               {...register('occupation', {
-                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('occupation'); return s }),
+                onChange: (e) => { cyrRhfOnChange(e, 'occupation'); setExtractedKeys((prev) => { const s = new Set(prev); s.delete('occupation'); return s }) },
               })}
             />
           </Field>
@@ -623,7 +626,7 @@ export default function MemberForm({
             <input
               className={`${inputClass}${extractedKeys.has('jobTitle') ? ' extracted-field' : ''}`}
               {...register('jobTitle', {
-                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('jobTitle'); return s }),
+                onChange: (e) => { cyrRhfOnChange(e, 'jobTitle'); setExtractedKeys((prev) => { const s = new Set(prev); s.delete('jobTitle'); return s }) },
               })}
             />
           </Field>
@@ -631,7 +634,7 @@ export default function MemberForm({
             <input
               className={`${inputClass}${extractedKeys.has('companyName') ? ' extracted-field' : ''}`}
               {...register('companyName', {
-                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('companyName'); return s }),
+                onChange: (e) => { cyrRhfOnChange(e, 'companyName'); setExtractedKeys((prev) => { const s = new Set(prev); s.delete('companyName'); return s }) },
               })}
             />
           </Field>
@@ -639,7 +642,7 @@ export default function MemberForm({
             <input
               className={`${inputClass}${extractedKeys.has('companyCity') ? ' extracted-field' : ''}`}
               {...register('companyCity', {
-                onChange: () => setExtractedKeys((prev) => { const s = new Set(prev); s.delete('companyCity'); return s }),
+                onChange: (e) => { cyrRhfOnChange(e, 'companyCity'); setExtractedKeys((prev) => { const s = new Set(prev); s.delete('companyCity'); return s }) },
               })}
             />
           </Field>
