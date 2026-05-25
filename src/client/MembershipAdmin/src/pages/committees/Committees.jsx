@@ -577,6 +577,16 @@ function TableRow({
       </td>
       <td className="px-4 py-3 text-right">
         <div className="flex items-center justify-end gap-1.5">
+          {node.type !== TYPE_MUNICIPAL && (
+            <button
+              type="button"
+              onClick={() => onAddChild(node)}
+              className="rounded-md border border-gray-200 dark:border-gray-800 px-2.5 py-1 text-theme-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+              data-testid={`add-child-btn-${node.id}`}
+            >
+              {t('action.addChild')}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => onEdit(node)}
@@ -584,14 +594,6 @@ function TableRow({
             data-testid={`edit-btn-${node.id}`}
           >
             {t('action.edit')}
-          </button>
-          <button
-            type="button"
-            onClick={() => onAddChild(node)}
-            className="rounded-md border border-gray-200 dark:border-gray-800 px-2.5 py-1 text-theme-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-            data-testid={`add-child-btn-${node.id}`}
-          >
-            {t('action.addChild')}
           </button>
           {!node.children?.length && (
             <button
