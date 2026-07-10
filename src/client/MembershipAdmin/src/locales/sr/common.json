@@ -3,6 +3,7 @@
   "nav": {
     "mainMenu": "Главни мени",
     "account": "Налог",
+    "callcenter": "Кол центар",
     "dashboard": "Почетна",
     "members": "Чланови",
     "forms": "Обрасци",
@@ -10,7 +11,13 @@
     "bodies": "Тела",
     "functions": "Функције",
     "users": "Корисници",
-    "profile": "Профил"
+    "profile": "Профил",
+    "campaigns": "Кампање",
+    "import": "Увоз",
+    "contacts": "Контакти",
+    "pools": "Групе",
+    "queue": "Позивање",
+    "reports": "Извештаји"
   },
   "button": {
     "apply": "Примени",
