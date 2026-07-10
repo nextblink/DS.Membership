@@ -32,6 +32,9 @@ public class CallContactImportService : ICallContactImportService
             ? ReadXlsx(file)
             : ReadCsv(file);
 
+        var municipalityIdsByName = await _db.Municipalities
+            .ToDictionaryAsync(m => m.Name, m => m.Id, StringComparer.OrdinalIgnoreCase, ct);
+
         var errors = new List<string>();
         var now = DateTime.UtcNow;
         var uid = _user.Id ?? "system";
@@ -49,6 +52,13 @@ public class CallContactImportService : ICallContactImportService
                 continue;
             }
 
+            int? municipalityId = null;
+            if (!string.IsNullOrWhiteSpace(r.Municipality) &&
+                municipalityIdsByName.TryGetValue(r.Municipality.Trim(), out var mid))
+            {
+                municipalityId = mid;
+            }
+
             toAdd.Add(new CallContact
             {
                 FirstName = r.FirstName!.Trim(),
@@ -57,6 +67,7 @@ public class CallContactImportService : ICallContactImportService
                 Email = string.IsNullOrWhiteSpace(r.Email) ? null : r.Email!.Trim(),
                 Address = string.IsNullOrWhiteSpace(r.Address) ? null : r.Address!.Trim(),
                 City = string.IsNullOrWhiteSpace(r.City) ? null : r.City!.Trim(),
+                MunicipalityId = municipalityId,
                 CampaignId = campaignId,
                 CreatedDate = now,
                 LastModifiedDate = now,
@@ -80,7 +91,10 @@ public class CallContactImportService : ICallContactImportService
             MissingFieldFound = null,
             PrepareHeaderForMatch = a => a.Header.Trim().ToLowerInvariant()
         });
-        csv.Read();
+        if (!csv.Read())
+        {
+            return new List<RawRow>();
+        }
         csv.ReadHeader();
         var rows = new List<RawRow>();
         while (csv.Read())
