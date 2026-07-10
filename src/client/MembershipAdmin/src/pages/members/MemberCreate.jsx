@@ -53,13 +53,19 @@ export default function MemberCreate() {
       // the call contact converted and return to the queue instead of the new
       // member's profile.
       if (newId && callContactId) {
+        let conversionFailed = false
         try {
           await callCenterApi.setConverted(callContactId, newId)
         } catch (convertErr) {
-          // Non-blocking — member was saved, conversion linkage failure is logged
+          // Non-blocking — member was saved, but the operator must be told the
+          // contact-to-member link didn't record server-side. Since we navigate
+          // away from this page immediately, a local toast would be unmounted
+          // before it could be seen — pass the warning via router state instead
+          // so /callcenter/queue can surface it.
           console.error('Call contact conversion linking failed:', convertErr)
+          conversionFailed = true
         }
-        navigate('/callcenter/queue')
+        navigate('/callcenter/queue', conversionFailed ? { state: { conversionWarning: true } } : undefined)
         return
       }
 

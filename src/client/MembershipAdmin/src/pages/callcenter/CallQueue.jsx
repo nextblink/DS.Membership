@@ -2,14 +2,22 @@
 // jump into the guided call script. Mirrors button/card conventions from
 // pages/callcenter/PoolForm.jsx.
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import callCenterApi from '../../services/callCenterApi'
 
 export default function CallQueue() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [empty, setEmpty] = useState(false)
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState(null)
+  // Seed the error banner with a one-time warning passed from MemberCreate.jsx
+  // when the call contact was created as a member but the server-side
+  // conversion link (setConverted) failed to save.
+  const [error, setError] = useState(
+    location.state?.conversionWarning
+      ? 'Члан је сачуван, али повезивање са контактом није успело — молимо ажурирајте ручно.'
+      : null
+  )
 
   const callNext = async () => {
     setBusy(true)
