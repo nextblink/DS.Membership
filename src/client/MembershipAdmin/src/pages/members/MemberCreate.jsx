@@ -5,6 +5,7 @@ import { useState } from 'react'
 import api from '../../framework/api'
 import { useToast, ToastContainer } from '../../components/Toast'
 import MemberForm from './MemberForm'
+import callCenterApi from '../../services/callCenterApi'
 
 export default function MemberCreate() {
   const navigate = useNavigate()
@@ -17,6 +18,11 @@ export default function MemberCreate() {
   // Data arriving from FormUpload.jsx after AI extraction
   const extracted = location.state?.extracted ?? null
   const scannedFiles = location.state?.files ?? null  // File[] from the upload
+
+  // Data arriving from CallScript.jsx when the operator enrolls a call contact.
+  // Reuses the same `extracted`/`initialExtracted` seeding mechanism as the
+  // scan flow above — no separate prefill shape needed.
+  const callContactId = location.state?.callContactId ?? null
 
   async function onSubmit(payload) {
     setSubmitting(true)
@@ -41,6 +47,20 @@ export default function MemberCreate() {
           // Non-blocking — member was saved, Form record failure is logged
           console.error('Form audit record creation failed:', formErr)
         }
+      }
+
+      // If this create originated from the call-script enrollment hand-off, mark
+      // the call contact converted and return to the queue instead of the new
+      // member's profile.
+      if (newId && callContactId) {
+        try {
+          await callCenterApi.setConverted(callContactId, newId)
+        } catch (convertErr) {
+          // Non-blocking — member was saved, conversion linkage failure is logged
+          console.error('Call contact conversion linking failed:', convertErr)
+        }
+        navigate('/callcenter/queue')
+        return
       }
 
       if (newId) navigate(`/members/${newId}`, { state: { toast: 'created' } })
