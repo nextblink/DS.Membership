@@ -202,10 +202,19 @@ export default function PoolForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
             <label className={labelClass}>Место (филтер)</label>
             <input className={inputClass} value={form.filterCity} onChange={set('filterCity')} />
+          </div>
+          <div>
+            <label className={labelClass}>Општина (филтер)</label>
+            <input
+              type="number"
+              className={inputClass}
+              value={form.filterMunicipalityId}
+              onChange={set('filterMunicipalityId')}
+            />
           </div>
           <div>
             <label className={labelClass}>Исход (филтер)</label>
