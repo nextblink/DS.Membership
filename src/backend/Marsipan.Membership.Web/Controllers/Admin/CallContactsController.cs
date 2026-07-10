@@ -58,6 +58,14 @@ public class CallContactsController : ControllerBase
         catch (KeyNotFoundException) { return NotFound(); }
     }
 
+    [HttpPost("{id:int}/release")]
+    [Authorize(Roles = "SuperAdmin,Admin,Operator")]
+    public async Task<IActionResult> ReleaseClaim(int id, CancellationToken ct)
+    {
+        try { await _contacts.ReleaseClaimAsync(id, ct); return NoContent(); }
+        catch (KeyNotFoundException) { return NotFound(); }
+    }
+
     [HttpGet("{id:int}/match-suggestions")]
     public async Task<ActionResult<List<MemberMatchDto>>> MatchSuggestions(int id, CancellationToken ct)
     {

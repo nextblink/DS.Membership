@@ -82,7 +82,10 @@ export default function CallScript() {
         : [...a.engagementAreas, v],
     }))
 
-  const finish = async () => {
+  // Builds the SaveCallOutcomeRequest payload from the current wizard answers and
+  // persists it. Returns true on success. Shared by the normal 'end'-step completion
+  // path and the enroll ("Учлани") shortcut so both save the outcome identically.
+  const saveOutcome = async () => {
     const payload = {
       outcome: answers.outcome,
       attemptNote: answers.attemptNote ?? null,
@@ -101,12 +104,18 @@ export default function CallScript() {
     setSaveError(null)
     try {
       await callCenterApi.saveOutcome(id, payload)
-      navigate('/callcenter/queue')
+      return true
     } catch (err) {
       setSaveError(err?.response?.data?.message || 'Чување исхода није успело.')
+      return false
     } finally {
       setSaving(false)
     }
+  }
+
+  const finish = async () => {
+    const ok = await saveOutcome()
+    if (ok) navigate('/callcenter/queue')
   }
 
   const advance = () => {
@@ -130,8 +139,13 @@ export default function CallScript() {
     }
   }
 
-  const enroll = () => {
+  const enroll = async () => {
     if (!contact) return
+    // Save the outcome (same logic as the normal 'end'-step completion path) before
+    // navigating away, so FinalStatus/CallAttempt/claim-release happen for the enroll
+    // path exactly as they do for the normal wizard completion.
+    const ok = await saveOutcome()
+    if (!ok) return
     navigate('/members/new', {
       state: {
         extracted: {
@@ -144,6 +158,14 @@ export default function CallScript() {
         callContactId: Number(id),
       },
     })
+  }
+
+  const cancel = () => {
+    // Fire-and-forget: release this operator's claim so the contact returns to the
+    // shared pool immediately. Don't block navigation on it — the stale-claim cutoff
+    // on the backend is the safety net if this call fails.
+    callCenterApi.releaseClaim(id).catch(() => {})
+    navigate('/callcenter/queue')
   }
 
   if (loading) return <div className="p-6 text-theme-sm text-gray-500 dark:text-gray-400">Учитавање...</div>
@@ -276,8 +298,9 @@ export default function CallScript() {
             {!linkedMemberId && !contact.convertedMemberId && (
               <button
                 type="button"
+                disabled={saving}
                 onClick={enroll}
-                className="mt-3 rounded-lg border border-brand-300 dark:border-brand-700 px-4 py-2 text-theme-xs font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10"
+                className="mt-3 rounded-lg border border-brand-300 dark:border-brand-700 px-4 py-2 text-theme-xs font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 disabled:opacity-50"
               >
                 Учлани као новог члана
               </button>
@@ -328,7 +351,7 @@ export default function CallScript() {
         </button>
         <button
           type="button"
-          onClick={() => navigate('/callcenter/queue')}
+          onClick={cancel}
           className="rounded-lg border border-gray-300 dark:border-gray-700 px-5 py-2.5 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
         >
           Откажи
