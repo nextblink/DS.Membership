@@ -1,15 +1,37 @@
-// Operator landing page: pull the next unattempted contact from the pool and
-// jump into the guided call script. Mirrors button/card conventions from
-// pages/callcenter/PoolForm.jsx.
-import { useState } from 'react'
+// Operator landing page: a selectable table of the operator's own callable
+// contacts (server-side scope-filtered via ApplyCallContactScope), replacing the
+// earlier blind "call next" button. Mirrors ContactList.jsx's table/pagination
+// markup and its corrected outcome/final-status enum label logic.
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import callCenterApi from '../../services/callCenterApi'
+import { CALL_OUTCOME } from '../../services/callScript'
+
+// Enum values mirror the backend Enums.cs ordinals (ContactFinalStatus).
+const FINAL_STATUS = { ActiveMember: 0, InactiveMember: 1, Sympathizer: 2, NoCooperation: 3 }
+
+const PAGE_SIZE = 20
+
+// The API serializes enums as their string member name (JsonStringEnumConverter in
+// Program.cs), so lastOutcome/finalStatus arrive as e.g. "NoAnswer", not a numeric
+// ordinal. Validate the value against the known keys and render it as-is.
+function outcomeLabel(value) {
+  if (value === null || value === undefined || value === '') return '-'
+  return value in CALL_OUTCOME ? value : String(value)
+}
+
+function finalStatusLabel(value) {
+  if (value === null || value === undefined || value === '') return '-'
+  return value in FINAL_STATUS ? value : String(value)
+}
 
 export default function CallQueue() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [empty, setEmpty] = useState(false)
-  const [busy, setBusy] = useState(false)
+  const [page, setPage] = useState(1)
+  const [data, setData] = useState({ items: [], totalCount: 0, page: 1, pageSize: PAGE_SIZE, totalPages: 1 })
+  const [loading, setLoading] = useState(false)
+  const [claimingId, setClaimingId] = useState(null)
   // Seed the error banner with a one-time warning passed from MemberCreate.jsx
   // when the call contact was created as a member but the server-side
   // conversion link (setConverted) failed to save.
@@ -19,48 +41,166 @@ export default function CallQueue() {
       : null
   )
 
-  const callNext = async () => {
-    setBusy(true)
+  const refreshKey = useMemo(() => page, [page])
+
+  const load = () => {
+    let cancelled = false
+    setLoading(true)
+    callCenterApi
+      .listContacts({ page, pageSize: PAGE_SIZE })
+      .then((d) => {
+        if (cancelled) return
+        setData({
+          items: d.items ?? [],
+          totalCount: d.totalCount ?? 0,
+          page: d.page ?? 1,
+          pageSize: d.pageSize ?? PAGE_SIZE,
+          totalPages: d.totalPages ?? 1,
+        })
+      })
+      .catch((err) => {
+        if (cancelled) return
+        setError(err?.response?.data?.message || 'Учитавање контаката није успело.')
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }
+
+  useEffect(() => {
+    const cancel = load()
+    return cancel
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey])
+
+  const callContact = async (contactId) => {
+    setClaimingId(contactId)
     setError(null)
-    setEmpty(false)
     try {
-      const contact = await callCenterApi.getNext()
-      if (!contact) {
-        setEmpty(true)
-        return
-      }
-      navigate(`/callcenter/call/${contact.id}`)
+      await callCenterApi.claim(contactId)
+      navigate(`/callcenter/call/${contactId}`)
     } catch (err) {
-      setError(err?.response?.data?.message || 'Учитавање следећег контакта није успело.')
+      const status = err?.response?.status
+      const code = err?.response?.data?.error
+      if (status === 409 && code === 'already_claimed') {
+        setError('Контакт је већ преузет од стране другог оператера.')
+      } else if (status === 409 && code === 'already_resolved') {
+        setError('Контакт је већ решен.')
+      } else {
+        setError(err?.response?.data?.message || 'Преузимање контакта није успело.')
+      }
+      load()
     } finally {
-      setBusy(false)
+      setClaimingId(null)
     }
   }
 
+  const totalPages = data.totalPages || 1
+
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm p-10 text-center max-w-xl mx-auto">
-      <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400 mb-6">Позивање</h1>
+    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">Позивање</h1>
+      </div>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
+        <div className="mx-6 mt-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
           {error}
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={callNext}
-        disabled={busy}
-        className="rounded-lg bg-brand-500 hover:bg-brand-600 px-8 py-4 text-theme-lg font-medium text-white disabled:opacity-50"
-      >
-        {busy ? 'Учитавање...' : 'Позови следећи'}
-      </button>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
+            <tr>
+              <th className="px-4 py-3">Име</th>
+              <th className="px-4 py-3">Телефон</th>
+              <th className="px-4 py-3">Место</th>
+              <th className="px-4 py-3 w-24 whitespace-nowrap">Покушаја</th>
+              <th className="px-4 py-3 w-32 whitespace-nowrap">Исход</th>
+              <th className="px-4 py-3 w-32 whitespace-nowrap">Статус</th>
+              <th className="px-4 py-3 w-28 whitespace-nowrap"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && (
+              <tr>
+                <td colSpan={7} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
+                  Учитавање...
+                </td>
+              </tr>
+            )}
+            {!loading && data.items.length === 0 && (
+              <tr>
+                <td colSpan={7} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
+                  Нема контаката за позивање.
+                </td>
+              </tr>
+            )}
+            {!loading &&
+              data.items.map((c) => (
+                <tr
+                  key={c.id}
+                  className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30"
+                >
+                  <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">
+                    {c.firstName} {c.lastName}
+                  </td>
+                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{c.phoneNumber}</td>
+                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{c.city ?? '-'}</td>
+                  <td className="px-4 py-3 w-24 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
+                    {c.attemptCount}
+                  </td>
+                  <td className="px-4 py-3 w-32 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
+                    {outcomeLabel(c.lastOutcome)}
+                  </td>
+                  <td className="px-4 py-3 w-32 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
+                    {finalStatusLabel(c.finalStatus)}
+                  </td>
+                  <td className="px-4 py-3 w-28 whitespace-nowrap text-theme-sm text-right">
+                    <button
+                      type="button"
+                      disabled={claimingId === c.id}
+                      onClick={() => callContact(c.id)}
+                      className="rounded-lg bg-brand-500 hover:bg-brand-600 px-3 py-1.5 text-theme-xs font-medium text-white disabled:opacity-50"
+                    >
+                      {claimingId === c.id ? 'Преузимање...' : 'Позови'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
 
-      {empty && (
-        <p className="mt-6 text-theme-sm text-gray-500 dark:text-gray-400">
-          Нема више контаката за позивање.
-        </p>
-      )}
+      {/* Pagination footer */}
+      <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-6 py-4">
+        <div className="text-theme-xs text-gray-500 dark:text-gray-400">
+          Укупно {data.totalCount} · страна {data.page} / {totalPages}
+        </div>
+        <div className="flex gap-1">
+          <button
+            type="button"
+            disabled={data.page <= 1}
+            onClick={() => setPage(data.page - 1)}
+            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
+          >
+            Претходна
+          </button>
+          <button
+            type="button"
+            disabled={data.page >= totalPages}
+            onClick={() => setPage(data.page + 1)}
+            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
+          >
+            Следећа
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
