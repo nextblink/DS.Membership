@@ -138,6 +138,10 @@ builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 // --- end Dashboard ---
 
+// --- Campaigns (call center) ---
+builder.Services.AddScoped<ICampaignService, CampaignService>();
+// --- end Campaigns ---
+
 var app = builder.Build();
 
 // --- Dev seed: ensure a default SuperAdmin user exists ---
