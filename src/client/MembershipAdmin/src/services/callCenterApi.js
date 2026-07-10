@@ -13,6 +13,7 @@ const callCenterApi = {
   listContacts: (params) => api.get('/api/call-contacts', { params }).then(r => r.data),
   getContact: (id) => api.get(`/api/call-contacts/${id}`).then(r => r.data),
   getNext: () => api.get('/api/call-contacts/next').then(r => r.status === 204 ? null : r.data),
+  claim: (id) => api.post(`/api/call-contacts/${id}/claim`).then(r => r.data),
   saveOutcome: (id, body) => api.post(`/api/call-contacts/${id}/outcome`, body),
   releaseClaim: (id) => api.post(`/api/call-contacts/${id}/release`),
   matchSuggestions: (id) => api.get(`/api/call-contacts/${id}/match-suggestions`).then(r => r.data),

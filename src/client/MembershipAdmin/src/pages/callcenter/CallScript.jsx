@@ -1,8 +1,12 @@
-// Guided call-script wizard: walks the operator through the 7-step conditional
-// flow driven by services/callScript.js's nextStep(), then posts the outcome and
-// returns to the queue. Field styling mirrors pages/callcenter/PoolForm.jsx /
+// Single-page call script: renders every applicable section (outcome, relation,
+// activity, engagement, contactData, suggestion, recommendations) on one page at
+// once, growing downward as the operator answers, instead of the earlier
+// click-through wizard. Section visibility is driven entirely by walking
+// services/callScript.js's nextStep() — the single source of truth for which
+// sections are relevant/skippable — so this component never reimplements that
+// branching logic. Field styling mirrors pages/callcenter/PoolForm.jsx /
 // pages/members/MemberForm.jsx conventions.
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import callCenterApi from '../../services/callCenterApi'
 import {
@@ -18,6 +22,25 @@ const labelClass = 'block text-[11px] font-medium text-gray-700 dark:text-gray-3
 const inputClass =
   'w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-theme-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500'
 
+// Walks nextStep() from 'outcome' forward, collecting every section reached so far.
+// A section is only added once its own gating answer has been filled in — otherwise
+// nextStep() can't yet know whether later sections are relevant, so we stop there.
+// This reuses nextStep() as the single source of truth for the skip/branch rules;
+// the only logic duplicated here is "has the current section been answered yet",
+// not the branching itself.
+function computeVisibleSections(answers) {
+  const visible = []
+  let current = 'outcome'
+  while (current !== 'end') {
+    visible.push(current)
+    if (current === 'outcome' && answers.outcome === undefined) break
+    if (current === 'relation' && answers.relation === undefined) break
+    if (current === 'activity' && answers.activity === undefined) break
+    current = nextStep(current, answers)
+  }
+  return visible
+}
+
 export default function CallScript() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -25,7 +48,6 @@ export default function CallScript() {
   const [contact, setContact] = useState(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
-  const [step, setStep] = useState('outcome')
   const [answers, setAnswers] = useState({ engagementAreas: [] })
   const [matches, setMatches] = useState([])
   const [linking, setLinking] = useState(false)
@@ -72,6 +94,9 @@ export default function CallScript() {
     }
   }, [id])
 
+  const visibleSections = useMemo(() => computeVisibleSections(answers), [answers])
+  const isVisible = (key) => visibleSections.includes(key)
+
   const setAnswer = (key, value) => setAnswers((a) => ({ ...a, [key]: value }))
 
   const toggleArea = (v) =>
@@ -82,8 +107,8 @@ export default function CallScript() {
         : [...a.engagementAreas, v],
     }))
 
-  // Builds the SaveCallOutcomeRequest payload from the current wizard answers and
-  // persists it. Returns true on success. Shared by the normal 'end'-step completion
+  // Builds the SaveCallOutcomeRequest payload from the current answers and
+  // persists it. Returns true on success. Shared by the "Сачувај" completion
   // path and the enroll ("Учлани") shortcut so both save the outcome identically.
   const saveOutcome = async () => {
     const payload = {
@@ -118,15 +143,6 @@ export default function CallScript() {
     if (ok) navigate('/callcenter/queue')
   }
 
-  const advance = () => {
-    const next = nextStep(step, answers)
-    if (next === 'end') {
-      finish()
-      return
-    }
-    setStep(next)
-  }
-
   const link = async (memberId) => {
     setLinking(true)
     try {
@@ -141,9 +157,9 @@ export default function CallScript() {
 
   const enroll = async () => {
     if (!contact) return
-    // Save the outcome (same logic as the normal 'end'-step completion path) before
+    // Save the outcome (same logic as the "Сачувај" completion path) before
     // navigating away, so FinalStatus/CallAttempt/claim-release happen for the enroll
-    // path exactly as they do for the normal wizard completion.
+    // path exactly as they do for the normal completion.
     const ok = await saveOutcome()
     if (!ok) return
     navigate('/members/new', {
@@ -180,7 +196,7 @@ export default function CallScript() {
   }
   if (!contact) return null
 
-  const canAdvance = step !== 'outcome' || answers.outcome !== undefined
+  const canSave = answers.outcome !== undefined
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -197,7 +213,7 @@ export default function CallScript() {
         </div>
       )}
 
-      {step !== 'outcome' && matches.length > 0 && (
+      {matches.length > 0 && (
         <div className="mb-6 rounded-lg border border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-500/10 px-4 py-3">
           <p className="text-theme-xs font-medium text-yellow-700 dark:text-yellow-300 mb-2">
             Могуће подударање са постојећим чланом:
@@ -227,21 +243,21 @@ export default function CallScript() {
       )}
 
       <section className={sectionClass}>
-        {step === 'outcome' && (
-          <Step title="Да ли је успостављен контакт са правом особом?">
-            {Object.entries(CALL_OUTCOME).map(([k, v]) => (
-              <Radio
-                key={v}
-                name="outcome"
-                label={k}
-                checked={answers.outcome === v}
-                onChange={() => setAnswer('outcome', v)}
-              />
-            ))}
-          </Step>
-        )}
+        <Step title="Да ли је успостављен контакт са правом особом?">
+          {Object.entries(CALL_OUTCOME).map(([k, v]) => (
+            <Radio
+              key={v}
+              name="outcome"
+              label={k}
+              checked={answers.outcome === v}
+              onChange={() => setAnswer('outcome', v)}
+            />
+          ))}
+        </Step>
+      </section>
 
-        {step === 'relation' && (
+      {isVisible('relation') && (
+        <section className={sectionClass}>
           <Step title="Да ли желите да и даље будете део странке?">
             {Object.entries(PARTY_RELATION).map(([k, v]) => (
               <Radio
@@ -253,9 +269,11 @@ export default function CallScript() {
               />
             ))}
           </Step>
-        )}
+        </section>
+      )}
 
-        {step === 'activity' && (
+      {isVisible('activity') && (
+        <section className={sectionClass}>
           <Step title="Да ли сте тренутно активни у странци?">
             {Object.entries(ACTIVITY_LEVEL).map(([k, v]) => (
               <Radio
@@ -277,9 +295,11 @@ export default function CallScript() {
               </label>
             )}
           </Step>
-        )}
+        </section>
+      )}
 
-        {step === 'engagement' && (
+      {isVisible('engagement') && (
+        <section className={sectionClass}>
           <Step title="У ком облику бисте желели да будете ангажовани?">
             {Object.entries(ENGAGEMENT_AREA).map(([k, v]) => (
               <label key={v} className="flex items-center gap-2 text-theme-xs text-gray-700 dark:text-gray-300">
@@ -288,9 +308,11 @@ export default function CallScript() {
               </label>
             ))}
           </Step>
-        )}
+        </section>
+      )}
 
-        {step === 'contactData' && (
+      {isVisible('contactData') && (
+        <section className={sectionClass}>
           <Step title="Ажурирање контакт података">
             <Field label="Телефон" value={answers.updatedPhone} onChange={(v) => setAnswer('updatedPhone', v)} />
             <Field label="Email" value={answers.updatedEmail} onChange={(v) => setAnswer('updatedEmail', v)} />
@@ -306,9 +328,11 @@ export default function CallScript() {
               </button>
             )}
           </Step>
-        )}
+        </section>
+      )}
 
-        {step === 'suggestion' && (
+      {isVisible('suggestion') && (
+        <section className={sectionClass}>
           <Step title="Да ли имате неку сугестију или предлог?">
             <textarea
               className={`${inputClass} min-h-24`}
@@ -316,9 +340,11 @@ export default function CallScript() {
               onChange={(e) => setAnswer('suggestionNote', e.target.value)}
             />
           </Step>
-        )}
+        </section>
+      )}
 
-        {step === 'recommendations' && (
+      {isVisible('recommendations') && (
+        <section className={sectionClass}>
           <Step title="Препоруке потенцијалних чланова">
             <label className="flex items-center gap-2 text-theme-xs text-gray-700 dark:text-gray-300">
               <input
@@ -337,18 +363,20 @@ export default function CallScript() {
               Спремни да их учланимо?
             </label>
           </Step>
-        )}
-      </section>
+        </section>
+      )}
 
       <div className="flex gap-2">
-        <button
-          type="button"
-          disabled={!canAdvance || saving}
-          onClick={advance}
-          className="rounded-lg bg-brand-500 hover:bg-brand-600 px-5 py-2.5 text-theme-sm font-medium text-white disabled:opacity-50"
-        >
-          {saving ? 'Чување...' : 'Даље'}
-        </button>
+        {canSave && (
+          <button
+            type="button"
+            disabled={saving}
+            onClick={finish}
+            className="rounded-lg bg-brand-500 hover:bg-brand-600 px-5 py-2.5 text-theme-sm font-medium text-white disabled:opacity-50"
+          >
+            {saving ? 'Чување...' : 'Сачувај'}
+          </button>
+        )}
         <button
           type="button"
           onClick={cancel}

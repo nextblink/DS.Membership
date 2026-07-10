@@ -90,6 +90,35 @@ public class CallContactService : ICallContactService
         return ToDetail(next);
     }
 
+    public async Task<CallContactDetailDto> ClaimAsync(int id, CancellationToken ct = default)
+    {
+        var c = await _db.CallContacts.ApplyCallContactScope(_user)
+            .Include(x => x.EngagementAreas)
+            .FirstOrDefaultAsync(x => x.Id == id, ct)
+            ?? throw new KeyNotFoundException($"Contact {id} not found.");
+
+        if (IsResolved(c)) throw new InvalidOperationException("already_resolved");
+
+        var uid = _user.Id;
+        var staleCutoff = DateTime.UtcNow.AddMinutes(-StaleClaimMinutes);
+        var activelyClaimedByOther = c.ClaimedByUserId is not null
+            && c.ClaimedByUserId != uid
+            && c.ClaimedAt >= staleCutoff;
+        if (activelyClaimedByOther) throw new InvalidOperationException("already_claimed");
+
+        c.ClaimedByUserId = uid;
+        c.ClaimedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+        return ToDetail(c);
+    }
+
+    // Same "resolved" condition GetNextForOperatorAsync excludes contacts on — kept as a
+    // single source of truth so ClaimAsync doesn't diverge from the queue's definition.
+    private static bool IsResolved(CallContact c) =>
+        c.FinalStatus != null
+        || c.ConvertedMemberId != null
+        || (c.LastOutcome != null && c.LastOutcome != CallOutcome.NoAnswer);
+
     public async Task SaveOutcomeAsync(int id, SaveCallOutcomeRequest request, CancellationToken ct = default)
     {
         var c = await _db.CallContacts.ApplyCallContactScope(_user)
