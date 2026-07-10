@@ -31,6 +31,12 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
     public DbSet<TelegramLink> TelegramLinks => Set<TelegramLink>();
     public DbSet<Event> Events => Set<Event>();
     public DbSet<EventMembership> EventMemberships => Set<EventMembership>();
+    public DbSet<Campaign> Campaigns => Set<Campaign>();
+    public DbSet<CallContact> CallContacts => Set<CallContact>();
+    public DbSet<CallAttempt> CallAttempts => Set<CallAttempt>();
+    public DbSet<ContactEngagementArea> ContactEngagementAreas => Set<ContactEngagementArea>();
+    public DbSet<CallPool> CallPools => Set<CallPool>();
+    public DbSet<CallPoolOperator> CallPoolOperators => Set<CallPoolOperator>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -214,6 +220,94 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
 
         // Soft-delete filter on Event
         modelBuilder.Entity<Event>().HasQueryFilter(e => !e.IsDeleted);
+
+        // ----- Call center -----
+
+        // Campaign is an aggregate root: soft-delete filter.
+        modelBuilder.Entity<Campaign>().HasQueryFilter(e => !e.IsDeleted);
+
+        // CallContact aggregate root: soft-delete filter + report/query indexes.
+        modelBuilder.Entity<CallContact>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<CallContact>().HasIndex(c => c.FinalStatus);
+        modelBuilder.Entity<CallContact>().HasIndex(c => c.PoolId);
+        modelBuilder.Entity<CallContact>().HasIndex(c => c.CampaignId);
+        modelBuilder.Entity<CallContact>().HasIndex(c => c.PhoneNumber);
+
+        // CallPool aggregate root: soft-delete filter.
+        modelBuilder.Entity<CallPool>().HasQueryFilter(e => !e.IsDeleted);
+
+        // CallContact → Campaign (restrict: deleting a campaign must not wipe contacts).
+        modelBuilder.Entity<CallContact>()
+            .HasOne(c => c.Campaign)
+            .WithMany(c => c.Contacts)
+            .HasForeignKey(c => c.CampaignId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // CallContact → CallPool (nullable; SetNull so releasing/deleting a pool clears membership).
+        modelBuilder.Entity<CallContact>()
+            .HasOne(c => c.Pool)
+            .WithMany(p => p.Contacts)
+            .HasForeignKey(c => c.PoolId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // CallContact → Member links (nullable, restrict).
+        modelBuilder.Entity<CallContact>()
+            .HasOne(c => c.MatchedMember)
+            .WithMany()
+            .HasForeignKey(c => c.MatchedMemberId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CallContact>()
+            .HasOne(c => c.ConvertedMember)
+            .WithMany()
+            .HasForeignKey(c => c.ConvertedMemberId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // CallContact → Municipality (nullable, restrict).
+        modelBuilder.Entity<CallContact>()
+            .HasOne(c => c.Municipality)
+            .WithMany()
+            .HasForeignKey(c => c.MunicipalityId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // CallAttempt → CallContact (cascade: attempts are owned by the contact).
+        modelBuilder.Entity<CallAttempt>()
+            .HasOne(a => a.CallContact)
+            .WithMany(c => c.Attempts)
+            .HasForeignKey(a => a.CallContactId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ContactEngagementArea → CallContact (cascade: owned child).
+        modelBuilder.Entity<ContactEngagementArea>()
+            .HasOne(e => e.CallContact)
+            .WithMany(c => c.EngagementAreas)
+            .HasForeignKey(e => e.CallContactId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<ContactEngagementArea>()
+            .HasIndex(e => new { e.CallContactId, e.Area })
+            .IsUnique();
+
+        // CallPool → Campaign (restrict).
+        modelBuilder.Entity<CallPool>()
+            .HasOne(p => p.Campaign)
+            .WithMany(c => c.Pools)
+            .HasForeignKey(p => p.CampaignId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // CallPoolOperator → CallPool (cascade) and → ApplicationUser (restrict).
+        modelBuilder.Entity<CallPoolOperator>()
+            .HasOne(o => o.CallPool)
+            .WithMany(p => p.Operators)
+            .HasForeignKey(o => o.CallPoolId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CallPoolOperator>()
+            .HasOne(o => o.User)
+            .WithMany()
+            .HasForeignKey(o => o.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CallPoolOperator>()
+            .HasIndex(o => new { o.CallPoolId, o.UserId })
+            .IsUnique();
 
         // ----------------------------------------------------------------------
         // Seed data — roles only; all other data is managed via admin UI
