@@ -3,6 +3,7 @@
   "nav": {
     "mainMenu": "Main Menu",
     "account": "Account",
+    "callcenter": "Call Center",
     "dashboard": "Dashboard",
     "members": "Members",
     "forms": "Forms",
@@ -10,7 +11,13 @@
     "bodies": "Bodies",
     "functions": "Functions",
     "users": "Users",
-    "profile": "Profile"
+    "profile": "Profile",
+    "campaigns": "Campaigns",
+    "import": "Import",
+    "contacts": "Contacts",
+    "pools": "Pools",
+    "queue": "Queue",
+    "reports": "Reports"
   },
   "button": {
     "apply": "Apply",

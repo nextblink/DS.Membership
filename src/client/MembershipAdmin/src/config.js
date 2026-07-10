@@ -26,6 +26,8 @@ export const FORMS_ROLES = [ROLES.SuperAdmin, ROLES.Admin, ROLES.LocalAdmin, ROL
 export const ORG_UNITS_ROLES = [ROLES.SuperAdmin]
 export const FUNCTIONS_ROLES = [ROLES.SuperAdmin]
 export const USERS_ROLES = [ROLES.SuperAdmin]
+export const CALLCENTER_ADMIN_ROLES = [ROLES.SuperAdmin, ROLES.Admin]
+export const CALLCENTER_OPERATOR_ROLES = [ROLES.SuperAdmin, ROLES.Admin, ROLES.Operator]
 
 // Sidebar nav — each item declares which roles can see it.
 export const NAV_ITEMS = [
@@ -36,6 +38,12 @@ export const NAV_ITEMS = [
   { to: '/bodies', label: 'Bodies', roles: ORG_UNITS_ROLES, iconName: 'flag', section: 'main' },
   { to: '/functions', label: 'Functions', roles: FUNCTIONS_ROLES, iconName: 'clipboard', section: 'main' },
   { to: '/users', label: 'Users', roles: USERS_ROLES, iconName: 'user-group', section: 'main' },
+  { to: '/callcenter/campaigns', label: 'Кампање', roles: CALLCENTER_ADMIN_ROLES, iconName: 'phone', section: 'callcenter' },
+  { to: '/callcenter/import', label: 'Увоз', roles: CALLCENTER_ADMIN_ROLES, iconName: 'upload', section: 'callcenter' },
+  { to: '/callcenter/contacts', label: 'Контакти', roles: CALLCENTER_ADMIN_ROLES, iconName: 'contacts', section: 'callcenter' },
+  { to: '/callcenter/pools', label: 'Групе', roles: CALLCENTER_ADMIN_ROLES, iconName: 'group', section: 'callcenter' },
+  { to: '/callcenter/queue', label: 'Позивање', roles: CALLCENTER_OPERATOR_ROLES, iconName: 'phone-queue', section: 'callcenter' },
+  { to: '/callcenter/reports', label: 'Извештаји', roles: CALLCENTER_ADMIN_ROLES, iconName: 'chart', section: 'callcenter' },
   { to: '/profile', label: 'Profile', roles: ALL_ROLES, iconName: 'user-circle', section: 'account' },
 ]
 
