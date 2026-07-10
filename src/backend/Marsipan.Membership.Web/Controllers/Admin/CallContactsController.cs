@@ -27,6 +27,15 @@ public class CallContactsController : ControllerBase
         return c is null ? NoContent() : Ok(c);
     }
 
+    [HttpPost("{id:int}/claim")]
+    [Authorize(Roles = "SuperAdmin,Admin,Operator")]
+    public async Task<ActionResult<CallContactDetailDto>> Claim(int id, CancellationToken ct)
+    {
+        try { return Ok(await _contacts.ClaimAsync(id, ct)); }
+        catch (KeyNotFoundException) { return NotFound(); }
+        catch (InvalidOperationException ex) { return Conflict(new { error = ex.Message }); }
+    }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CallContactDetailDto>> GetById(int id, CancellationToken ct)
     {

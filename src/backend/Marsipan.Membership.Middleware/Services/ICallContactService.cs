@@ -7,6 +7,7 @@ public interface ICallContactService
     Task<PagedResultDto<CallContactListItemDto>> SearchAsync(CallContactQuery query, CancellationToken ct = default);
     Task<CallContactDetailDto?> GetByIdAsync(int id, CancellationToken ct = default);
     Task<CallContactDetailDto?> GetNextForOperatorAsync(CancellationToken ct = default);
+    Task<CallContactDetailDto> ClaimAsync(int id, CancellationToken ct = default);
     Task SaveOutcomeAsync(int id, SaveCallOutcomeRequest request, CancellationToken ct = default);
     Task ReleaseClaimAsync(int id, CancellationToken ct = default);
     Task<List<MemberMatchDto>> SuggestMemberMatchesAsync(int id, CancellationToken ct = default);
