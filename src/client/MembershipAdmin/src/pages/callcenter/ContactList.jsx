@@ -14,16 +14,17 @@ const labelClass = 'block text-[11px] font-medium text-gray-700 dark:text-gray-3
 
 const PAGE_SIZE = 20
 
+// The API serializes enums as their string member name (JsonStringEnumConverter in
+// Program.cs), so lastOutcome/finalStatus arrive as e.g. "NoAnswer", not a numeric
+// ordinal. Validate the value against the known keys and render it as-is.
 function outcomeLabel(value) {
   if (value === null || value === undefined || value === '') return '-'
-  const entry = Object.entries(CALL_OUTCOME).find(([, v]) => v === value)
-  return entry ? entry[0] : String(value)
+  return value in CALL_OUTCOME ? value : String(value)
 }
 
 function finalStatusLabel(value) {
   if (value === null || value === undefined || value === '') return '-'
-  const entry = Object.entries(FINAL_STATUS).find(([, v]) => v === value)
-  return entry ? entry[0] : String(value)
+  return value in FINAL_STATUS ? value : String(value)
 }
 
 export default function ContactList() {
