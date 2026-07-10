@@ -140,6 +140,7 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 // --- Campaigns (call center) ---
 builder.Services.AddScoped<ICampaignService, CampaignService>();
+builder.Services.AddScoped<ICallContactImportService, CallContactImportService>();
 // --- end Campaigns ---
 
 var app = builder.Build();
