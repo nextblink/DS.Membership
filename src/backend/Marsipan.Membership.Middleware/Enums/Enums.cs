@@ -46,3 +46,44 @@ public enum FormStatus
     Verified,
     Rejected
 }
+
+public enum CallOutcome
+{
+    ValidContact,
+    WrongNumber,
+    NotInService,
+    NoAnswer,
+    Refused
+}
+
+public enum PartyRelation
+{
+    StayMember,
+    Sympathizer,
+    NoCooperation
+}
+
+public enum ActivityLevel
+{
+    Active,
+    Occasional,
+    Inactive
+}
+
+public enum EngagementArea
+{
+    MunicipalBoard,
+    DepartmentalBoards,
+    CentralOffice,
+    OrganizationalExecutive,
+    ElectionCampaign,
+    ElectionMonitor
+}
+
+public enum ContactFinalStatus
+{
+    ActiveMember,
+    InactiveMember,
+    Sympathizer,
+    NoCooperation
+}
