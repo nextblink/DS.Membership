@@ -8,6 +8,8 @@ namespace Marsipan.Membership.Middleware.Services;
 
 public class CallContactService : ICallContactService
 {
+    private const int StaleClaimMinutes = 15;
+
     private readonly ApplicationContext _db;
     private readonly ICurrentUserContext _user;
     private readonly ICallContactImportService _import;
@@ -69,9 +71,12 @@ public class CallContactService : ICallContactService
         var uid = _user.Id;
         if (string.IsNullOrEmpty(uid)) return null;
 
+        var staleCutoff = DateTime.UtcNow.AddMinutes(-StaleClaimMinutes);
         var next = await _db.CallContacts.ApplyCallContactScope(_user)
             .Where(c => c.FinalStatus == null
-                && (c.ClaimedByUserId == null || c.ClaimedByUserId == uid))
+                && c.ConvertedMemberId == null
+                && (c.LastOutcome == null || c.LastOutcome == CallOutcome.NoAnswer)
+                && (c.ClaimedByUserId == null || c.ClaimedByUserId == uid || c.ClaimedAt < staleCutoff))
             .OrderBy(c => c.LastCalledAt ?? DateTime.MinValue)
             .ThenBy(c => c.Id)
             .Include(c => c.EngagementAreas)
@@ -162,6 +167,22 @@ public class CallContactService : ICallContactService
         c.LastModifiedByUserId = uid;
 
         await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task ReleaseClaimAsync(int id, CancellationToken ct = default)
+    {
+        var c = await _db.CallContacts.ApplyCallContactScope(_user)
+            .FirstOrDefaultAsync(x => x.Id == id, ct)
+            ?? throw new KeyNotFoundException($"Contact {id} not found.");
+
+        if (c.ClaimedByUserId == _user.Id)
+        {
+            c.ClaimedByUserId = null;
+            c.ClaimedAt = null;
+            c.LastModifiedDate = DateTime.UtcNow;
+            c.LastModifiedByUserId = _user.Id ?? "system";
+            await _db.SaveChangesAsync(ct);
+        }
     }
 
     public async Task<List<MemberMatchDto>> SuggestMemberMatchesAsync(int id, CancellationToken ct = default)

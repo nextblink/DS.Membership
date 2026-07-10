@@ -8,16 +8,21 @@ namespace Marsipan.Membership.Middleware.Services;
 public class CallCenterReportService : ICallCenterReportService
 {
     private readonly ApplicationContext _db;
+    private readonly ICurrentUserContext _user;
 
-    public CallCenterReportService(ApplicationContext db) => _db = db;
+    public CallCenterReportService(ApplicationContext db, ICurrentUserContext user)
+    {
+        _db = db;
+        _user = user;
+    }
 
     public async Task<CallCenterReportDto> GetReportAsync(CallCenterReportQuery query, CancellationToken ct = default)
     {
-        var q = _db.CallContacts.AsQueryable();
+        var q = _db.CallContacts.ApplyCallContactScope(_user);
         if (query.CampaignId is not null) q = q.Where(c => c.CampaignId == query.CampaignId);
         if (query.PoolId is not null) q = q.Where(c => c.PoolId == query.PoolId);
         if (query.FromDate is not null) q = q.Where(c => c.LastCalledAt >= query.FromDate);
-        if (query.ToDate is not null) q = q.Where(c => c.LastCalledAt <= query.ToDate);
+        if (query.ToDate is not null) q = q.Where(c => c.LastCalledAt < query.ToDate.Value.AddDays(1));
 
         var contacted = await q.CountAsync(c => c.LastOutcome == CallOutcome.ValidContact, ct);
         var invalid = await q.CountAsync(c =>

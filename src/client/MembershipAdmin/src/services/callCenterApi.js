@@ -14,6 +14,7 @@ const callCenterApi = {
   getContact: (id) => api.get(`/api/call-contacts/${id}`).then(r => r.data),
   getNext: () => api.get('/api/call-contacts/next').then(r => r.status === 204 ? null : r.data),
   saveOutcome: (id, body) => api.post(`/api/call-contacts/${id}/outcome`, body),
+  releaseClaim: (id) => api.post(`/api/call-contacts/${id}/release`),
   matchSuggestions: (id) => api.get(`/api/call-contacts/${id}/match-suggestions`).then(r => r.data),
   linkMember: (id, memberId) => api.post(`/api/call-contacts/${id}/link/${memberId}`),
   unlinkMember: (id) => api.delete(`/api/call-contacts/${id}/link`),
