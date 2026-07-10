@@ -109,6 +109,46 @@ public static class ScopeFilters
         return q.Where(f => f.Member!.CommitteeId == orgUnitId);
     }
 
+    /// <summary>
+    /// Restricts a CallContact query to the rows the caller may see.
+    /// SuperAdmin/Admin see everything; Operators see only contacts in pools
+    /// they are assigned to (via CallPoolOperator); every other restricted role
+    /// sees nothing. Unauthenticated callers get an empty result.
+    /// </summary>
+    public static IQueryable<CallContact> ApplyCallContactScope(
+        this IQueryable<CallContact> q,
+        ICurrentUserContext user)
+    {
+        ArgumentNullException.ThrowIfNull(q);
+        ArgumentNullException.ThrowIfNull(user);
+
+        if (!user.IsAuthenticated)
+        {
+            return q.Where(_ => false);
+        }
+
+        if (IsUnrestricted(user.Role))
+        {
+            return q;
+        }
+
+        if (string.Equals(user.Role, RoleOperator, StringComparison.Ordinal))
+        {
+            if (string.IsNullOrEmpty(user.Id))
+            {
+                return q.Where(_ => false);
+            }
+
+            var userId = user.Id;
+            return q.Where(c => c.PoolId != null
+                && c.Pool!.Operators.Any(o => o.UserId == userId));
+        }
+
+        // LocalAdmin / Viewer / anything else: call center is not scoped by
+        // committee, so restricted non-operator roles see nothing.
+        return q.Where(_ => false);
+    }
+
     private static bool IsUnrestricted(string? role) =>
         string.Equals(role, RoleSuperAdmin, StringComparison.Ordinal) ||
         string.Equals(role, RoleAdmin, StringComparison.Ordinal);
