@@ -28,7 +28,7 @@
   dotnet ef database update --project src/backend/Marsipan.Membership.Middleware --startup-project src/backend/Marsipan.Membership.Web
   ```
 - **Build check** (run from repo root): `dotnet build src/backend/Marsipan.Membership.sln`.
-- **No backend test project exists** for Middleware/Web. Verification for backend tasks = build succeeds + migration applies + manual endpoint check. Frontend = `npm run build` (from `src/client/MembershipAdmin`) + manual UI check.
+- **No backend test project exists** for Middleware/Web (only `Marsipan.Membership.Telegram.Tests`, unrelated). Verification for most backend tasks = build succeeds + migration applies + manual endpoint check. Task 17 stands up a new xUnit project to cover `ScopeFilters.ApplyCallContactScope`. **No frontend test tooling exists** in `MembershipAdmin`; Task 18 stands up Vitest to cover `callScript.nextStep`. Everything else stays at build + manual verification per existing repo convention.
 - **Conventional commits**, reference issue numbers where applicable, branch `issue/<n>-<slug>`.
 
 ---
@@ -3003,6 +3003,276 @@ git commit -m "feat: add call center reports page"
 
 ---
 
+## Task 17: Backend unit tests for the call-contact scope filter
+
+**Files:**
+- Create: `src/backend/Marsipan.Membership.Tests/Marsipan.Membership.Tests.csproj`
+- Create: `src/backend/Marsipan.Membership.Tests/Services/ScopeFiltersCallContactTests.cs`
+- Modify: `src/backend/Marsipan.Membership.sln` (add the new test project)
+
+**Interfaces:**
+- Consumes: `ScopeFilters.ApplyCallContactScope` (Task 4), `ApplicationContext` (EF Core InMemory provider), `ICurrentUserContext` (fake).
+
+- [ ] **Step 1: Create the test project.** From repo root:
+
+```powershell
+dotnet new xunit -o src/backend/Marsipan.Membership.Tests
+dotnet sln src/backend/Marsipan.Membership.sln add src/backend/Marsipan.Membership.Tests/Marsipan.Membership.Tests.csproj
+dotnet add src/backend/Marsipan.Membership.Tests/Marsipan.Membership.Tests.csproj reference src/backend/Marsipan.Membership.Middleware/Marsipan.Membership.Middleware.csproj
+dotnet add src/backend/Marsipan.Membership.Tests/Marsipan.Membership.Tests.csproj package Microsoft.EntityFrameworkCore.InMemory --version 10.0.7
+```
+Expected: project created, added to the solution, references Middleware, InMemory package restored.
+
+- [ ] **Step 2: Write a fake `ICurrentUserContext`** and the failing tests in `Services/ScopeFiltersCallContactTests.cs`:
+
+```csharp
+using Marsipan.Membership.Middleware.Data;
+using Marsipan.Membership.Middleware.Entities;
+using Marsipan.Membership.Middleware.Services;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
+
+namespace Marsipan.Membership.Tests.Services;
+
+file sealed class FakeUser : ICurrentUserContext
+{
+    public string? Id { get; init; }
+    public string? Role { get; init; }
+    public int? CommitteeId { get; init; }
+    public bool IsAuthenticated { get; init; } = true;
+}
+
+public class ScopeFiltersCallContactTests
+{
+    private static ApplicationContext NewDb(string name)
+    {
+        var options = new DbContextOptionsBuilder<ApplicationContext>()
+            .UseInMemoryDatabase(name)
+            .Options;
+        return new ApplicationContext(options);
+    }
+
+    private static async Task SeedAsync(ApplicationContext db)
+    {
+        var campaign = new Campaign { Name = "C1", CreatedByUserId = "seed", LastModifiedByUserId = "seed" };
+        db.Campaigns.Add(campaign);
+        await db.SaveChangesAsync();
+
+        var pool = new CallPool { Name = "P1", CampaignId = campaign.Id, CreatedByUserId = "seed", LastModifiedByUserId = "seed" };
+        db.CallPools.Add(pool);
+        await db.SaveChangesAsync();
+
+        db.CallPoolOperators.Add(new CallPoolOperator
+        {
+            CallPoolId = pool.Id, UserId = "operator-1",
+            CreatedByUserId = "seed", LastModifiedByUserId = "seed"
+        });
+
+        db.CallContacts.AddRange(
+            new CallContact
+            {
+                FirstName = "In", LastName = "Pool", PhoneNumber = "1",
+                CampaignId = campaign.Id, PoolId = pool.Id,
+                CreatedByUserId = "seed", LastModifiedByUserId = "seed"
+            },
+            new CallContact
+            {
+                FirstName = "No", LastName = "Pool", PhoneNumber = "2",
+                CampaignId = campaign.Id, PoolId = null,
+                CreatedByUserId = "seed", LastModifiedByUserId = "seed"
+            });
+        await db.SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task Unauthenticated_ReturnsEmpty()
+    {
+        await using var db = NewDb(nameof(Unauthenticated_ReturnsEmpty));
+        await SeedAsync(db);
+        var user = new FakeUser { IsAuthenticated = false };
+
+        var result = db.CallContacts.ApplyCallContactScope(user).ToList();
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task Admin_SeesAllContacts()
+    {
+        await using var db = NewDb(nameof(Admin_SeesAllContacts));
+        await SeedAsync(db);
+        var user = new FakeUser { Id = "admin-1", Role = ScopeFilters.RoleAdmin };
+
+        var result = db.CallContacts.ApplyCallContactScope(user).ToList();
+
+        Assert.Equal(2, result.Count);
+    }
+
+    [Fact]
+    public async Task Operator_SeesOnlyAssignedPoolContacts()
+    {
+        await using var db = NewDb(nameof(Operator_SeesOnlyAssignedPoolContacts));
+        await SeedAsync(db);
+        var user = new FakeUser { Id = "operator-1", Role = ScopeFilters.RoleOperator };
+
+        var result = db.CallContacts.ApplyCallContactScope(user).ToList();
+
+        var contact = Assert.Single(result);
+        Assert.Equal("In", contact.FirstName);
+    }
+
+    [Fact]
+    public async Task Operator_NotAssignedToAnyPool_SeesNothing()
+    {
+        await using var db = NewDb(nameof(Operator_NotAssignedToAnyPool_SeesNothing));
+        await SeedAsync(db);
+        var user = new FakeUser { Id = "operator-2", Role = ScopeFilters.RoleOperator };
+
+        var result = db.CallContacts.ApplyCallContactScope(user).ToList();
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task RestrictedNonOperatorRole_SeesNothing()
+    {
+        await using var db = NewDb(nameof(RestrictedNonOperatorRole_SeesNothing));
+        await SeedAsync(db);
+        var user = new FakeUser { Id = "viewer-1", Role = ScopeFilters.RoleViewer, CommitteeId = 1 };
+
+        var result = db.CallContacts.ApplyCallContactScope(user).ToList();
+
+        Assert.Empty(result);
+    }
+}
+```
+
+- [ ] **Step 3: Run tests to verify they fail or pass against real code.**
+
+Run: `dotnet test src/backend/Marsipan.Membership.Tests/Marsipan.Membership.Tests.csproj`
+Expected: 5 tests, all PASS (the implementation from Task 4 already exists — this task adds coverage, not new behavior). If any fail, the failure output tells you whether the seed data or the scope filter itself is wrong; fix the test/seed first since `ApplyCallContactScope` was already manually verified in Task 4/8.
+
+- [ ] **Step 4: Commit.**
+
+```bash
+git add src/backend/Marsipan.Membership.Tests/ src/backend/Marsipan.Membership.sln
+git commit -m "test: add ScopeFilters.ApplyCallContactScope unit tests"
+```
+
+---
+
+## Task 18: Frontend unit tests for the call-script step logic
+
+**Files:**
+- Modify: `src/client/MembershipAdmin/package.json` (add Vitest)
+- Create: `src/client/MembershipAdmin/vitest.config.js`
+- Create: `src/client/MembershipAdmin/src/services/callScript.test.js`
+
+**Interfaces:**
+- Consumes: `nextStep`, `isTerminal`, `CALL_OUTCOME`, `PARTY_RELATION`, `ACTIVITY_LEVEL` from `services/callScript.js` (Task 10).
+
+- [ ] **Step 1: Add Vitest.** From `src/client/MembershipAdmin`:
+
+```powershell
+npm install -D vitest
+```
+
+- [ ] **Step 2: Add a `test` script** to `package.json` `scripts` block:
+
+```json
+"test": "vitest run"
+```
+
+- [ ] **Step 3: Create `vitest.config.js`:**
+
+```javascript
+import { defineConfig } from 'vitest/config'
+
+export default defineConfig({
+  test: {
+    environment: 'node',
+  },
+})
+```
+
+- [ ] **Step 4: Write the failing tests** in `src/services/callScript.test.js`:
+
+```javascript
+import { describe, it, expect } from 'vitest'
+import { nextStep, isTerminal, CALL_OUTCOME, PARTY_RELATION, ACTIVITY_LEVEL } from './callScript'
+
+describe('nextStep', () => {
+  it('ends the call on a non-valid outcome', () => {
+    expect(nextStep('outcome', { outcome: CALL_OUTCOME.WrongNumber })).toBe('end')
+    expect(nextStep('outcome', { outcome: CALL_OUTCOME.NoAnswer })).toBe('end')
+  })
+
+  it('continues to relation on a valid contact', () => {
+    expect(nextStep('outcome', { outcome: CALL_OUTCOME.ValidContact })).toBe('relation')
+  })
+
+  it('ends the call on no cooperation', () => {
+    expect(nextStep('relation', { relation: PARTY_RELATION.NoCooperation })).toBe('end')
+  })
+
+  it('sympathizer skips straight to contact data', () => {
+    expect(nextStep('relation', { relation: PARTY_RELATION.Sympathizer })).toBe('contactData')
+  })
+
+  it('staying a member continues to the activity question', () => {
+    expect(nextStep('relation', { relation: PARTY_RELATION.StayMember })).toBe('activity')
+  })
+
+  it('inactive and not wanting to activate skips engagement', () => {
+    expect(nextStep('activity', {
+      activity: ACTIVITY_LEVEL.Inactive, wantsToBeActive: false,
+    })).toBe('contactData')
+    expect(nextStep('activity', {
+      activity: ACTIVITY_LEVEL.Inactive, wantsToBeActive: undefined,
+    })).toBe('contactData')
+  })
+
+  it('inactive but wanting to activate asks engagement', () => {
+    expect(nextStep('activity', {
+      activity: ACTIVITY_LEVEL.Inactive, wantsToBeActive: true,
+    })).toBe('engagement')
+  })
+
+  it('active or occasional always asks engagement', () => {
+    expect(nextStep('activity', { activity: ACTIVITY_LEVEL.Active })).toBe('engagement')
+    expect(nextStep('activity', { activity: ACTIVITY_LEVEL.Occasional })).toBe('engagement')
+  })
+
+  it('walks the remaining fixed steps to the end', () => {
+    expect(nextStep('engagement', {})).toBe('contactData')
+    expect(nextStep('contactData', {})).toBe('suggestion')
+    expect(nextStep('suggestion', {})).toBe('recommendations')
+    expect(nextStep('recommendations', {})).toBe('end')
+  })
+})
+
+describe('isTerminal', () => {
+  it('is true only for "end"', () => {
+    expect(isTerminal('end')).toBe(true)
+    expect(isTerminal('outcome')).toBe(false)
+  })
+})
+```
+
+- [ ] **Step 5: Run tests.**
+
+Run (from `src/client/MembershipAdmin`): `npm test`
+Expected: all tests PASS (the implementation from Task 10 already exists — this adds coverage). If a case fails, it means `nextStep`'s branching in Task 10 doesn't match the spec's conditional logic — fix `callScript.js` to match, since these test cases were derived directly from the Корак 2–4 rules in the design spec.
+
+- [ ] **Step 6: Commit.**
+
+```bash
+git add src/client/MembershipAdmin/package.json src/client/MembershipAdmin/vitest.config.js src/client/MembershipAdmin/src/services/callScript.test.js
+git commit -m "test: add callScript.nextStep unit tests"
+```
+
+---
+
 ## Self-Review Notes (spec coverage)
 
 - **Guided 7-step conditional script** → Task 15 (`CallScript.jsx`) + Task 10 (`callScript.js` flow logic). ✔
@@ -3020,4 +3290,4 @@ git commit -m "feat: add call center reports page"
 
 ## Testing note (per project CLAUDE.md)
 
-The main backend has no automated-test project, so this plan verifies via build + migration + manual endpoint/UI checks. Two pure functions are good candidates for unit tests if the team wants to add coverage: `ScopeFilters.ApplyCallContactScope` (Task 4) and `callScript.nextStep` (Task 10). Flag at execution time whether to stand up an xUnit project (backend) / Vitest (frontend) for these.
+The main backend has no automated-test project and the frontend has no test tooling, so most tasks verify via build + migration + manual endpoint/UI checks (per existing repo convention). Tasks 17 and 18 add the two pieces of coverage requested: a new xUnit project (`Marsipan.Membership.Tests`) covering `ScopeFilters.ApplyCallContactScope`, and Vitest covering `callScript.nextStep`. These are additive scaffolding — not a general test-suite buildout for the rest of the module.
