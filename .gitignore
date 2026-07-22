@@ -487,3 +487,6 @@ dist/
 
 # Claude Code agent worktrees
 .claude/
+
+# Vite dependency cache
+.vite/

@@ -1,6 +1,7 @@
 // Contact import page: pick a campaign, upload a CSV/xlsx file, show the import summary.
 // Field/card styling mirrors pages/callcenter/CampaignForm.jsx conventions.
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import callCenterApi from '../../services/callCenterApi'
 
 const sectionClass = 'rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm mb-6'
@@ -10,6 +11,7 @@ const inputClass =
 const errorClass = 'text-[11px] text-error-500 mt-0.5'
 
 export default function ContactImport() {
+  const { t } = useTranslation(['callcenter', 'common'])
   const [campaigns, setCampaigns] = useState([])
   const [campaignId, setCampaignId] = useState('')
   const [file, setFile] = useState(null)
@@ -26,18 +28,19 @@ export default function ContactImport() {
         if (!cancelled) setCampaigns(d.items ?? [])
       })
       .catch((err) => {
-        if (!cancelled) setError(err?.response?.data?.message || 'Учитавање кампања није успело.')
+        if (!cancelled) setError(err?.response?.data?.message || t('callcenter:import.loadCampaignsFailed'))
       })
     return () => {
       cancelled = true
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const submit = async (e) => {
     e.preventDefault()
     setFormError(null)
     if (!campaignId || !file) {
-      setFormError('Кампања и фајл су обавезни.')
+      setFormError(t('callcenter:import.requiredFields'))
       return
     }
     setBusy(true)
@@ -47,7 +50,7 @@ export default function ContactImport() {
       const data = await callCenterApi.importContacts(campaignId, file)
       setResult(data)
     } catch (err) {
-      setError(err?.response?.data?.message || 'Увоз није успео.')
+      setError(err?.response?.data?.message || t('callcenter:import.importFailed'))
     } finally {
       setBusy(false)
     }
@@ -55,7 +58,7 @@ export default function ContactImport() {
 
   return (
     <form onSubmit={submit} className="max-w-2xl">
-      <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400 mb-6">Увоз контаката</h1>
+      <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400 mb-6">{t('callcenter:import.title')}</h1>
 
       {error && (
         <div className="mb-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
@@ -64,14 +67,12 @@ export default function ContactImport() {
       )}
 
       <section className={sectionClass}>
-        <p className="text-theme-xs text-gray-500 dark:text-gray-400 mb-4">
-          Очекиване колоне (заглавље): FirstName, LastName, Phone, Email, Address, City, Municipality
-        </p>
+        <p className="text-theme-xs text-gray-500 dark:text-gray-400 mb-4">{t('callcenter:import.expectedColumns')}</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className={labelClass}>
-              Кампања<span className="text-error-500 ml-0.5">*</span>
+              {t('callcenter:import.campaign')}<span className="text-error-500 ml-0.5">*</span>
             </label>
             <select
               className={inputClass}
@@ -92,7 +93,7 @@ export default function ContactImport() {
 
           <div>
             <label className={labelClass}>
-              Фајл (.csv, .xlsx)<span className="text-error-500 ml-0.5">*</span>
+              {t('callcenter:import.file')}<span className="text-error-500 ml-0.5">*</span>
             </label>
             <input
               type="file"
@@ -115,15 +116,14 @@ export default function ContactImport() {
           disabled={busy}
           className="rounded-lg bg-brand-500 hover:bg-brand-600 px-5 py-2.5 text-theme-sm font-medium text-white disabled:opacity-50"
         >
-          {busy ? 'Увоз...' : 'Увези'}
+          {busy ? t('callcenter:import.submitting') : t('callcenter:import.submit')}
         </button>
       </div>
 
       {result && (
         <section className={`${sectionClass} mt-6`}>
           <p className="text-theme-sm text-gray-900 dark:text-white mb-2">
-            Увезено: <span className="font-medium">{result.imported}</span>, прескочено:{' '}
-            <span className="font-medium">{result.skipped}</span>
+            {t('callcenter:import.resultSummary', { imported: result.imported, skipped: result.skipped })}
           </p>
           {result.errors?.length > 0 && (
             <ul className="text-theme-xs text-error-600 dark:text-error-400 list-disc pl-5 space-y-0.5">

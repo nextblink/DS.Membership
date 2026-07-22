@@ -33,10 +33,19 @@ public class CallContactService : ICallContactService
         if (query.MunicipalityId is not null) q = q.Where(c => c.MunicipalityId == query.MunicipalityId);
         if (query.FinalStatus is not null) q = q.Where(c => c.FinalStatus == query.FinalStatus);
         if (query.LastOutcome is not null) q = q.Where(c => c.LastOutcome == query.LastOutcome);
+        if (query.UnresolvedOnly)
+        {
+            // Same "still callable" definition as GetNextForOperatorAsync — excludes
+            // contacts with a final status, a conversion, a non-NoAnswer outcome, or no phone.
+            q = q.Where(c => c.FinalStatus == null
+                && c.ConvertedMemberId == null
+                && c.PhoneNumber != null && c.PhoneNumber != ""
+                && (c.LastOutcome == null || c.LastOutcome == CallOutcome.NoAnswer));
+        }
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
             var s = query.Search.Trim();
-            q = q.Where(c => c.FirstName.Contains(s) || c.LastName.Contains(s) || c.PhoneNumber.Contains(s));
+            q = q.Where(c => c.FirstName.Contains(s) || c.LastName.Contains(s) || (c.PhoneNumber != null && c.PhoneNumber.Contains(s)));
         }
 
         var total = await q.CountAsync(ct);
@@ -44,8 +53,9 @@ public class CallContactService : ICallContactService
             .Skip((page - 1) * pageSize).Take(pageSize)
             .Select(c => new CallContactListItemDto(
                 c.Id, c.FirstName, c.LastName, c.PhoneNumber, c.City,
+                c.MunicipalityId, c.Municipality != null ? c.Municipality.Name : null,
                 c.CampaignId, c.PoolId, c.AttemptCount, c.LastOutcome, c.FinalStatus,
-                c.MatchedMemberId, c.ConvertedMemberId))
+                c.MatchedMemberId, c.ConvertedMemberId, c.ImportedOutcome))
             .ToListAsync(ct);
 
         return new PagedResultDto<CallContactListItemDto>
@@ -62,6 +72,7 @@ public class CallContactService : ICallContactService
     {
         var c = await _db.CallContacts.ApplyCallContactScope(_user)
             .Include(x => x.EngagementAreas)
+            .Include(x => x.Municipality)
             .FirstOrDefaultAsync(x => x.Id == id, ct);
         return c is null ? null : ToDetail(c);
     }
@@ -75,11 +86,13 @@ public class CallContactService : ICallContactService
         var next = await _db.CallContacts.ApplyCallContactScope(_user)
             .Where(c => c.FinalStatus == null
                 && c.ConvertedMemberId == null
+                && c.PhoneNumber != null && c.PhoneNumber != ""
                 && (c.LastOutcome == null || c.LastOutcome == CallOutcome.NoAnswer)
                 && (c.ClaimedByUserId == null || c.ClaimedByUserId == uid || c.ClaimedAt < staleCutoff))
             .OrderBy(c => c.LastCalledAt ?? DateTime.MinValue)
             .ThenBy(c => c.Id)
             .Include(c => c.EngagementAreas)
+            .Include(c => c.Municipality)
             .FirstOrDefaultAsync(ct);
 
         if (next is null) return null;
@@ -94,6 +107,7 @@ public class CallContactService : ICallContactService
     {
         var c = await _db.CallContacts.ApplyCallContactScope(_user)
             .Include(x => x.EngagementAreas)
+            .Include(x => x.Municipality)
             .FirstOrDefaultAsync(x => x.Id == id, ct)
             ?? throw new KeyNotFoundException($"Contact {id} not found.");
 
@@ -220,7 +234,8 @@ public class CallContactService : ICallContactService
             .FirstOrDefaultAsync(x => x.Id == id, ct)
             ?? throw new KeyNotFoundException($"Contact {id} not found.");
 
-        var phone = c.PhoneNumber.Trim();
+        var phone = c.PhoneNumber?.Trim();
+        if (string.IsNullOrEmpty(phone)) return new List<MemberMatchDto>();
         return await _db.Members
             .Where(m => m.Phones.Any(p => p.Number == phone))
             .Select(m => new MemberMatchDto(
@@ -280,9 +295,10 @@ public class CallContactService : ICallContactService
 
     private static CallContactDetailDto ToDetail(CallContact c) => new(
         c.Id, c.FirstName, c.LastName, c.PhoneNumber, c.Email, c.Address, c.City,
-        c.MunicipalityId, c.CampaignId, c.PoolId, c.AttemptCount, c.LastOutcome,
+        c.MunicipalityId, c.Municipality?.Name, c.CampaignId, c.PoolId, c.AttemptCount, c.LastOutcome,
         c.PartyRelation, c.ActivityLevel, c.WantsToBeActive, c.SuggestionNote,
         c.KnowsPotentialMembers, c.WillingToEnroll, c.FinalStatus,
         c.MatchedMemberId, c.ConvertedMemberId,
-        c.EngagementAreas.Select(e => e.Area).ToList());
+        c.EngagementAreas.Select(e => e.Area).ToList(),
+        c.SecondaryPhone, c.Jmbg, c.ImportedOutcome, c.ImportNote);
 }

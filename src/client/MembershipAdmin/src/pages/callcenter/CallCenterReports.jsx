@@ -2,6 +2,7 @@
 // engagement-area/top-suggestion tables + client-side CSV export.
 // Styling mirrors pages/callcenter/ContactList.jsx and CampaignForm.jsx conventions.
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import callCenterApi from '../../services/callCenterApi'
 
 const inputClass =
@@ -9,23 +10,26 @@ const inputClass =
 const labelClass = 'block text-[11px] font-medium text-gray-700 dark:text-gray-300 mb-1'
 
 // CallCenterReportDto field names (camelCase JSON; JsonStringEnumConverter doesn't apply
-// here since these are plain ints).
-const CARDS = [
-  ['Контактирано', 'contacted'],
-  ['Неисправни', 'invalidContacts'],
-  ['Активни чланови', 'activeMembers'],
-  ['Неактивни чланови', 'inactiveMembers'],
-  ['Симпатизери', 'sympathizers'],
-  ['Без сарадње', 'noCooperation'],
-  ['Заинтересовани за активирање', 'interestedInActivating'],
+// here since these are plain ints). Label keys resolve against callcenter:reports.cards.
+const CARD_KEYS = [
+  ['contacted', 'contacted'],
+  ['invalidContacts', 'invalidContacts'],
+  ['activeMembers', 'activeMembers'],
+  ['inactiveMembers', 'inactiveMembers'],
+  ['sympathizers', 'sympathizers'],
+  ['noCooperation', 'noCooperation'],
+  ['interestedInActivating', 'interestedInActivating'],
 ]
 
 export default function CallCenterReports() {
+  const { t } = useTranslation(['callcenter', 'common'])
   const [campaigns, setCampaigns] = useState([])
   const [filters, setFilters] = useState({ campaignId: '', fromDate: '', toDate: '' })
   const [report, setReport] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+
+  const CARDS = CARD_KEYS.map(([labelKey, key]) => [t(`callcenter:reports.cards.${labelKey}`), key])
 
   useEffect(() => {
     callCenterApi
@@ -51,7 +55,7 @@ export default function CallCenterReports() {
       })
       .catch((err) => {
         if (cancelled) return
-        setError(err?.response?.data?.message || 'Учитавање извештаја није успело.')
+        setError(err?.response?.data?.message || t('callcenter:reports.loadFailed'))
         setReport(null)
       })
       .finally(() => {
@@ -67,10 +71,14 @@ export default function CallCenterReports() {
 
   const exportCsv = () => {
     if (!report) return
-    const lines = [['Метрика', 'Вредност']]
+    const lines = [[t('callcenter:reports.csv.metric'), t('callcenter:reports.csv.value')]]
     CARDS.forEach(([label, key]) => lines.push([label, report[key]]))
-    ;(report.engagementAreaCounts ?? []).forEach((a) => lines.push([`Ангажовање: ${a.area}`, a.count]))
-    ;(report.topSuggestions ?? []).forEach((s) => lines.push([`Сугестија: ${s.suggestion}`, s.count]))
+    ;(report.engagementAreaCounts ?? []).forEach((a) =>
+      lines.push([`${t('callcenter:reports.csv.engagementPrefix')}: ${a.area}`, a.count])
+    )
+    ;(report.topSuggestions ?? []).forEach((s) =>
+      lines.push([`${t('callcenter:reports.csv.suggestionPrefix')}: ${s.suggestion}`, s.count])
+    )
     const csv = lines.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n')
     // Prefix with BOM so Excel opens Cyrillic UTF-8 content correctly.
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })
@@ -86,14 +94,14 @@ export default function CallCenterReports() {
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
       {/* Card header */}
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">Извештаји</h1>
+        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('callcenter:reports.title')}</h1>
         <button
           type="button"
           disabled={!report}
           onClick={exportCsv}
           className="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-theme-xs font-medium text-gray-700 dark:text-gray-300 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
         >
-          Извоз CSV
+          {t('callcenter:reports.exportCsv')}
         </button>
       </div>
 
@@ -101,9 +109,9 @@ export default function CallCenterReports() {
       <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-4">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <div>
-            <label className={labelClass}>Кампања</label>
+            <label className={labelClass}>{t('callcenter:reports.campaign')}</label>
             <select className={inputClass} value={filters.campaignId} onChange={set('campaignId')}>
-              <option value="">Све кампање</option>
+              <option value="">{t('callcenter:reports.allCampaigns')}</option>
               {campaigns.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -112,18 +120,18 @@ export default function CallCenterReports() {
             </select>
           </div>
           <div>
-            <label className={labelClass}>Од датума</label>
+            <label className={labelClass}>{t('callcenter:reports.fromDate')}</label>
             <input type="date" className={inputClass} value={filters.fromDate} onChange={set('fromDate')} />
           </div>
           <div>
-            <label className={labelClass}>До датума</label>
+            <label className={labelClass}>{t('callcenter:reports.toDate')}</label>
             <input type="date" className={inputClass} value={filters.toDate} onChange={set('toDate')} />
           </div>
         </div>
       </div>
 
       <div className="px-6 py-4">
-        {loading && <div className="py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">Учитавање...</div>}
+        {loading && <div className="py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">{t('common:state.loading')}</div>}
         {!loading && error && <div className="py-6 text-center text-theme-sm text-error-500">{error}</div>}
 
         {!loading && !error && report && (
@@ -140,20 +148,20 @@ export default function CallCenterReports() {
               ))}
             </div>
 
-            <h2 className="text-theme-sm font-medium text-gray-900 dark:text-white mb-2">Области ангажовања</h2>
+            <h2 className="text-theme-sm font-medium text-gray-900 dark:text-white mb-2">{t('callcenter:reports.engagementAreas')}</h2>
             <div className="overflow-x-auto mb-6">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
                   <tr>
-                    <th className="px-4 py-3">Област</th>
-                    <th className="px-4 py-3">Број</th>
+                    <th className="px-4 py-3">{t('callcenter:reports.area')}</th>
+                    <th className="px-4 py-3">{t('callcenter:reports.count')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(report.engagementAreaCounts ?? []).length === 0 && (
                     <tr>
                       <td colSpan={2} className="px-4 py-4 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                        Нема података.
+                        {t('callcenter:reports.noData')}
                       </td>
                     </tr>
                   )}
@@ -167,20 +175,20 @@ export default function CallCenterReports() {
               </table>
             </div>
 
-            <h2 className="text-theme-sm font-medium text-gray-900 dark:text-white mb-2">Најчешће сугестије</h2>
+            <h2 className="text-theme-sm font-medium text-gray-900 dark:text-white mb-2">{t('callcenter:reports.topSuggestions')}</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
                   <tr>
-                    <th className="px-4 py-3">Сугестија</th>
-                    <th className="px-4 py-3">Број</th>
+                    <th className="px-4 py-3">{t('callcenter:reports.suggestion')}</th>
+                    <th className="px-4 py-3">{t('callcenter:reports.count')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(report.topSuggestions ?? []).length === 0 && (
                     <tr>
                       <td colSpan={2} className="px-4 py-4 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                        Нема података.
+                        {t('callcenter:reports.noData')}
                       </td>
                     </tr>
                   )}

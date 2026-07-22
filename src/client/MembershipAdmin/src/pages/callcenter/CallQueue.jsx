@@ -4,28 +4,17 @@
 // markup and its corrected outcome/final-status enum label logic.
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import callCenterApi from '../../services/callCenterApi'
-import { CALL_OUTCOME } from '../../services/callScript'
+import { CALL_OUTCOME, toEnumKey } from '../../services/callScript'
 
 // Enum values mirror the backend Enums.cs ordinals (ContactFinalStatus).
 const FINAL_STATUS = { ActiveMember: 0, InactiveMember: 1, Sympathizer: 2, NoCooperation: 3 }
 
 const PAGE_SIZE = 20
 
-// The API serializes enums as their string member name (JsonStringEnumConverter in
-// Program.cs), so lastOutcome/finalStatus arrive as e.g. "NoAnswer", not a numeric
-// ordinal. Validate the value against the known keys and render it as-is.
-function outcomeLabel(value) {
-  if (value === null || value === undefined || value === '') return '-'
-  return value in CALL_OUTCOME ? value : String(value)
-}
-
-function finalStatusLabel(value) {
-  if (value === null || value === undefined || value === '') return '-'
-  return value in FINAL_STATUS ? value : String(value)
-}
-
 export default function CallQueue() {
+  const { t } = useTranslation(['callcenter', 'common', 'enums'])
   const navigate = useNavigate()
   const location = useLocation()
   const [page, setPage] = useState(1)
@@ -36,10 +25,21 @@ export default function CallQueue() {
   // when the call contact was created as a member but the server-side
   // conversion link (setConverted) failed to save.
   const [error, setError] = useState(
-    location.state?.conversionWarning
-      ? 'Члан је сачуван, али повезивање са контактом није успело — молимо ажурирајте ручно.'
-      : null
+    location.state?.conversionWarning ? t('callcenter:queue.conversionWarning') : null
   )
+
+  // The API serializes enums as their string member name (JsonStringEnumConverter in
+  // Program.cs), so lastOutcome/finalStatus arrive as e.g. "NoAnswer", not a numeric
+  // ordinal. Translate the value via enums.json, falling back to the raw value.
+  const outcomeLabel = (value) => {
+    if (value === null || value === undefined || value === '') return '-'
+    return value in CALL_OUTCOME ? t(`enums:callOutcome.${toEnumKey(value)}`, value) : String(value)
+  }
+
+  const finalStatusLabel = (value) => {
+    if (value === null || value === undefined || value === '') return '-'
+    return value in FINAL_STATUS ? t(`enums:contactFinalStatus.${toEnumKey(value)}`, value) : String(value)
+  }
 
   const refreshKey = useMemo(() => page, [page])
 
@@ -47,7 +47,7 @@ export default function CallQueue() {
     let cancelled = false
     setLoading(true)
     callCenterApi
-      .listContacts({ page, pageSize: PAGE_SIZE })
+      .listContacts({ page, pageSize: PAGE_SIZE, unresolvedOnly: true })
       .then((d) => {
         if (cancelled) return
         setData({
@@ -60,7 +60,7 @@ export default function CallQueue() {
       })
       .catch((err) => {
         if (cancelled) return
-        setError(err?.response?.data?.message || 'Учитавање контаката није успело.')
+        setError(err?.response?.data?.message || t('callcenter:queue.loadFailed'))
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -87,11 +87,11 @@ export default function CallQueue() {
       const status = err?.response?.status
       const code = err?.response?.data?.error
       if (status === 409 && code === 'already_claimed') {
-        setError('Контакт је већ преузет од стране другог оператера.')
+        setError(t('callcenter:queue.alreadyClaimed'))
       } else if (status === 409 && code === 'already_resolved') {
-        setError('Контакт је већ решен.')
+        setError(t('callcenter:queue.alreadyResolved'))
       } else {
-        setError(err?.response?.data?.message || 'Преузимање контакта није успело.')
+        setError(err?.response?.data?.message || t('callcenter:queue.claimFailed'))
       }
       load()
     } finally {
@@ -104,7 +104,7 @@ export default function CallQueue() {
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">Позивање</h1>
+        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('callcenter:queue.title')}</h1>
       </div>
 
       {error && (
@@ -117,12 +117,12 @@ export default function CallQueue() {
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
             <tr>
-              <th className="px-4 py-3">Име</th>
-              <th className="px-4 py-3">Телефон</th>
-              <th className="px-4 py-3">Место</th>
-              <th className="px-4 py-3 w-24 whitespace-nowrap">Покушаја</th>
-              <th className="px-4 py-3 w-32 whitespace-nowrap">Исход</th>
-              <th className="px-4 py-3 w-32 whitespace-nowrap">Статус</th>
+              <th className="px-4 py-3">{t('callcenter:queue.columns.name')}</th>
+              <th className="px-4 py-3">{t('callcenter:queue.columns.phone')}</th>
+              <th className="px-4 py-3">{t('callcenter:queue.columns.place')}</th>
+              <th className="px-4 py-3 w-24 whitespace-nowrap">{t('callcenter:queue.columns.tries')}</th>
+              <th className="px-4 py-3 w-32 whitespace-nowrap">{t('callcenter:queue.columns.outcome')}</th>
+              <th className="px-4 py-3 w-32 whitespace-nowrap">{t('callcenter:queue.columns.status')}</th>
               <th className="px-4 py-3 w-28 whitespace-nowrap"></th>
             </tr>
           </thead>
@@ -130,14 +130,14 @@ export default function CallQueue() {
             {loading && (
               <tr>
                 <td colSpan={7} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  Учитавање...
+                  {t('common:state.loading')}
                 </td>
               </tr>
             )}
             {!loading && data.items.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  Нема контаката за позивање.
+                  {t('callcenter:queue.empty')}
                 </td>
               </tr>
             )}
@@ -151,7 +151,7 @@ export default function CallQueue() {
                     {c.firstName} {c.lastName}
                   </td>
                   <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{c.phoneNumber}</td>
-                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{c.city ?? '-'}</td>
+                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{c.municipalityName ?? c.city ?? '-'}</td>
                   <td className="px-4 py-3 w-24 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
                     {c.attemptCount}
                   </td>
@@ -168,7 +168,7 @@ export default function CallQueue() {
                       onClick={() => callContact(c.id)}
                       className="rounded-lg bg-brand-500 hover:bg-brand-600 px-3 py-1.5 text-theme-xs font-medium text-white disabled:opacity-50"
                     >
-                      {claimingId === c.id ? 'Преузимање...' : 'Позови'}
+                      {claimingId === c.id ? t('callcenter:queue.claiming') : t('callcenter:queue.call')}
                     </button>
                   </td>
                 </tr>
@@ -180,7 +180,7 @@ export default function CallQueue() {
       {/* Pagination footer */}
       <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-6 py-4">
         <div className="text-theme-xs text-gray-500 dark:text-gray-400">
-          Укупно {data.totalCount} · страна {data.page} / {totalPages}
+          {t('common:pagination.summary', { count: data.totalCount, page: data.page, total: totalPages })}
         </div>
         <div className="flex gap-1">
           <button
@@ -189,7 +189,7 @@ export default function CallQueue() {
             onClick={() => setPage(data.page - 1)}
             className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            Претходна
+            {t('common:button.prev')}
           </button>
           <button
             type="button"
@@ -197,7 +197,7 @@ export default function CallQueue() {
             onClick={() => setPage(data.page + 1)}
             className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            Следећа
+            {t('common:button.next')}
           </button>
         </div>
       </div>

@@ -48,3 +48,11 @@ export function nextStep(current, answers) {
 export function isTerminal(step) {
   return step === 'end'
 }
+
+// Converts a PascalCase enum member name (as serialized by the backend's
+// JsonStringEnumConverter, e.g. "ValidContact") into the camelCase key used in
+// locales/*/enums.json (e.g. "validContact").
+export function toEnumKey(value) {
+  if (value === null || value === undefined || value === '') return null
+  return String(value).charAt(0).toLowerCase() + String(value).slice(1)
+}

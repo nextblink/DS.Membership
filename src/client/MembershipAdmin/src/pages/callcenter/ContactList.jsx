@@ -2,8 +2,9 @@
 // Mirrors the card/table + pagination markup from pages/callcenter/PoolList.jsx and
 // pages/members/MembersList.jsx (pagination pattern).
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import callCenterApi from '../../services/callCenterApi'
-import { CALL_OUTCOME } from '../../services/callScript'
+import { CALL_OUTCOME, toEnumKey } from '../../services/callScript'
 
 // Enum values mirror the backend Enums.cs ordinals (ContactFinalStatus).
 const FINAL_STATUS = { ActiveMember: 0, InactiveMember: 1, Sympathizer: 2, NoCooperation: 3 }
@@ -14,26 +15,27 @@ const labelClass = 'block text-[11px] font-medium text-gray-700 dark:text-gray-3
 
 const PAGE_SIZE = 20
 
-// The API serializes enums as their string member name (JsonStringEnumConverter in
-// Program.cs), so lastOutcome/finalStatus arrive as e.g. "NoAnswer", not a numeric
-// ordinal. Validate the value against the known keys and render it as-is.
-function outcomeLabel(value) {
-  if (value === null || value === undefined || value === '') return '-'
-  return value in CALL_OUTCOME ? value : String(value)
-}
-
-function finalStatusLabel(value) {
-  if (value === null || value === undefined || value === '') return '-'
-  return value in FINAL_STATUS ? value : String(value)
-}
-
 export default function ContactList() {
+  const { t } = useTranslation(['callcenter', 'common', 'enums'])
   const [campaigns, setCampaigns] = useState([])
   const [filters, setFilters] = useState({ campaignId: '', city: '', finalStatus: '', lastOutcome: '', search: '' })
   const [page, setPage] = useState(1)
   const [data, setData] = useState({ items: [], totalCount: 0, page: 1, pageSize: PAGE_SIZE, totalPages: 1 })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+
+  // The API serializes enums as their string member name (JsonStringEnumConverter in
+  // Program.cs), so lastOutcome/finalStatus arrive as e.g. "NoAnswer", not a numeric
+  // ordinal. Translate the value via enums.json, falling back to the raw value.
+  const outcomeLabel = (value) => {
+    if (value === null || value === undefined || value === '') return '-'
+    return value in CALL_OUTCOME ? t(`enums:callOutcome.${toEnumKey(value)}`, value) : String(value)
+  }
+
+  const finalStatusLabel = (value) => {
+    if (value === null || value === undefined || value === '') return '-'
+    return value in FINAL_STATUS ? t(`enums:contactFinalStatus.${toEnumKey(value)}`, value) : String(value)
+  }
 
   useEffect(() => {
     callCenterApi
@@ -69,7 +71,7 @@ export default function ContactList() {
       })
       .catch((err) => {
         if (cancelled) return
-        setError(err?.response?.data?.message || 'Учитавање није успело.')
+        setError(err?.response?.data?.message || t('callcenter:contacts.loadFailed'))
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -85,24 +87,22 @@ export default function ContactList() {
     setFilters((f) => ({ ...f, [k]: e.target.value }))
   }
 
-  const campaignName = (id) => campaigns.find((c) => c.id === id)?.name || `#${id}`
-
   const totalPages = data.totalPages || 1
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
       {/* Card header */}
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">Контакти</h1>
+        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('callcenter:contacts.title')}</h1>
       </div>
 
       {/* Filter bar */}
       <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-4">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <div>
-            <label className={labelClass}>Кампања</label>
+            <label className={labelClass}>{t('callcenter:contacts.filters.campaign')}</label>
             <select className={inputClass} value={filters.campaignId} onChange={set('campaignId')}>
-              <option value="">Све кампање</option>
+              <option value="">{t('callcenter:contacts.filters.allCampaigns')}</option>
               {campaigns.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -111,34 +111,44 @@ export default function ContactList() {
             </select>
           </div>
           <div>
-            <label className={labelClass}>Место</label>
-            <input className={inputClass} value={filters.city} onChange={set('city')} placeholder="Место" />
+            <label className={labelClass}>{t('callcenter:contacts.filters.city')}</label>
+            <input
+              className={inputClass}
+              value={filters.city}
+              onChange={set('city')}
+              placeholder={t('callcenter:contacts.filters.cityPlaceholder')}
+            />
           </div>
           <div>
-            <label className={labelClass}>Статус</label>
+            <label className={labelClass}>{t('callcenter:contacts.filters.status')}</label>
             <select className={inputClass} value={filters.finalStatus} onChange={set('finalStatus')}>
-              <option value="">Сви статуси</option>
+              <option value="">{t('callcenter:contacts.filters.allStatuses')}</option>
               {Object.entries(FINAL_STATUS).map(([k, v]) => (
                 <option key={v} value={v}>
-                  {k}
+                  {t(`enums:contactFinalStatus.${toEnumKey(k)}`, k)}
                 </option>
               ))}
             </select>
           </div>
           <div>
-            <label className={labelClass}>Исход</label>
+            <label className={labelClass}>{t('callcenter:contacts.filters.outcome')}</label>
             <select className={inputClass} value={filters.lastOutcome} onChange={set('lastOutcome')}>
-              <option value="">Сви исходи</option>
+              <option value="">{t('callcenter:contacts.filters.allOutcomes')}</option>
               {Object.entries(CALL_OUTCOME).map(([k, v]) => (
                 <option key={v} value={v}>
-                  {k}
+                  {t(`enums:callOutcome.${toEnumKey(k)}`, k)}
                 </option>
               ))}
             </select>
           </div>
           <div>
-            <label className={labelClass}>Претрага</label>
-            <input className={inputClass} value={filters.search} onChange={set('search')} placeholder="Име, телефон..." />
+            <label className={labelClass}>{t('callcenter:contacts.filters.search')}</label>
+            <input
+              className={inputClass}
+              value={filters.search}
+              onChange={set('search')}
+              placeholder={t('callcenter:contacts.filters.searchPlaceholder')}
+            />
           </div>
         </div>
       </div>
@@ -148,34 +158,35 @@ export default function ContactList() {
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
             <tr>
-              <th className="px-4 py-3">Име</th>
-              <th className="px-4 py-3">Телефон</th>
-              <th className="px-4 py-3">Место</th>
-              <th className="px-4 py-3 w-24 whitespace-nowrap">Покушаја</th>
-              <th className="px-4 py-3 w-32 whitespace-nowrap">Исход</th>
-              <th className="px-4 py-3 w-32 whitespace-nowrap">Статус</th>
-              <th className="px-4 py-3 w-28 whitespace-nowrap">Веза</th>
+              <th className="px-4 py-3">{t('callcenter:contacts.columns.name')}</th>
+              <th className="px-4 py-3">{t('callcenter:contacts.columns.phone')}</th>
+              <th className="px-4 py-3">{t('callcenter:contacts.columns.municipality')}</th>
+              <th className="px-4 py-3 w-24 whitespace-nowrap">{t('callcenter:contacts.columns.tries')}</th>
+              <th className="px-4 py-3 w-32 whitespace-nowrap">{t('callcenter:contacts.columns.outcome')}</th>
+              <th className="px-4 py-3 w-32 whitespace-nowrap">{t('callcenter:contacts.columns.status')}</th>
+              <th className="px-4 py-3 w-32 whitespace-nowrap">{t('callcenter:contacts.columns.previousResult')}</th>
+              <th className="px-4 py-3 w-28 whitespace-nowrap">{t('callcenter:contacts.columns.link')}</th>
             </tr>
           </thead>
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  Учитавање...
+                <td colSpan={8} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
+                  {t('common:state.loading')}
                 </td>
               </tr>
             )}
             {!loading && error && (
               <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-theme-sm text-error-500">
+                <td colSpan={8} className="px-4 py-6 text-center text-theme-sm text-error-500">
                   {error}
                 </td>
               </tr>
             )}
             {!loading && !error && data.items.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  Нема контаката.
+                <td colSpan={8} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
+                  {t('callcenter:contacts.empty')}
                 </td>
               </tr>
             )}
@@ -190,7 +201,7 @@ export default function ContactList() {
                     {c.firstName} {c.lastName}
                   </td>
                   <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{c.phoneNumber}</td>
-                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{c.city ?? '-'}</td>
+                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{c.municipalityName ?? c.city ?? '-'}</td>
                   <td className="px-4 py-3 w-24 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
                     {c.attemptCount}
                   </td>
@@ -200,14 +211,17 @@ export default function ContactList() {
                   <td className="px-4 py-3 w-32 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
                     {finalStatusLabel(c.finalStatus)}
                   </td>
+                  <td className="px-4 py-3 w-32 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
+                    {c.importedOutcome ?? '-'}
+                  </td>
                   <td className="px-4 py-3 w-28 whitespace-nowrap text-theme-sm">
                     {c.convertedMemberId ? (
                       <span className="rounded-full bg-success-50 dark:bg-success-500/10 px-2 py-0.5 text-theme-xs font-medium text-success-600 dark:text-success-400">
-                        Учлањен
+                        {t('callcenter:contacts.enrolled')}
                       </span>
                     ) : c.matchedMemberId ? (
                       <span className="rounded-full bg-brand-50 dark:bg-brand-500/10 px-2 py-0.5 text-theme-xs font-medium text-brand-600 dark:text-brand-400">
-                        Повезан
+                        {t('callcenter:contacts.linked')}
                       </span>
                     ) : (
                       <span className="text-gray-400 dark:text-gray-500">-</span>
@@ -222,7 +236,7 @@ export default function ContactList() {
       {/* Pagination footer */}
       <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-6 py-4">
         <div className="text-theme-xs text-gray-500 dark:text-gray-400">
-          Укупно {data.totalCount} · страна {data.page} / {totalPages}
+          {t('common:pagination.summary', { count: data.totalCount, page: data.page, total: totalPages })}
         </div>
         <div className="flex gap-1">
           <button
@@ -231,7 +245,7 @@ export default function ContactList() {
             onClick={() => setPage(data.page - 1)}
             className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            Претходна
+            {t('common:button.prev')}
           </button>
           <button
             type="button"
@@ -239,7 +253,7 @@ export default function ContactList() {
             onClick={() => setPage(data.page + 1)}
             className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            Следећа
+            {t('common:button.next')}
           </button>
         </div>
       </div>

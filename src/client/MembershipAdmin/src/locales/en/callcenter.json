@@ -1,0 +1,182 @@
+{
+  "campaigns": {
+    "title": "Campaigns",
+    "new": "New campaign",
+    "edit": "Edit campaign",
+    "columns": {
+      "name": "Name",
+      "start": "Start",
+      "active": "Active",
+      "contacts": "Contacts"
+    },
+    "empty": "No campaigns.",
+    "confirmDelete": "Delete this campaign?",
+    "loadFailed": "Loading failed.",
+    "loadOneFailed": "Loading the campaign failed.",
+    "saveFailed": "Saving failed.",
+    "form": {
+      "name": "Name",
+      "nameRequired": "Name is required.",
+      "start": "Start",
+      "description": "Description",
+      "active": "Active",
+      "saving": "Saving..."
+    }
+  },
+  "pools": {
+    "title": "Call pools",
+    "new": "New pool",
+    "edit": "Edit pool",
+    "columns": {
+      "name": "Name",
+      "campaign": "Campaign",
+      "contacts": "Contacts",
+      "operators": "Operators",
+      "active": "Active"
+    },
+    "empty": "No pools.",
+    "confirmDelete": "Delete this pool?",
+    "loadFailed": "Loading failed.",
+    "loadOneFailed": "Loading the pool failed.",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "refreshList": "Refresh list",
+    "refreshFailed": "Refresh failed.",
+    "refreshedMsg": "Added {{added}}, {{total}} total in pool.",
+    "allCampaigns": "All campaigns",
+    "campaign": "Campaign",
+    "campaignRequired": "Campaign is required.",
+    "name": "Name",
+    "nameRequired": "Name is required.",
+    "filterCity": "City (filter)",
+    "filterMunicipality": "Municipality (filter)",
+    "filterOutcome": "Outcome (filter)",
+    "operatorsSection": "Operators",
+    "noUsers": "No users available.",
+    "removeOperator": "Remove",
+    "removeOperatorFailed": "Removing the operator failed.",
+    "saveFailed": "Saving failed.",
+    "saving": "Saving...",
+    "bulkCreateByMunicipality": "Create pools by municipality",
+    "bulkCreating": "Creating...",
+    "bulkCreateFailed": "Creating pools by municipality failed.",
+    "bulkCreatedMsg": "Created {{count}} pool(s) by municipality.",
+    "bulkCreateRequiresCampaign": "Select a campaign first."
+  },
+  "contacts": {
+    "title": "Contacts",
+    "columns": {
+      "name": "Name",
+      "phone": "Phone",
+      "municipality": "Municipality",
+      "tries": "Tries",
+      "outcome": "Outcome",
+      "status": "Status",
+      "previousResult": "Previous result",
+      "link": "Link"
+    },
+    "linked": "Linked",
+    "enrolled": "Enrolled",
+    "empty": "No contacts.",
+    "loadFailed": "Loading failed.",
+    "filters": {
+      "campaign": "Campaign",
+      "allCampaigns": "All campaigns",
+      "city": "City",
+      "cityPlaceholder": "City",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "outcome": "Outcome",
+      "allOutcomes": "All outcomes",
+      "search": "Search",
+      "searchPlaceholder": "Name, phone..."
+    }
+  },
+  "import": {
+    "title": "Import contacts",
+    "expectedColumns": "Expected columns (header): FirstName, LastName, Phone, Email, Address, City, Municipality",
+    "campaign": "Campaign",
+    "file": "File (.csv, .xlsx)",
+    "requiredFields": "Campaign and file are required.",
+    "submit": "Import",
+    "submitting": "Importing...",
+    "loadCampaignsFailed": "Loading campaigns failed.",
+    "importFailed": "Import failed.",
+    "resultSummary": "Imported: {{imported}}, skipped: {{skipped}}"
+  },
+  "queue": {
+    "title": "Calling",
+    "columns": {
+      "name": "Name",
+      "phone": "Phone",
+      "place": "Place",
+      "tries": "Tries",
+      "outcome": "Outcome",
+      "status": "Status"
+    },
+    "empty": "No contacts to call.",
+    "call": "Call",
+    "claiming": "Claiming...",
+    "loadFailed": "Loading contacts failed.",
+    "claimFailed": "Claiming the contact failed.",
+    "alreadyClaimed": "This contact was already claimed by another operator.",
+    "alreadyResolved": "This contact is already resolved.",
+    "conversionWarning": "The member was saved, but linking it to the contact failed — please update it manually."
+  },
+  "script": {
+    "loadFailed": "Loading the contact failed.",
+    "saveOutcomeFailed": "Saving the outcome failed.",
+    "possibleMatch": "Possible match with an existing member:",
+    "linked": "Linked",
+    "link": "Link",
+    "questions": {
+      "outcome": "Was contact established with the right person?",
+      "relation": "Do you want to remain part of the party?",
+      "activity": "Are you currently active in the party?",
+      "wantsActive": "Would you like to become active?",
+      "engagement": "In what form would you like to be engaged?",
+      "contactData": "Update contact data",
+      "suggestion": "Do you have any suggestion or proposal?",
+      "recommendationsTitle": "Potential member recommendations",
+      "recommendKnows": "Do you know someone who shares the party's values?",
+      "recommendWilling": "Would they be willing to join?"
+    },
+    "fields": {
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address"
+    },
+    "enrollButton": "Enroll as a new member",
+    "saving": "Saving..."
+  },
+  "reports": {
+    "title": "Reports",
+    "exportCsv": "Export CSV",
+    "campaign": "Campaign",
+    "allCampaigns": "All campaigns",
+    "fromDate": "From date",
+    "toDate": "To date",
+    "loadFailed": "Loading the report failed.",
+    "cards": {
+      "contacted": "Contacted",
+      "invalidContacts": "Invalid",
+      "activeMembers": "Active members",
+      "inactiveMembers": "Inactive members",
+      "sympathizers": "Sympathizers",
+      "noCooperation": "No cooperation",
+      "interestedInActivating": "Interested in activating"
+    },
+    "engagementAreas": "Engagement areas",
+    "topSuggestions": "Top suggestions",
+    "area": "Area",
+    "count": "Count",
+    "suggestion": "Suggestion",
+    "noData": "No data.",
+    "csv": {
+      "metric": "Metric",
+      "value": "Value",
+      "engagementPrefix": "Engagement",
+      "suggestionPrefix": "Suggestion"
+    }
+  }
+}

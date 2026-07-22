@@ -34,5 +34,36 @@
     "localAdmin": "LocalAdmin",
     "operator": "Operator",
     "viewer": "Viewer"
+  },
+  "callOutcome": {
+    "validContact": "Valid contact",
+    "wrongNumber": "Wrong number",
+    "notInService": "Not in service",
+    "noAnswer": "No answer",
+    "refused": "Refused"
+  },
+  "partyRelation": {
+    "stayMember": "Stays a member",
+    "sympathizer": "Sympathizer",
+    "noCooperation": "No cooperation"
+  },
+  "activityLevel": {
+    "active": "Active",
+    "occasional": "Occasional",
+    "inactive": "Inactive"
+  },
+  "engagementArea": {
+    "municipalBoard": "Municipal board",
+    "departmentalBoards": "Departmental boards",
+    "centralOffice": "Central office",
+    "organizationalExecutive": "Organizational executive",
+    "electionCampaign": "Election campaign",
+    "electionMonitor": "Election monitor"
+  },
+  "contactFinalStatus": {
+    "activeMember": "Active member",
+    "inactiveMember": "Inactive member",
+    "sympathizer": "Sympathizer",
+    "noCooperation": "No cooperation"
   }
 }

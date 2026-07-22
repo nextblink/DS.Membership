@@ -1,0 +1,182 @@
+{
+  "campaigns": {
+    "title": "Кампање",
+    "new": "Нова кампања",
+    "edit": "Измена кампање",
+    "columns": {
+      "name": "Назив",
+      "start": "Почетак",
+      "active": "Активна",
+      "contacts": "Контаката"
+    },
+    "empty": "Нема кампања.",
+    "confirmDelete": "Обрисати кампању?",
+    "loadFailed": "Учитавање није успело.",
+    "loadOneFailed": "Учитавање кампање није успело.",
+    "saveFailed": "Чување није успело.",
+    "form": {
+      "name": "Назив",
+      "nameRequired": "Назив је обавезан.",
+      "start": "Почетак",
+      "description": "Опис",
+      "active": "Активна",
+      "saving": "Чување..."
+    }
+  },
+  "pools": {
+    "title": "Групе за позивање",
+    "new": "Нова група",
+    "edit": "Измена групе",
+    "columns": {
+      "name": "Назив",
+      "campaign": "Кампања",
+      "contacts": "Контаката",
+      "operators": "Оператера",
+      "active": "Активна"
+    },
+    "empty": "Нема група.",
+    "confirmDelete": "Обрисати групу?",
+    "loadFailed": "Учитавање није успело.",
+    "loadOneFailed": "Учитавање групе није успело.",
+    "refresh": "Освежи",
+    "refreshing": "Освежавање...",
+    "refreshList": "Освежи листу",
+    "refreshFailed": "Освежавање није успело.",
+    "refreshedMsg": "Додато {{added}}, укупно у групи {{total}}.",
+    "allCampaigns": "Све кампање",
+    "campaign": "Кампања",
+    "campaignRequired": "Кампања је обавезна.",
+    "name": "Назив",
+    "nameRequired": "Назив је обавезан.",
+    "filterCity": "Место (филтер)",
+    "filterMunicipality": "Општина (филтер)",
+    "filterOutcome": "Исход (филтер)",
+    "operatorsSection": "Оператери",
+    "noUsers": "Нема доступних корисника.",
+    "removeOperator": "Уклони",
+    "removeOperatorFailed": "Уклањање оператера није успело.",
+    "saveFailed": "Чување није успело.",
+    "saving": "Чување...",
+    "bulkCreateByMunicipality": "Направи групе по општинама",
+    "bulkCreating": "Креирање...",
+    "bulkCreateFailed": "Креирање група по општинама није успело.",
+    "bulkCreatedMsg": "Креирано {{count}} група по општинама.",
+    "bulkCreateRequiresCampaign": "Прво изаберите кампању."
+  },
+  "contacts": {
+    "title": "Контакти",
+    "columns": {
+      "name": "Име",
+      "phone": "Телефон",
+      "municipality": "Општина",
+      "tries": "Покушаја",
+      "outcome": "Исход",
+      "status": "Статус",
+      "previousResult": "Претходни резултат",
+      "link": "Веза"
+    },
+    "linked": "Повезан",
+    "enrolled": "Учлањен",
+    "empty": "Нема контаката.",
+    "loadFailed": "Учитавање није успело.",
+    "filters": {
+      "campaign": "Кампања",
+      "allCampaigns": "Све кампање",
+      "city": "Место",
+      "cityPlaceholder": "Место",
+      "status": "Статус",
+      "allStatuses": "Сви статуси",
+      "outcome": "Исход",
+      "allOutcomes": "Сви исходи",
+      "search": "Претрага",
+      "searchPlaceholder": "Име, телефон..."
+    }
+  },
+  "import": {
+    "title": "Увоз контаката",
+    "expectedColumns": "Очекиване колоне (заглавље): FirstName, LastName, Phone, Email, Address, City, Municipality",
+    "campaign": "Кампања",
+    "file": "Фајл (.csv, .xlsx)",
+    "requiredFields": "Кампања и фајл су обавезни.",
+    "submit": "Увези",
+    "submitting": "Увоз...",
+    "loadCampaignsFailed": "Учитавање кампања није успело.",
+    "importFailed": "Увоз није успео.",
+    "resultSummary": "Увезено: {{imported}}, прескочено: {{skipped}}"
+  },
+  "queue": {
+    "title": "Позивање",
+    "columns": {
+      "name": "Име",
+      "phone": "Телефон",
+      "place": "Место",
+      "tries": "Покушаја",
+      "outcome": "Исход",
+      "status": "Статус"
+    },
+    "empty": "Нема контаката за позивање.",
+    "call": "Позови",
+    "claiming": "Преузимање...",
+    "loadFailed": "Учитавање контаката није успело.",
+    "claimFailed": "Преузимање контакта није успело.",
+    "alreadyClaimed": "Контакт је већ преузет од стране другог оператера.",
+    "alreadyResolved": "Контакт је већ решен.",
+    "conversionWarning": "Члан је сачуван, али повезивање са контактом није успело — молимо ажурирајте ручно."
+  },
+  "script": {
+    "loadFailed": "Учитавање контакта није успело.",
+    "saveOutcomeFailed": "Чување исхода није успело.",
+    "possibleMatch": "Могуће подударање са постојећим чланом:",
+    "linked": "Повезано",
+    "link": "Повежи",
+    "questions": {
+      "outcome": "Да ли је успостављен контакт са правом особом?",
+      "relation": "Да ли желите да и даље будете део странке?",
+      "activity": "Да ли сте тренутно активни у странци?",
+      "wantsActive": "Да ли бисте желели да будете активни?",
+      "engagement": "У ком облику бисте желели да будете ангажовани?",
+      "contactData": "Ажурирање контакт података",
+      "suggestion": "Да ли имате неку сугестију или предлог?",
+      "recommendationsTitle": "Препоруке потенцијалних чланова",
+      "recommendKnows": "Познајете некога ко дели вредности странке?",
+      "recommendWilling": "Спремни да их учланимо?"
+    },
+    "fields": {
+      "phone": "Телефон",
+      "email": "Email",
+      "address": "Адреса"
+    },
+    "enrollButton": "Учлани као новог члана",
+    "saving": "Чување..."
+  },
+  "reports": {
+    "title": "Извештаји",
+    "exportCsv": "Извоз CSV",
+    "campaign": "Кампања",
+    "allCampaigns": "Све кампање",
+    "fromDate": "Од датума",
+    "toDate": "До датума",
+    "loadFailed": "Учитавање извештаја није успело.",
+    "cards": {
+      "contacted": "Контактирано",
+      "invalidContacts": "Неисправни",
+      "activeMembers": "Активни чланови",
+      "inactiveMembers": "Неактивни чланови",
+      "sympathizers": "Симпатизери",
+      "noCooperation": "Без сарадње",
+      "interestedInActivating": "Заинтересовани за активирање"
+    },
+    "engagementAreas": "Области ангажовања",
+    "topSuggestions": "Најчешће сугестије",
+    "area": "Област",
+    "count": "Број",
+    "suggestion": "Сугестија",
+    "noData": "Нема података.",
+    "csv": {
+      "metric": "Метрика",
+      "value": "Вредност",
+      "engagementPrefix": "Ангажовање",
+      "suggestionPrefix": "Сугестија"
+    }
+  }
+}

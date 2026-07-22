@@ -14,8 +14,14 @@ public class CallContact : BaseEntity
     [Required, MaxLength(100)]
     public string LastName { get; set; } = null!;
 
-    [Required, MaxLength(30)]
-    public string PhoneNumber { get; set; } = null!;
+    [MaxLength(30)]
+    public string? PhoneNumber { get; set; }
+
+    [MaxLength(30)]
+    public string? SecondaryPhone { get; set; }
+
+    [MaxLength(13)]
+    public string? Jmbg { get; set; }
 
     [MaxLength(200), EmailAddress]
     public string? Email { get; set; }
@@ -25,6 +31,14 @@ public class CallContact : BaseEntity
 
     [MaxLength(200)]
     public string? City { get; set; }
+
+    /// <summary>Outcome recorded by a previous, external campaign at import time (e.g. "DA", "NIJE_DOBAR_BROJ"). Informational only — never written by this app's own call flow.</summary>
+    [MaxLength(50)]
+    public string? ImportedOutcome { get; set; }
+
+    /// <summary>Free-text note carried over from an import (source comment / "member since" / municipality-specific flags).</summary>
+    [MaxLength(2000)]
+    public string? ImportNote { get; set; }
 
     public int? MunicipalityId { get; set; }
 

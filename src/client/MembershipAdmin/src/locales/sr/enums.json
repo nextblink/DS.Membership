@@ -34,5 +34,36 @@
     "localAdmin": "Локални админ",
     "operator": "Оператер",
     "viewer": "Прегледач"
+  },
+  "callOutcome": {
+    "validContact": "Успостављен контакт",
+    "wrongNumber": "Погрешан број",
+    "notInService": "Није у употреби",
+    "noAnswer": "Није се јавио/ла",
+    "refused": "Одбио/ла"
+  },
+  "partyRelation": {
+    "stayMember": "Остаје члан",
+    "sympathizer": "Симпатизер",
+    "noCooperation": "Без сарадње"
+  },
+  "activityLevel": {
+    "active": "Активан",
+    "occasional": "Повремено активан",
+    "inactive": "Неактиван"
+  },
+  "engagementArea": {
+    "municipalBoard": "Општински одбор",
+    "departmentalBoards": "Ресорни одбори",
+    "centralOffice": "Централа",
+    "organizationalExecutive": "Организациони секретар",
+    "electionCampaign": "Изборна кампања",
+    "electionMonitor": "Праћење избора"
+  },
+  "contactFinalStatus": {
+    "activeMember": "Активан члан",
+    "inactiveMember": "Неактиван члан",
+    "sympathizer": "Симпатизер",
+    "noCooperation": "Без сарадње"
   }
 }

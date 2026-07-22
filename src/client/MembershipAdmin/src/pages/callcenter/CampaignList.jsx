@@ -2,12 +2,14 @@
 // Mirrors the card/table/pagination markup from pages/members/MembersList.jsx.
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import callCenterApi from '../../services/callCenterApi'
 import { formatDate } from '../../services/dateUtils'
 
 const PAGE_SIZE_DEFAULT = 20
 
 export default function CampaignList() {
+  const { t } = useTranslation(['callcenter', 'common'])
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [data, setData] = useState({ items: [], totalCount: 0, page: 1, pageSize: PAGE_SIZE_DEFAULT, totalPages: 0 })
@@ -29,7 +31,7 @@ export default function CampaignList() {
         })
       })
       .catch((err) => {
-        setError(err?.response?.data?.message || 'Учитавање није успело.')
+        setError(err?.response?.data?.message || t('callcenter:campaigns.loadFailed'))
       })
       .finally(() => setLoading(false))
   }
@@ -40,7 +42,7 @@ export default function CampaignList() {
   }, [page])
 
   const remove = async (id) => {
-    if (!window.confirm('Обрисати кампању?')) return
+    if (!window.confirm(t('callcenter:campaigns.confirmDelete'))) return
     await callCenterApi.deleteCampaign(id)
     load()
   }
@@ -50,7 +52,7 @@ export default function CampaignList() {
   const paginationBar = (
     <div className="flex items-center justify-between px-6 py-4">
       <div className="text-theme-xs text-gray-500 dark:text-gray-400">
-        Страна {data.page} од {totalPages} ({data.totalCount} укупно)
+        {t('common:pagination.summary', { count: data.totalCount, page: data.page, total: totalPages })}
       </div>
       <div className="flex gap-1">
         <button
@@ -59,7 +61,7 @@ export default function CampaignList() {
           onClick={() => setPage(data.page - 1)}
           className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
         >
-          Претходна
+          {t('common:button.prev')}
         </button>
         <button
           type="button"
@@ -67,7 +69,7 @@ export default function CampaignList() {
           onClick={() => setPage(data.page + 1)}
           className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
         >
-          Следећа
+          {t('common:button.next')}
         </button>
       </div>
     </div>
@@ -77,7 +79,7 @@ export default function CampaignList() {
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
       {/* Card header */}
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">Кампање</h1>
+        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('callcenter:campaigns.title')}</h1>
         <button
           type="button"
           onClick={() => navigate('/callcenter/campaigns/new')}
@@ -86,7 +88,7 @@ export default function CampaignList() {
           <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          Нова кампања
+          {t('callcenter:campaigns.new')}
         </button>
       </div>
 
@@ -98,10 +100,10 @@ export default function CampaignList() {
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
             <tr>
-              <th className="px-4 py-3">Назив</th>
-              <th className="px-4 py-3 w-36 whitespace-nowrap">Почетак</th>
-              <th className="px-4 py-3 w-24 whitespace-nowrap">Активна</th>
-              <th className="px-4 py-3 w-28 whitespace-nowrap">Контаката</th>
+              <th className="px-4 py-3">{t('callcenter:campaigns.columns.name')}</th>
+              <th className="px-4 py-3 w-36 whitespace-nowrap">{t('callcenter:campaigns.columns.start')}</th>
+              <th className="px-4 py-3 w-24 whitespace-nowrap">{t('callcenter:campaigns.columns.active')}</th>
+              <th className="px-4 py-3 w-28 whitespace-nowrap">{t('callcenter:campaigns.columns.contacts')}</th>
               <th className="px-4 py-3 w-40"></th>
             </tr>
           </thead>
@@ -109,7 +111,7 @@ export default function CampaignList() {
             {loading && (
               <tr>
                 <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  Учитавање...
+                  {t('common:state.loading')}
                 </td>
               </tr>
             )}
@@ -123,7 +125,7 @@ export default function CampaignList() {
             {!loading && !error && data.items.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  Нема кампања.
+                  {t('callcenter:campaigns.empty')}
                 </td>
               </tr>
             )}
@@ -139,7 +141,7 @@ export default function CampaignList() {
                     {c.startDate ? formatDate(c.startDate) : '-'}
                   </td>
                   <td className="px-4 py-3 w-24 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
-                    {c.isActive ? 'Да' : 'Не'}
+                    {c.isActive ? t('common:bool.yes') : t('common:bool.no')}
                   </td>
                   <td className="px-4 py-3 w-28 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
                     {c.contactCount ?? 0}
@@ -150,14 +152,14 @@ export default function CampaignList() {
                       onClick={() => navigate(`/callcenter/campaigns/${c.id}/edit`)}
                       className="mr-3 text-theme-xs font-medium text-brand-600 dark:text-brand-400 hover:underline"
                     >
-                      Измени
+                      {t('common:button.edit')}
                     </button>
                     <button
                       type="button"
                       onClick={() => remove(c.id)}
                       className="text-theme-xs font-medium text-error-600 dark:text-error-400 hover:underline"
                     >
-                      Обриши
+                      {t('common:button.delete')}
                     </button>
                   </td>
                 </tr>

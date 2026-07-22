@@ -12,6 +12,7 @@ import enFunctions from '../locales/en/functions.json'
 import enUsers from '../locales/en/users.json'
 import enProfile from '../locales/en/profile.json'
 import enEnums from '../locales/en/enums.json'
+import enCallcenter from '../locales/en/callcenter.json'
 
 import srCommon from '../locales/sr/common.json'
 import srAuth from '../locales/sr/auth.json'
@@ -23,6 +24,7 @@ import srFunctions from '../locales/sr/functions.json'
 import srUsers from '../locales/sr/users.json'
 import srProfile from '../locales/sr/profile.json'
 import srEnums from '../locales/sr/enums.json'
+import srCallcenter from '../locales/sr/callcenter.json'
 
 i18n
   .use(LanguageDetector)
@@ -40,6 +42,7 @@ i18n
         users: enUsers,
         profile: enProfile,
         enums: enEnums,
+        callcenter: enCallcenter,
       },
       sr: {
         common: srCommon,
@@ -52,6 +55,7 @@ i18n
         users: srUsers,
         profile: srProfile,
         enums: srEnums,
+        callcenter: srCallcenter,
       },
     },
     fallbackLng: 'en',
@@ -60,7 +64,7 @@ i18n
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
     },
-    ns: ['common', 'auth', 'dashboard', 'members', 'forms', 'committees', 'functions', 'users', 'profile', 'enums'],
+    ns: ['common', 'auth', 'dashboard', 'members', 'forms', 'committees', 'functions', 'users', 'profile', 'enums', 'callcenter'],
     defaultNS: 'common',
     interpolation: { escapeValue: false },
   })

@@ -8,6 +8,7 @@
 // pages/members/MemberForm.jsx conventions.
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import callCenterApi from '../../services/callCenterApi'
 import {
   nextStep,
@@ -15,6 +16,7 @@ import {
   PARTY_RELATION,
   ACTIVITY_LEVEL,
   ENGAGEMENT_AREA,
+  toEnumKey,
 } from '../../services/callScript'
 
 const sectionClass = 'rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm mb-6'
@@ -42,6 +44,7 @@ function computeVisibleSections(answers) {
 }
 
 export default function CallScript() {
+  const { t } = useTranslation(['callcenter', 'common', 'enums'])
   const { id } = useParams()
   const navigate = useNavigate()
 
@@ -74,7 +77,7 @@ export default function CallScript() {
       })
       .catch((err) => {
         if (cancelled) return
-        setLoadError(err?.response?.data?.message || 'Учитавање контакта није успело.')
+        setLoadError(err?.response?.data?.message || t('callcenter:script.loadFailed'))
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -92,6 +95,7 @@ export default function CallScript() {
     return () => {
       cancelled = true
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   const visibleSections = useMemo(() => computeVisibleSections(answers), [answers])
@@ -108,8 +112,8 @@ export default function CallScript() {
     }))
 
   // Builds the SaveCallOutcomeRequest payload from the current answers and
-  // persists it. Returns true on success. Shared by the "Сачувај" completion
-  // path and the enroll ("Учлани") shortcut so both save the outcome identically.
+  // persists it. Returns true on success. Shared by the "Save" completion
+  // path and the enroll shortcut so both save the outcome identically.
   const saveOutcome = async () => {
     const payload = {
       outcome: answers.outcome,
@@ -131,7 +135,7 @@ export default function CallScript() {
       await callCenterApi.saveOutcome(id, payload)
       return true
     } catch (err) {
-      setSaveError(err?.response?.data?.message || 'Чување исхода није успело.')
+      setSaveError(err?.response?.data?.message || t('callcenter:script.saveOutcomeFailed'))
       return false
     } finally {
       setSaving(false)
@@ -157,7 +161,7 @@ export default function CallScript() {
 
   const enroll = async () => {
     if (!contact) return
-    // Save the outcome (same logic as the "Сачувај" completion path) before
+    // Save the outcome (same logic as the "Save" completion path) before
     // navigating away, so FinalStatus/CallAttempt/claim-release happen for the enroll
     // path exactly as they do for the normal completion.
     const ok = await saveOutcome()
@@ -184,7 +188,7 @@ export default function CallScript() {
     navigate('/callcenter/queue')
   }
 
-  if (loading) return <div className="p-6 text-theme-sm text-gray-500 dark:text-gray-400">Учитавање...</div>
+  if (loading) return <div className="p-6 text-theme-sm text-gray-500 dark:text-gray-400">{t('common:state.loading')}</div>
   if (loadError) {
     return (
       <div className="p-6">
@@ -216,7 +220,7 @@ export default function CallScript() {
       {matches.length > 0 && (
         <div className="mb-6 rounded-lg border border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-500/10 px-4 py-3">
           <p className="text-theme-xs font-medium text-yellow-700 dark:text-yellow-300 mb-2">
-            Могуће подударање са постојећим чланом:
+            {t('callcenter:script.possibleMatch')}
           </p>
           <div className="space-y-1.5">
             {matches.map((m) => (
@@ -225,7 +229,9 @@ export default function CallScript() {
                   {m.displayName} ({m.committeeName})
                 </span>
                 {linkedMemberId === m.memberId ? (
-                  <span className="text-theme-xs font-medium text-success-600 dark:text-success-400">Повезано</span>
+                  <span className="text-theme-xs font-medium text-success-600 dark:text-success-400">
+                    {t('callcenter:script.linked')}
+                  </span>
                 ) : (
                   <button
                     type="button"
@@ -233,7 +239,7 @@ export default function CallScript() {
                     onClick={() => link(m.memberId)}
                     className="text-theme-xs font-medium text-brand-600 dark:text-brand-400 hover:underline disabled:opacity-50"
                   >
-                    Повежи
+                    {t('callcenter:script.link')}
                   </button>
                 )}
               </div>
@@ -243,12 +249,12 @@ export default function CallScript() {
       )}
 
       <section className={sectionClass}>
-        <Step title="Да ли је успостављен контакт са правом особом?">
+        <Step title={t('callcenter:script.questions.outcome')}>
           {Object.entries(CALL_OUTCOME).map(([k, v]) => (
             <Radio
               key={v}
               name="outcome"
-              label={k}
+              label={t(`enums:callOutcome.${toEnumKey(k)}`, k)}
               checked={answers.outcome === v}
               onChange={() => setAnswer('outcome', v)}
             />
@@ -258,12 +264,12 @@ export default function CallScript() {
 
       {isVisible('relation') && (
         <section className={sectionClass}>
-          <Step title="Да ли желите да и даље будете део странке?">
+          <Step title={t('callcenter:script.questions.relation')}>
             {Object.entries(PARTY_RELATION).map(([k, v]) => (
               <Radio
                 key={v}
                 name="relation"
-                label={k}
+                label={t(`enums:partyRelation.${toEnumKey(k)}`, k)}
                 checked={answers.relation === v}
                 onChange={() => setAnswer('relation', v)}
               />
@@ -274,12 +280,12 @@ export default function CallScript() {
 
       {isVisible('activity') && (
         <section className={sectionClass}>
-          <Step title="Да ли сте тренутно активни у странци?">
+          <Step title={t('callcenter:script.questions.activity')}>
             {Object.entries(ACTIVITY_LEVEL).map(([k, v]) => (
               <Radio
                 key={v}
                 name="activity"
-                label={k}
+                label={t(`enums:activityLevel.${toEnumKey(k)}`, k)}
                 checked={answers.activity === v}
                 onChange={() => setAnswer('activity', v)}
               />
@@ -291,7 +297,7 @@ export default function CallScript() {
                   checked={answers.wantsToBeActive === true}
                   onChange={(e) => setAnswer('wantsToBeActive', e.target.checked)}
                 />
-                Да ли бисте желели да будете активни?
+                {t('callcenter:script.questions.wantsActive')}
               </label>
             )}
           </Step>
@@ -300,11 +306,11 @@ export default function CallScript() {
 
       {isVisible('engagement') && (
         <section className={sectionClass}>
-          <Step title="У ком облику бисте желели да будете ангажовани?">
+          <Step title={t('callcenter:script.questions.engagement')}>
             {Object.entries(ENGAGEMENT_AREA).map(([k, v]) => (
               <label key={v} className="flex items-center gap-2 text-theme-xs text-gray-700 dark:text-gray-300">
                 <input type="checkbox" checked={answers.engagementAreas.includes(v)} onChange={() => toggleArea(v)} />
-                {k}
+                {t(`enums:engagementArea.${toEnumKey(k)}`, k)}
               </label>
             ))}
           </Step>
@@ -313,10 +319,10 @@ export default function CallScript() {
 
       {isVisible('contactData') && (
         <section className={sectionClass}>
-          <Step title="Ажурирање контакт података">
-            <Field label="Телефон" value={answers.updatedPhone} onChange={(v) => setAnswer('updatedPhone', v)} />
-            <Field label="Email" value={answers.updatedEmail} onChange={(v) => setAnswer('updatedEmail', v)} />
-            <Field label="Адреса" value={answers.updatedAddress} onChange={(v) => setAnswer('updatedAddress', v)} />
+          <Step title={t('callcenter:script.questions.contactData')}>
+            <Field label={t('callcenter:script.fields.phone')} value={answers.updatedPhone} onChange={(v) => setAnswer('updatedPhone', v)} />
+            <Field label={t('callcenter:script.fields.email')} value={answers.updatedEmail} onChange={(v) => setAnswer('updatedEmail', v)} />
+            <Field label={t('callcenter:script.fields.address')} value={answers.updatedAddress} onChange={(v) => setAnswer('updatedAddress', v)} />
             {!linkedMemberId && !contact.convertedMemberId && (
               <button
                 type="button"
@@ -324,7 +330,7 @@ export default function CallScript() {
                 onClick={enroll}
                 className="mt-3 rounded-lg border border-brand-300 dark:border-brand-700 px-4 py-2 text-theme-xs font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 disabled:opacity-50"
               >
-                Учлани као новог члана
+                {t('callcenter:script.enrollButton')}
               </button>
             )}
           </Step>
@@ -333,7 +339,7 @@ export default function CallScript() {
 
       {isVisible('suggestion') && (
         <section className={sectionClass}>
-          <Step title="Да ли имате неку сугестију или предлог?">
+          <Step title={t('callcenter:script.questions.suggestion')}>
             <textarea
               className={`${inputClass} min-h-24`}
               value={answers.suggestionNote ?? ''}
@@ -345,14 +351,14 @@ export default function CallScript() {
 
       {isVisible('recommendations') && (
         <section className={sectionClass}>
-          <Step title="Препоруке потенцијалних чланова">
+          <Step title={t('callcenter:script.questions.recommendationsTitle')}>
             <label className="flex items-center gap-2 text-theme-xs text-gray-700 dark:text-gray-300">
               <input
                 type="checkbox"
                 checked={answers.knowsPotentialMembers === true}
                 onChange={(e) => setAnswer('knowsPotentialMembers', e.target.checked)}
               />
-              Познајете некога ко дели вредности странке?
+              {t('callcenter:script.questions.recommendKnows')}
             </label>
             <label className="flex items-center gap-2 text-theme-xs text-gray-700 dark:text-gray-300">
               <input
@@ -360,7 +366,7 @@ export default function CallScript() {
                 checked={answers.willingToEnroll === true}
                 onChange={(e) => setAnswer('willingToEnroll', e.target.checked)}
               />
-              Спремни да их учланимо?
+              {t('callcenter:script.questions.recommendWilling')}
             </label>
           </Step>
         </section>
@@ -374,7 +380,7 @@ export default function CallScript() {
             onClick={finish}
             className="rounded-lg bg-brand-500 hover:bg-brand-600 px-5 py-2.5 text-theme-sm font-medium text-white disabled:opacity-50"
           >
-            {saving ? 'Чување...' : 'Сачувај'}
+            {saving ? t('callcenter:script.saving') : t('common:button.save')}
           </button>
         )}
         <button
@@ -382,7 +388,7 @@ export default function CallScript() {
           onClick={cancel}
           className="rounded-lg border border-gray-300 dark:border-gray-700 px-5 py-2.5 text-theme-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
         >
-          Откажи
+          {t('common:button.cancel')}
         </button>
       </div>
     </div>
