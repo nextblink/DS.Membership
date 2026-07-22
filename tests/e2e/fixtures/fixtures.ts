@@ -5,7 +5,7 @@ import { selectors } from './selectors';
  * Backend base URL (HTTPS). All API calls hit this directly; the Playwright
  * `baseURL` is the Vite dev server for UI navigation.
  */
-export const API_BASE_URL = 'https://localhost:7226';
+export const API_BASE_URL = 'https://localhost:7231';
 
 /**
  * Role identifiers shared by all fixtures.

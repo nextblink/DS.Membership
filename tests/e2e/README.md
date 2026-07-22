@@ -1,7 +1,7 @@
 # Membership e2e suite
 
 Playwright tests for the DS.Membership admin app. Drives the Vite client at
-`http://localhost:5180` against the .NET API at `https://localhost:7226`.
+`http://localhost:5185` against the .NET API at `https://localhost:7231`.
 
 ## Prerequisites
 
@@ -9,7 +9,7 @@ Playwright tests for the DS.Membership admin app. Drives the Vite client at
   on `src/backend/Marsipan.Membership.Middleware` with
   `src/backend/Marsipan.Membership.Web` as startup project).
 - Node 20+.
-- Ports `5180` (Vite), `5145` (HTTP API), `7226` (HTTPS API) free — or already
+- Ports `5185` (Vite), `5152` (HTTP API), `7231` (HTTPS API) free — or already
   running, in which case Playwright will reuse the existing servers in local
   mode.
 

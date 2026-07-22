@@ -88,19 +88,25 @@ public static class MunicipalitiesSeeder
     {
         var records = SeedDataLoader.Load<MunicipalityRecord[]>("municipalities.json");
 
-        var existingByName = await context.Municipalities.ToDictionaryAsync(m => m.Name);
+        // Grouped (not a straight ToDictionary) so a pre-existing duplicate Name in the DB
+        // can't crash startup — the first row wins, same as picking an arbitrary existing match.
+        var allMunicipalities = await context.Municipalities.ToListAsync();
+        var existingByName = allMunicipalities
+            .GroupBy(m => m.Name)
+            .ToDictionary(g => g.Key, g => g.First());
         var missing = records.Where(r => !existingByName.ContainsKey(r.Name)).ToList();
         if (missing.Count == 0)
             return;
 
-        var existingByPostalCode = existingByName.Values
+        var existingByPostalCode = allMunicipalities
             .Where(m => !string.IsNullOrWhiteSpace(m.PostalCode))
             .GroupBy(m => m.PostalCode!)
             .Where(g => g.Count() == 1)
             .ToDictionary(g => g.Key, g => g.Single());
 
         var now = DateTime.UtcNow;
-        var inserted = new List<(Municipality Municipality, MunicipalityRecord Record)>();
+        // Both freshly-inserted and renamed-in-place rows need their ParentId (re-)resolved below.
+        var touched = new List<(Municipality Municipality, MunicipalityRecord Record)>();
 
         foreach (var r in missing)
         {
@@ -116,6 +122,7 @@ public static class MunicipalitiesSeeder
                 existing.LastModifiedDate = now;
                 existing.LastModifiedByUserId = systemUserId;
                 existingByName[r.Name] = existing;
+                touched.Add((existing, r));
                 continue;
             }
 
@@ -134,12 +141,12 @@ public static class MunicipalitiesSeeder
             };
             context.Municipalities.Add(m);
             existingByName[r.Name] = m;
-            inserted.Add((m, r));
+            touched.Add((m, r));
         }
 
         await context.SaveChangesAsync();
 
-        foreach (var (m, r) in inserted)
+        foreach (var (m, r) in touched)
         {
             if (r.IsCity || r.ParentCity == null)
                 continue;

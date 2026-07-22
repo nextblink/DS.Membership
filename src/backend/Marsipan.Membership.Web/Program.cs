@@ -124,7 +124,7 @@ builder.Services.AddAuthorization(opts =>
 builder.Services.AddCors(opts =>
 {
     opts.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins("http://localhost:5180")
+        policy.WithOrigins("http://localhost:5185")
               .AllowAnyMethod()
               .AllowAnyHeader());
 });

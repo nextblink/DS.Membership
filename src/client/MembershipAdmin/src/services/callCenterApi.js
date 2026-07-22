@@ -44,6 +44,9 @@ const callCenterApi = {
 
   // Reports
   getReport: (params) => api.get('/api/call-center/reports', { params }).then(r => r.data),
+
+  // Municipalities (for filter dropdowns)
+  listMunicipalities: () => api.get('/api/municipalities').then(r => r.data),
 }
 
 export default callCenterApi

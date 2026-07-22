@@ -147,9 +147,9 @@ The admin client (`MembershipAdmin`) has full English/Serbian localization via `
 
 ## Ports
 
-- Backend HTTP: **5145**
-- Backend HTTPS: **7226**
-- Frontend Vite dev server (MembershipAdmin): **5180**
+- Backend HTTP: **5152**
+- Backend HTTPS: **7231**
+- Frontend Vite dev server (MembershipAdmin): **5185**
 
 ## Decisions and Deviations (landed)
 

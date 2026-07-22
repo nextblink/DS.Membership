@@ -1,10 +1,13 @@
 import { BrowserRouter } from 'react-router-dom'
+import { PrimeReactProvider } from 'primereact/api'
 import AppRouter from './services/router'
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AppRouter />
-    </BrowserRouter>
+    <PrimeReactProvider value={{ unstyled: true }}>
+      <BrowserRouter>
+        <AppRouter />
+      </BrowserRouter>
+    </PrimeReactProvider>
   )
 }

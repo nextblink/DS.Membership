@@ -122,9 +122,11 @@ Every list endpoint returns `{ items, totalCount, page, pageSize, totalPages }` 
 ## Ports
 
 Claimed in the user's global port registry:
-- Backend HTTP: **5145**
-- Backend HTTPS: **7226**
-- Frontend Vite (MembershipAdmin): **5180**
+- Backend HTTP: **5152**
+- Backend HTTPS: **7231**
+- Frontend Vite (MembershipAdmin): **5185**
+
+(Reassigned 2026-07-22 — the previously-documented 5145/7226/5180 collided with GagarinInvoices' registry entry for 5145 and were never actually added to the global registry.)
 
 ## Workflow expectations (from user global config)
 

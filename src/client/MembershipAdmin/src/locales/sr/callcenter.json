@@ -106,6 +106,14 @@
   },
   "queue": {
     "title": "Позивање",
+    "filters": {
+      "municipality": "Општина",
+      "allMunicipalities": "Све општине",
+      "status": "Статус",
+      "allStatuses": "Сви статуси",
+      "outcome": "Исход",
+      "allOutcomes": "Сви исходи"
+    },
     "columns": {
       "name": "Име",
       "phone": "Телефон",

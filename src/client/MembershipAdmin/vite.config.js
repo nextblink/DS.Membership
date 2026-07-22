@@ -37,10 +37,10 @@ export default defineConfig({
   },
   plugins: [react(), tailwindcss(), autoBumpVersion()],
   server: {
-    port: 5180,
+    port: 5185,
     strictPort: true,
   },
   preview: {
-    port: 5180,
+    port: 5185,
   },
 })

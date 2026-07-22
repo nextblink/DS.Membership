@@ -106,6 +106,14 @@
   },
   "queue": {
     "title": "Calling",
+    "filters": {
+      "municipality": "Municipality",
+      "allMunicipalities": "All municipalities",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "outcome": "Outcome",
+      "allOutcomes": "All outcomes"
+    },
     "columns": {
       "name": "Name",
       "phone": "Phone",

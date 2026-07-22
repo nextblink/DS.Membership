@@ -11,7 +11,7 @@ export default defineConfig({
   workers: 1,
   reporter: isCI ? [['github'], ['list']] : 'list',
   use: {
-    baseURL: 'http://localhost:5180',
+    baseURL: 'http://localhost:5185',
     ignoreHTTPSErrors: true,
     trace: 'retain-on-failure',
     video: 'retain-on-failure',
@@ -27,7 +27,7 @@ export default defineConfig({
     {
       command:
         'dotnet run --project ../../src/backend/Marsipan.Membership.Web --launch-profile https',
-      url: 'https://localhost:7226/health',
+      url: 'https://localhost:7231/health',
       reuseExistingServer: !isCI,
       ignoreHTTPSErrors: true,
       timeout: 180_000,
@@ -36,7 +36,7 @@ export default defineConfig({
     },
     {
       command: 'npm --prefix ../../src/client/MembershipAdmin run dev',
-      url: 'http://localhost:5180',
+      url: 'http://localhost:5185',
       reuseExistingServer: !isCI,
       timeout: 60_000,
       stdout: 'ignore',

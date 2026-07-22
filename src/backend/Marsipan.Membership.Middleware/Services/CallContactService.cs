@@ -33,10 +33,12 @@ public class CallContactService : ICallContactService
         if (query.MunicipalityId is not null) q = q.Where(c => c.MunicipalityId == query.MunicipalityId);
         if (query.FinalStatus is not null) q = q.Where(c => c.FinalStatus == query.FinalStatus);
         if (query.LastOutcome is not null) q = q.Where(c => c.LastOutcome == query.LastOutcome);
-        if (query.UnresolvedOnly)
+        if (query.UnresolvedOnly && query.FinalStatus is null)
         {
             // Same "still callable" definition as GetNextForOperatorAsync — excludes
             // contacts with a final status, a conversion, a non-NoAnswer outcome, or no phone.
+            // Skipped when FinalStatus is explicitly requested — the two would otherwise
+            // always AND to zero rows (FinalStatus can't be both null and a specific value).
             q = q.Where(c => c.FinalStatus == null
                 && c.ConvertedMemberId == null
                 && c.PhoneNumber != null && c.PhoneNumber != ""
