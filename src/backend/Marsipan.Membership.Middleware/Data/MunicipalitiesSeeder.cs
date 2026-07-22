@@ -78,4 +78,75 @@ public static class MunicipalitiesSeeder
 
         await context.SaveChangesAsync();
     }
+
+    // Inserts municipalities present in municipalities.json but absent from an already-seeded DB
+    // (e.g. new municipalities added after the initial seed ran, such as APV entries #76).
+    // Also covers the case where a seed record was previously loaded under a misspelled name:
+    // if a record's name isn't found but its (unique) postal code matches an existing row,
+    // that row is corrected in place instead of inserting a duplicate. Safe to call on every startup.
+    public static async Task PatchMissingMunicipalitiesAsync(ApplicationContext context, string systemUserId)
+    {
+        var records = SeedDataLoader.Load<MunicipalityRecord[]>("municipalities.json");
+
+        var existingByName = await context.Municipalities.ToDictionaryAsync(m => m.Name);
+        var missing = records.Where(r => !existingByName.ContainsKey(r.Name)).ToList();
+        if (missing.Count == 0)
+            return;
+
+        var existingByPostalCode = existingByName.Values
+            .Where(m => !string.IsNullOrWhiteSpace(m.PostalCode))
+            .GroupBy(m => m.PostalCode!)
+            .Where(g => g.Count() == 1)
+            .ToDictionary(g => g.Key, g => g.Single());
+
+        var now = DateTime.UtcNow;
+        var inserted = new List<(Municipality Municipality, MunicipalityRecord Record)>();
+
+        foreach (var r in missing)
+        {
+            if (!string.IsNullOrWhiteSpace(r.PostalCode)
+                && existingByPostalCode.TryGetValue(r.PostalCode, out var existing)
+                && existing.IsCity == r.IsCity)
+            {
+                // Same municipality, previously seeded under a different (misspelled) name — fix in place.
+                existing.Name = r.Name;
+                existing.VoterCount = r.VoterCount;
+                existing.Lat = r.Lat;
+                existing.Lng = r.Lng;
+                existing.LastModifiedDate = now;
+                existing.LastModifiedByUserId = systemUserId;
+                existingByName[r.Name] = existing;
+                continue;
+            }
+
+            var m = new Municipality
+            {
+                Name = r.Name,
+                IsCity = r.IsCity,
+                PostalCode = string.IsNullOrWhiteSpace(r.PostalCode) ? null : r.PostalCode,
+                VoterCount = r.VoterCount,
+                Lat = r.Lat,
+                Lng = r.Lng,
+                CreatedDate = now,
+                LastModifiedDate = now,
+                CreatedByUserId = systemUserId,
+                LastModifiedByUserId = systemUserId
+            };
+            context.Municipalities.Add(m);
+            existingByName[r.Name] = m;
+            inserted.Add((m, r));
+        }
+
+        await context.SaveChangesAsync();
+
+        foreach (var (m, r) in inserted)
+        {
+            if (r.IsCity || r.ParentCity == null)
+                continue;
+            if (existingByName.TryGetValue(r.ParentCity, out var parent))
+                m.ParentId = parent.Id;
+        }
+
+        await context.SaveChangesAsync();
+    }
 }
