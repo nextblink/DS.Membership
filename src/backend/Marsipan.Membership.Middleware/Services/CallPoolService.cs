@@ -87,6 +87,48 @@ public class CallPoolService : ICallPoolService
         return new RefreshResultDto(added, total);
     }
 
+    // Creates one CallPool per distinct municipality found among the campaign's currently-unassigned
+    // contacts, reusing CreateAsync/StampMatchingContactsAsync so naming, snapshot fields, and stamping
+    // behavior stay identical to single-pool creation. Idempotent: municipalities that already have a
+    // pool for this campaign are skipped.
+    public async Task<BulkCreateByMunicipalityResultDto> BulkCreateByMunicipalityAsync(int campaignId, CancellationToken ct = default)
+    {
+        var unassignedMunicipalityIds = await _db.CallContacts
+            .Where(c => c.CampaignId == campaignId && c.PoolId == null && c.MunicipalityId != null)
+            .Select(c => c.MunicipalityId!.Value)
+            .Distinct()
+            .ToListAsync(ct);
+
+        if (unassignedMunicipalityIds.Count == 0)
+            return new BulkCreateByMunicipalityResultDto(0, []);
+
+        var existingPoolMunicipalityIds = await _db.CallPools
+            .Where(p => p.CampaignId == campaignId && p.FilterMunicipalityId != null)
+            .Select(p => p.FilterMunicipalityId!.Value)
+            .ToListAsync(ct);
+
+        var toCreate = unassignedMunicipalityIds.Except(existingPoolMunicipalityIds).ToList();
+        if (toCreate.Count == 0)
+            return new BulkCreateByMunicipalityResultDto(0, []);
+
+        var municipalities = await _db.Municipalities
+            .Where(m => toCreate.Contains(m.Id))
+            .ToDictionaryAsync(m => m.Id, ct);
+
+        var created = new List<BulkPoolCreatedDto>();
+        foreach (var municipalityId in toCreate)
+        {
+            if (!municipalities.TryGetValue(municipalityId, out var municipality)) continue;
+
+            var pool = await CreateAsync(new CreateCallPoolRequest(
+                municipality.Name, campaignId, null, municipalityId, null), ct);
+
+            created.Add(new BulkPoolCreatedDto(pool.Id, municipality.Name, pool.ContactCount));
+        }
+
+        return new BulkCreateByMunicipalityResultDto(created.Count, created);
+    }
+
     public async Task SetOperatorsAsync(int id, List<string> userIds, CancellationToken ct = default)
     {
         var pool = await _db.CallPools.Include(p => p.Operators)

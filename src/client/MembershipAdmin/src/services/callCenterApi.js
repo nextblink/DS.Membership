@@ -37,6 +37,8 @@ const callCenterApi = {
   updatePool: (id, body) => api.put(`/api/call-pools/${id}`, body),
   deletePool: (id) => api.delete(`/api/call-pools/${id}`),
   refreshPool: (id) => api.post(`/api/call-pools/${id}/refresh`).then(r => r.data),
+  bulkCreatePoolsByMunicipality: (campaignId) =>
+    api.post('/api/call-pools/bulk-by-municipality', null, { params: { campaignId } }).then(r => r.data),
   setOperators: (id, userIds) => api.post(`/api/call-pools/${id}/operators`, { userIds }),
   removeOperator: (id, userId) => api.delete(`/api/call-pools/${id}/operators/${userId}`),
 

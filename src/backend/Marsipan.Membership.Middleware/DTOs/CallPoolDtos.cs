@@ -32,3 +32,7 @@ public record UpdateCallPoolRequest(
 public record AssignOperatorsRequest(List<string> UserIds);
 
 public record RefreshResultDto(int Added, int TotalInPool);
+
+public record BulkPoolCreatedDto(int PoolId, string MunicipalityName, int ContactCount);
+
+public record BulkCreateByMunicipalityResultDto(int PoolsCreated, List<BulkPoolCreatedDto> Pools);

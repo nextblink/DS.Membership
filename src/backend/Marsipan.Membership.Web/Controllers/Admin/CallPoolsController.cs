@@ -55,6 +55,10 @@ public class CallPoolsController : ControllerBase
         catch (KeyNotFoundException) { return NotFound(); }
     }
 
+    [HttpPost("bulk-by-municipality")]
+    public async Task<ActionResult<BulkCreateByMunicipalityResultDto>> BulkCreateByMunicipality([FromQuery] int campaignId, CancellationToken ct)
+        => Ok(await _pools.BulkCreateByMunicipalityAsync(campaignId, ct));
+
     [HttpPost("{id:int}/operators")]
     public async Task<IActionResult> SetOperators(int id, [FromBody] AssignOperatorsRequest dto, CancellationToken ct)
     {

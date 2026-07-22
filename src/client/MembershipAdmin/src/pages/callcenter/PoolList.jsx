@@ -2,9 +2,11 @@
 // Mirrors the card/table markup from pages/callcenter/CampaignList.jsx.
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import callCenterApi from '../../services/callCenterApi'
 
 export default function PoolList() {
+  const { t } = useTranslation(['callcenter', 'common'])
   const navigate = useNavigate()
   const [campaigns, setCampaigns] = useState([])
   const [campaignId, setCampaignId] = useState('')
@@ -13,6 +15,7 @@ export default function PoolList() {
   const [error, setError] = useState(null)
   const [refreshMsg, setRefreshMsg] = useState(null)
   const [refreshingId, setRefreshingId] = useState(null)
+  const [bulkCreating, setBulkCreating] = useState(false)
 
   useEffect(() => {
     callCenterApi
@@ -28,7 +31,7 @@ export default function PoolList() {
       .listPools(campaignId || undefined)
       .then((d) => setPools(Array.isArray(d) ? d : d?.items || []))
       .catch((err) => {
-        setError(err?.response?.data?.message || 'Учитавање није успело.')
+        setError(err?.response?.data?.message || t('callcenter:pools.loadFailed'))
       })
       .finally(() => setLoading(false))
   }
@@ -45,26 +48,45 @@ export default function PoolList() {
     setRefreshMsg(null)
     try {
       const r = await callCenterApi.refreshPool(id)
-      setRefreshMsg(`Додато ${r.added}, укупно у групи ${r.totalInPool}.`)
+      setRefreshMsg(t('callcenter:pools.refreshedMsg', { added: r.added, total: r.totalInPool }))
       load()
     } catch (err) {
-      setError(err?.response?.data?.message || 'Освежавање није успело.')
+      setError(err?.response?.data?.message || t('callcenter:pools.refreshFailed'))
     } finally {
       setRefreshingId(null)
     }
   }
 
   const remove = async (id) => {
-    if (!window.confirm('Обрисати групу?')) return
+    if (!window.confirm(t('callcenter:pools.confirmDelete'))) return
     await callCenterApi.deletePool(id)
     load()
+  }
+
+  const bulkCreateByMunicipality = async () => {
+    if (!campaignId) {
+      setError(t('callcenter:pools.bulkCreateRequiresCampaign'))
+      return
+    }
+    setBulkCreating(true)
+    setRefreshMsg(null)
+    setError(null)
+    try {
+      const r = await callCenterApi.bulkCreatePoolsByMunicipality(campaignId)
+      setRefreshMsg(t('callcenter:pools.bulkCreatedMsg', { count: r.poolsCreated }))
+      load()
+    } catch (err) {
+      setError(err?.response?.data?.message || t('callcenter:pools.bulkCreateFailed'))
+    } finally {
+      setBulkCreating(false)
+    }
   }
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
       {/* Card header */}
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">Групе за позивање</h1>
+        <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('callcenter:pools.title')}</h1>
         <button
           type="button"
           onClick={() => navigate('/callcenter/pools/new')}
@@ -73,7 +95,7 @@ export default function PoolList() {
           <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          Нова група
+          {t('callcenter:pools.new')}
         </button>
       </div>
 
@@ -81,13 +103,15 @@ export default function PoolList() {
       <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-4">
         <div className="flex items-end gap-3">
           <div className="w-64">
-            <label className="block text-[11px] font-medium text-gray-700 dark:text-gray-300 mb-1">Кампања</label>
+            <label className="block text-[11px] font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('callcenter:pools.campaign')}
+            </label>
             <select
               className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-theme-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
               value={campaignId}
               onChange={(e) => setCampaignId(e.target.value)}
             >
-              <option value="">Све кампање</option>
+              <option value="">{t('callcenter:pools.allCampaigns')}</option>
               {campaigns.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -100,7 +124,15 @@ export default function PoolList() {
             onClick={load}
             className="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-theme-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            Освежи листу
+            {t('callcenter:pools.refreshList')}
+          </button>
+          <button
+            type="button"
+            disabled={bulkCreating || !campaignId}
+            onClick={bulkCreateByMunicipality}
+            className="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-theme-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
+          >
+            {bulkCreating ? t('callcenter:pools.bulkCreating') : t('callcenter:pools.bulkCreateByMunicipality')}
           </button>
         </div>
         {refreshMsg && <p className="mt-2 text-theme-xs text-success-600 dark:text-success-400">{refreshMsg}</p>}
@@ -111,11 +143,11 @@ export default function PoolList() {
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
             <tr>
-              <th className="px-4 py-3">Назив</th>
-              <th className="px-4 py-3 w-48">Кампања</th>
-              <th className="px-4 py-3 w-28 whitespace-nowrap">Контаката</th>
-              <th className="px-4 py-3 w-28 whitespace-nowrap">Оператера</th>
-              <th className="px-4 py-3 w-24 whitespace-nowrap">Активна</th>
+              <th className="px-4 py-3">{t('callcenter:pools.columns.name')}</th>
+              <th className="px-4 py-3 w-48">{t('callcenter:pools.columns.campaign')}</th>
+              <th className="px-4 py-3 w-28 whitespace-nowrap">{t('callcenter:pools.columns.contacts')}</th>
+              <th className="px-4 py-3 w-28 whitespace-nowrap">{t('callcenter:pools.columns.operators')}</th>
+              <th className="px-4 py-3 w-24 whitespace-nowrap">{t('callcenter:pools.columns.active')}</th>
               <th className="px-4 py-3 w-56"></th>
             </tr>
           </thead>
@@ -123,7 +155,7 @@ export default function PoolList() {
             {loading && (
               <tr>
                 <td colSpan={6} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  Учитавање...
+                  {t('common:state.loading')}
                 </td>
               </tr>
             )}
@@ -137,7 +169,7 @@ export default function PoolList() {
             {!loading && !error && pools.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  Нема група.
+                  {t('callcenter:pools.empty')}
                 </td>
               </tr>
             )}
@@ -159,7 +191,7 @@ export default function PoolList() {
                     {p.operators?.length ?? 0}
                   </td>
                   <td className="px-4 py-3 w-24 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
-                    {p.isActive ? 'Да' : 'Не'}
+                    {p.isActive ? t('common:bool.yes') : t('common:bool.no')}
                   </td>
                   <td className="px-4 py-3 w-56 text-right">
                     <button
@@ -168,21 +200,21 @@ export default function PoolList() {
                       onClick={() => refresh(p.id)}
                       className="mr-3 text-theme-xs font-medium text-brand-600 dark:text-brand-400 hover:underline disabled:opacity-50"
                     >
-                      {refreshingId === p.id ? 'Освежавање...' : 'Освежи'}
+                      {refreshingId === p.id ? t('callcenter:pools.refreshing') : t('callcenter:pools.refresh')}
                     </button>
                     <button
                       type="button"
                       onClick={() => navigate(`/callcenter/pools/${p.id}/edit`)}
                       className="mr-3 text-theme-xs font-medium text-brand-600 dark:text-brand-400 hover:underline"
                     >
-                      Измени
+                      {t('common:button.edit')}
                     </button>
                     <button
                       type="button"
                       onClick={() => remove(p.id)}
                       className="text-theme-xs font-medium text-error-600 dark:text-error-400 hover:underline"
                     >
-                      Обриши
+                      {t('common:button.delete')}
                     </button>
                   </td>
                 </tr>

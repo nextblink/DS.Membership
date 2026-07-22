@@ -137,4 +137,38 @@ public class CallPoolServiceSnapshotTests
         var pool1Contacts = await db.CallContacts.Where(c => c.PoolId == pool1.Id).ToListAsync();
         Assert.Equal(2, pool1Contacts.Count);
     }
+
+    [Fact]
+    public async Task BulkCreateByMunicipalityAsync_CreatesOnePoolPerDistinctUnassignedMunicipality()
+    {
+        await using var db = NewDb(nameof(BulkCreateByMunicipalityAsync_CreatesOnePoolPerDistinctUnassignedMunicipality));
+        var campaign = new Campaign { Name = "C1", CreatedByUserId = "seed", LastModifiedByUserId = "seed" };
+        db.Campaigns.Add(campaign);
+        var m1 = new Municipality { Name = "Zvezdara", IsCity = false, CreatedByUserId = "seed", LastModifiedByUserId = "seed" };
+        var m2 = new Municipality { Name = "Vozdovac", IsCity = false, CreatedByUserId = "seed", LastModifiedByUserId = "seed" };
+        db.Municipalities.AddRange(m1, m2);
+        await db.SaveChangesAsync();
+
+        db.CallContacts.AddRange(
+            new CallContact { FirstName = "A", LastName = "L", PhoneNumber = "1", CampaignId = campaign.Id, MunicipalityId = m1.Id, CreatedByUserId = "seed", LastModifiedByUserId = "seed" },
+            new CallContact { FirstName = "B", LastName = "L", PhoneNumber = "2", CampaignId = campaign.Id, MunicipalityId = m1.Id, CreatedByUserId = "seed", LastModifiedByUserId = "seed" },
+            new CallContact { FirstName = "C", LastName = "L", PhoneNumber = "3", CampaignId = campaign.Id, MunicipalityId = m2.Id, CreatedByUserId = "seed", LastModifiedByUserId = "seed" },
+            // No municipality - should be ignored.
+            new CallContact { FirstName = "D", LastName = "L", PhoneNumber = "4", CampaignId = campaign.Id, CreatedByUserId = "seed", LastModifiedByUserId = "seed" });
+        await db.SaveChangesAsync();
+
+        var service = BuildService(db);
+        var result = await service.BulkCreateByMunicipalityAsync(campaign.Id);
+
+        Assert.Equal(2, result.PoolsCreated);
+        Assert.Contains(result.Pools, p => p.MunicipalityName == "Zvezdara" && p.ContactCount == 2);
+        Assert.Contains(result.Pools, p => p.MunicipalityName == "Vozdovac" && p.ContactCount == 1);
+
+        var stampedM1 = await db.CallContacts.Where(c => c.MunicipalityId == m1.Id).ToListAsync();
+        Assert.All(stampedM1, c => Assert.NotNull(c.PoolId));
+
+        // Idempotent: calling again should create no new pools since all matching contacts are now assigned.
+        var second = await service.BulkCreateByMunicipalityAsync(campaign.Id);
+        Assert.Equal(0, second.PoolsCreated);
+    }
 }
