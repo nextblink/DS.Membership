@@ -193,6 +193,7 @@ var app = builder.Build();
     }
 
     await MunicipalitiesSeeder.PatchCoordinatesAsync(dbContext);
+    await MunicipalitiesSeeder.PatchMissingMunicipalitiesAsync(dbContext, systemUserId);
 }
 
 // Configure the HTTP request pipeline.
