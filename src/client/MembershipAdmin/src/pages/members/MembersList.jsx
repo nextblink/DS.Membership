@@ -2,9 +2,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Column } from 'primereact/column'
 import api from '../../framework/api'
 import { EDUCATION_LEVEL_OPTIONS, GENDER_OPTIONS } from './enums'
 import { formatDate } from '../../services/dateUtils'
+import ServerDataTable, { columnHeaderPt, columnBodyPt } from '../../components/ServerDataTable'
 
 const PAGE_SIZE_DEFAULT = 20
 
@@ -166,55 +168,6 @@ export default function MembersList() {
 
   const totalPages = data.totalPages || Math.max(1, Math.ceil(data.totalCount / pageSize))
 
-  const pageNumbers = useMemo(() => {
-    const total = totalPages || 1
-    const out = []
-    const start = Math.max(1, page - 2)
-    const end = Math.min(total, start + 4)
-    for (let i = start; i <= end; i++) out.push(i)
-    return out
-  }, [page, totalPages])
-
-  const paginationBar = (
-    <div className="flex items-center justify-between px-6 py-4">
-      <div className="text-theme-xs text-gray-500 dark:text-gray-400">
-        {t('common:pagination.summary', { count: data.totalCount, page: data.page, total: totalPages })}
-      </div>
-      <div className="flex gap-1">
-        <button
-          type="button"
-          disabled={data.page <= 1}
-          onClick={() => goToPage(data.page - 1)}
-          className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
-        >
-          {t('common:button.prev')}
-        </button>
-        {pageNumbers.map((p) => (
-          <button
-            key={p}
-            type="button"
-            onClick={() => goToPage(p)}
-            className={`rounded-lg border px-3 py-1.5 text-theme-xs ${
-              p === data.page
-                ? 'border-brand-500 bg-brand-500 text-white'
-                : 'border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-            }`}
-          >
-            {p}
-          </button>
-        ))}
-        <button
-          type="button"
-          disabled={data.page >= totalPages}
-          onClick={() => goToPage(data.page + 1)}
-          className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
-        >
-          {t('common:button.next')}
-        </button>
-      </div>
-    </div>
-  )
-
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
       {/* Card header */}
@@ -368,97 +321,81 @@ export default function MembersList() {
         </div>
       </form>
 
-      {/* Pagination header */}
-      <div className="border-b border-gray-200 dark:border-gray-800">
-        {paginationBar}
-      </div>
+      {error && (
+        <div className="mx-6 mt-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
+          {error}
+        </div>
+      )}
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
-            <tr>
-              <th className="px-4 py-3">
-                <button type="button" onClick={() => toggleSort('name')} className="inline-flex items-center gap-1 hover:text-gray-900 dark:hover:text-white">
-                  {t('table.fullName')}
-                  <SortIcon active={sortBy === 'name' || sortBy === ''} desc={sortDesc && (sortBy === 'name' || sortBy === '')} />
-                </button>
-              </th>
-              <th className="px-4 py-3">{t('table.jmbg')}</th>
-              <th className="px-4 py-3">{t('table.committee')}</th>
-              <th className="px-4 py-3">{t('table.functions')}</th>
-              <th className="px-4 py-3 w-36 whitespace-nowrap">{t('table.membershipDate')}</th>
-              <th className="px-4 py-3 w-32 whitespace-nowrap">
-                <button type="button" onClick={() => toggleSort('seniority')} className="inline-flex items-center gap-1 hover:text-gray-900 dark:hover:text-white">
-                  {t('table.seniority')}
-                  <SortIcon active={sortBy === 'seniority'} desc={sortDesc && sortBy === 'seniority'} />
-                </button>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
-              <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  {t('common:state.loading')}
-                </td>
-              </tr>
-            )}
-            {!loading && error && (
-              <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-theme-sm text-error-500">
-                  {error}
-                </td>
-              </tr>
-            )}
-            {!loading && !error && data.items.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  {t('state.noMembers')}
-                </td>
-              </tr>
-            )}
-            {!loading &&
-              !error &&
-              data.items.map((m) => (
-                <tr
-                  key={m.id}
-                  className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30 cursor-pointer"
-                  onClick={() => navigate(`/members/${m.id}`)}
-                >
-                  <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">
-                    <div className="flex items-center gap-1.5">
-                      {m.gender === 'Male' ? (
-                        <svg className="h-3.5 w-3.5 shrink-0 text-blue-500 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <circle cx="9" cy="15" r="6"/>
-                          <path d="M15 9l6-6M21 3h-5M21 3v5"/>
-                        </svg>
-                      ) : m.gender === 'Female' ? (
-                        <svg className="h-3.5 w-3.5 shrink-0 text-pink-500 dark:text-pink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <circle cx="12" cy="9" r="6"/>
-                          <path d="M12 15v6M9 18h6"/>
-                        </svg>
-                      ) : null}
-                      {m.fullName ?? [m.firstName, m.lastName].filter(Boolean).join(' ')}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.jmbg}</td>
-                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{m.committee?.name ?? m.committeeName ?? ''}</td>
-                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{renderFunctions(m)}</td>
-                  <td className="px-4 py-3 w-36 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">{formatDate(m.membershipDate)}</td>
-                  <td className="px-4 py-3 w-32">
-                    <MembershipBar date={m.membershipDate} />
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination footer */}
-      <div className="border-t border-gray-200 dark:border-gray-800">
-        {paginationBar}
-      </div>
+      <ServerDataTable
+        items={data.items}
+        page={page}
+        pageSize={pageSize}
+        totalCount={data.totalCount}
+        totalPages={totalPages}
+        loading={loading}
+        onPageChange={goToPage}
+        emptyMessage={t('state.noMembers')}
+        summaryText={t('common:pagination.summary', { count: data.totalCount, page: data.page, total: totalPages })}
+        onRowClick={(e) => navigate(`/members/${e.data.id}`)}
+        rowClassName={() => 'cursor-pointer'}
+      >
+        <Column
+          header={
+            <button type="button" onClick={() => toggleSort('name')} className="inline-flex items-center gap-1 hover:text-gray-900 dark:hover:text-white">
+              {t('table.fullName')}
+              <SortIcon active={sortBy === 'name' || sortBy === ''} desc={sortDesc && (sortBy === 'name' || sortBy === '')} />
+            </button>
+          }
+          body={(m) => (
+            <div className="flex items-center gap-1.5">
+              {m.gender === 'Male' ? (
+                <svg className="h-3.5 w-3.5 shrink-0 text-blue-500 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="9" cy="15" r="6"/>
+                  <path d="M15 9l6-6M21 3h-5M21 3v5"/>
+                </svg>
+              ) : m.gender === 'Female' ? (
+                <svg className="h-3.5 w-3.5 shrink-0 text-pink-500 dark:text-pink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="9" r="6"/>
+                  <path d="M12 15v6M9 18h6"/>
+                </svg>
+              ) : null}
+              {lastNameFirst(m.fullName)}
+            </div>
+          )}
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt('text-gray-900 dark:text-white') }}
+        />
+        <Column
+          header={t('table.jmbg')}
+          field="jmbg"
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt() }}
+        />
+        <Column
+          header={t('table.committee')}
+          body={(m) => m.committee?.name ?? m.committeeName ?? ''}
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt() }}
+        />
+        <Column
+          header={t('table.functions')}
+          body={renderFunctions}
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt() }}
+        />
+        <Column
+          header={t('table.membershipDate')}
+          body={(m) => formatDate(m.membershipDate)}
+          pt={{ headerCell: columnHeaderPt('w-36 whitespace-nowrap'), bodyCell: columnBodyPt('w-36 whitespace-nowrap') }}
+        />
+        <Column
+          header={
+            <button type="button" onClick={() => toggleSort('seniority')} className="inline-flex items-center gap-1 hover:text-gray-900 dark:hover:text-white">
+              {t('table.seniority')}
+              <SortIcon active={sortBy === 'seniority'} desc={sortDesc && sortBy === 'seniority'} />
+            </button>
+          }
+          body={(m) => <MembershipBar date={m.membershipDate} />}
+          pt={{ headerCell: columnHeaderPt('w-32 whitespace-nowrap'), bodyCell: { className: 'px-4 py-3 w-32' } }}
+        />
+      </ServerDataTable>
     </div>
   )
 }
@@ -511,6 +448,15 @@ function SortIcon({ active, desc }) {
       {desc ? <path d="M12 20l-8-8h16z" /> : <path d="M12 4l8 8H4z" />}
     </svg>
   )
+}
+
+// The API only ever returns a pre-composed "FirstName LastName" fullName (no separate
+// firstName/lastName fields on this list DTO) — reorder to "LastName FirstName" by moving the
+// first token to the end. Splitting on just the first space keeps a multi-word LastName intact.
+function lastNameFirst(fullName) {
+  if (!fullName) return ''
+  const [first, ...rest] = fullName.split(' ')
+  return rest.length ? `${rest.join(' ')} ${first}` : fullName
 }
 
 function renderFunctions(m) {

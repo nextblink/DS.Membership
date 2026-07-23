@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Column } from 'primereact/column'
 import callCenterApi from '../../services/callCenterApi'
 import { formatDate } from '../../services/dateUtils'
 import { useToast, ToastContainer } from '../../components/Toast'
+import ServerDataTable, { columnHeaderPt, columnBodyPt } from '../../components/ServerDataTable'
 
 const PAGE_SIZE_DEFAULT = 20
 
@@ -55,32 +57,6 @@ export default function CampaignList() {
 
   const totalPages = data.totalPages || Math.max(1, Math.ceil(data.totalCount / data.pageSize))
 
-  const paginationBar = (
-    <div className="flex items-center justify-between px-6 py-4">
-      <div className="text-theme-xs text-gray-500 dark:text-gray-400">
-        {t('common:pagination.summary', { count: data.totalCount, page: data.page, total: totalPages })}
-      </div>
-      <div className="flex gap-1">
-        <button
-          type="button"
-          disabled={data.page <= 1}
-          onClick={() => setPage(data.page - 1)}
-          className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
-        >
-          {t('common:button.prev')}
-        </button>
-        <button
-          type="button"
-          disabled={data.page >= totalPages}
-          onClick={() => setPage(data.page + 1)}
-          className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
-        >
-          {t('common:button.next')}
-        </button>
-      </div>
-    </div>
-  )
-
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
       <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
@@ -99,84 +75,66 @@ export default function CampaignList() {
         </button>
       </div>
 
-      {/* Pagination header */}
-      <div className="border-b border-gray-200 dark:border-gray-800">{paginationBar}</div>
+      {error && (
+        <div className="mx-6 mt-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
+          {error}
+        </div>
+      )}
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
-            <tr>
-              <th className="px-4 py-3">{t('callcenter:campaigns.columns.name')}</th>
-              <th className="px-4 py-3 w-36 whitespace-nowrap">{t('callcenter:campaigns.columns.start')}</th>
-              <th className="px-4 py-3 w-24 whitespace-nowrap">{t('callcenter:campaigns.columns.active')}</th>
-              <th className="px-4 py-3 w-28 whitespace-nowrap">{t('callcenter:campaigns.columns.contacts')}</th>
-              <th className="px-4 py-3 w-40"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  {t('common:state.loading')}
-                </td>
-              </tr>
-            )}
-            {!loading && error && (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-error-500">
-                  {error}
-                </td>
-              </tr>
-            )}
-            {!loading && !error && data.items.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  {t('callcenter:campaigns.empty')}
-                </td>
-              </tr>
-            )}
-            {!loading &&
-              !error &&
-              data.items.map((c) => (
-                <tr
-                  key={c.id}
-                  className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30"
-                >
-                  <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">{c.name}</td>
-                  <td className="px-4 py-3 w-36 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
-                    {c.startDate ? formatDate(c.startDate) : '-'}
-                  </td>
-                  <td className="px-4 py-3 w-24 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
-                    {c.isActive ? t('common:bool.yes') : t('common:bool.no')}
-                  </td>
-                  <td className="px-4 py-3 w-28 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
-                    {c.contactCount ?? 0}
-                  </td>
-                  <td className="px-4 py-3 w-40 text-right">
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/callcenter/campaigns/${c.id}/edit`)}
-                      className="mr-3 text-theme-xs font-medium text-brand-600 dark:text-brand-400 hover:underline"
-                    >
-                      {t('common:button.edit')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => remove(c.id)}
-                      className="text-theme-xs font-medium text-error-600 dark:text-error-400 hover:underline"
-                    >
-                      {t('common:button.delete')}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination footer */}
-      <div className="border-t border-gray-200 dark:border-gray-800">{paginationBar}</div>
+      <ServerDataTable
+        items={data.items}
+        page={page}
+        pageSize={data.pageSize}
+        totalCount={data.totalCount}
+        totalPages={totalPages}
+        loading={loading}
+        onPageChange={setPage}
+        emptyMessage={t('callcenter:campaigns.empty')}
+        summaryText={t('common:pagination.summary', { count: data.totalCount, page: data.page, total: totalPages })}
+      >
+        <Column
+          header={t('callcenter:campaigns.columns.name')}
+          field="name"
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt('text-gray-900 dark:text-white') }}
+        />
+        <Column
+          header={t('callcenter:campaigns.columns.start')}
+          body={(c) => (c.startDate ? formatDate(c.startDate) : '-')}
+          pt={{ headerCell: columnHeaderPt('w-36 whitespace-nowrap'), bodyCell: columnBodyPt('w-36 whitespace-nowrap') }}
+        />
+        <Column
+          header={t('callcenter:campaigns.columns.active')}
+          body={(c) => (c.isActive ? t('common:bool.yes') : t('common:bool.no'))}
+          pt={{ headerCell: columnHeaderPt('w-24 whitespace-nowrap'), bodyCell: columnBodyPt('w-24 whitespace-nowrap') }}
+        />
+        <Column
+          header={t('callcenter:campaigns.columns.contacts')}
+          body={(c) => c.contactCount ?? 0}
+          pt={{ headerCell: columnHeaderPt('w-28 whitespace-nowrap'), bodyCell: columnBodyPt('w-28 whitespace-nowrap') }}
+        />
+        <Column
+          header=""
+          body={(c) => (
+            <>
+              <button
+                type="button"
+                onClick={() => navigate(`/callcenter/campaigns/${c.id}/edit`)}
+                className="mr-3 text-theme-xs font-medium text-brand-600 dark:text-brand-400 hover:underline"
+              >
+                {t('common:button.edit')}
+              </button>
+              <button
+                type="button"
+                onClick={() => remove(c.id)}
+                className="text-theme-xs font-medium text-error-600 dark:text-error-400 hover:underline"
+              >
+                {t('common:button.delete')}
+              </button>
+            </>
+          )}
+          pt={{ headerCell: columnHeaderPt('w-40'), bodyCell: { className: 'px-4 py-3 w-40 text-right' } }}
+        />
+      </ServerDataTable>
     </div>
   )
 }

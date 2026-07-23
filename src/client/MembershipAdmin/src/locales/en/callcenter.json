@@ -31,6 +31,7 @@
     "columns": {
       "name": "Name",
       "campaign": "Campaign",
+      "municipalities": "Municipalities",
       "contacts": "Contacts",
       "operators": "Operators",
       "active": "Active"
@@ -73,23 +74,21 @@
     "title": "Contacts",
     "columns": {
       "name": "Name",
+      "address": "Address",
       "phone": "Phone",
+      "secondaryPhone": "Secondary phone",
       "municipality": "Municipality",
       "tries": "Tries",
       "outcome": "Outcome",
-      "status": "Status",
-      "previousResult": "Previous result",
-      "link": "Link"
+      "status": "Status"
     },
-    "linked": "Linked",
-    "enrolled": "Enrolled",
     "empty": "No contacts.",
     "loadFailed": "Loading failed.",
     "filters": {
       "campaign": "Campaign",
       "allCampaigns": "All campaigns",
-      "city": "City",
-      "cityPlaceholder": "City",
+      "municipality": "Municipality",
+      "allMunicipalities": "All municipalities",
       "status": "Status",
       "allStatuses": "All statuses",
       "outcome": "Outcome",
@@ -131,7 +130,8 @@
       "memberSince": "Member since",
       "tries": "Tries",
       "outcome": "Outcome",
-      "status": "Status"
+      "status": "Status",
+      "claimedBy": "Claimed by"
     },
     "empty": "No contacts to call.",
     "call": "Call",
@@ -140,6 +140,8 @@
     "claimFailed": "Claiming the contact failed.",
     "alreadyClaimed": "This contact was already claimed by another operator.",
     "alreadyResolved": "This contact is already resolved.",
+    "claimedByUnknown": "another operator",
+    "claimedByTooltip": "Currently claimed by {{name}}",
     "conversionWarning": "The member was saved, but linking it to the contact failed — please update it manually.",
     "choosePoolPrompt": "Choose a pool above to see its contacts.",
     "noPoolsAssigned": "You're not assigned to any pool yet — ask an admin to add you to one."
@@ -152,6 +154,19 @@
     "possibleMatch": "Possible match with an existing member:",
     "linked": "Linked",
     "link": "Link",
+    "details": {
+      "title": "Contact details",
+      "address": "Address",
+      "municipality": "Municipality",
+      "secondaryPhone": "Secondary phone",
+      "jmbg": "JMBG",
+      "memberSince": "Member since",
+      "attempts": "Attempts so far",
+      "lastOutcome": "Last outcome",
+      "status": "Status",
+      "importedOutcome": "Imported outcome",
+      "importNote": "Import note"
+    },
     "questions": {
       "outcome": "Was contact established with the right person?",
       "relation": "Do you want to remain part of the party?",
@@ -169,7 +184,6 @@
       "email": "Email",
       "address": "Address"
     },
-    "enrollButton": "Enroll as a new member",
     "saving": "Saving..."
   },
   "reports": {

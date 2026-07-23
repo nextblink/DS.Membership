@@ -6,16 +6,29 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
 import { AutoComplete } from 'primereact/autocomplete'
 import callCenterApi from '../../services/callCenterApi'
+import auth from '../../framework/auth'
 import { makeScriptMatcher } from '../../services/transliteration'
 import { CALL_OUTCOME, toEnumKey } from '../../services/callScript'
 import { formatDate } from '../../services/dateUtils'
+import ServerDataTable from '../../components/ServerDataTable'
 
 // Enum values mirror the backend Enums.cs ordinals (ContactFinalStatus).
 const FINAL_STATUS = { ActiveMember: 0, InactiveMember: 1, Sympathizer: 2, NoCooperation: 3 }
+
+// Must match CallContactService.StaleClaimMinutes on the backend — a claim older than this is
+// treated as abandoned and shown as callable again, even before the claimant's own session
+// notices (e.g. they refreshed away without saving/canceling).
+const STALE_CLAIM_MINUTES = 15
+
+function isActivelyClaimedByOther(contact, currentUserId) {
+  if (!contact.claimedByUserId || contact.claimedByUserId === currentUserId) return false
+  if (!contact.claimedAt) return false
+  const ageMs = Date.now() - new Date(contact.claimedAt).getTime()
+  return ageMs < STALE_CLAIM_MINUTES * 60 * 1000
+}
 
 const inputClass =
   'w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-theme-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500'
@@ -29,42 +42,6 @@ const flattenMunicipalities = (nodes) =>
     .flatMap((n) => [{ id: n.id, name: n.name }, ...flattenMunicipalities(n.children)])
     .sort((a, b) => a.name.localeCompare(b.name))
 
-const tableClassNames = {
-  root: { className: 'text-sm' },
-  wrapper: { className: 'overflow-x-auto' },
-  table: { className: 'w-full text-left' },
-  thead: { className: 'bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400' },
-  headerRow: {},
-  tbody: {},
-  bodyRow: { className: 'border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30' },
-  emptyMessage: { className: 'px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400' },
-}
-
-const pageNavButtonClass =
-  'rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800'
-const pageNavIconClass = 'w-3 h-3'
-
-const paginatorClassNames = {
-  root: { className: 'flex items-center gap-1.5 border-t border-gray-200 dark:border-gray-800 px-6 py-4' },
-  left: { className: 'mr-auto' },
-  firstPageButton: { className: pageNavButtonClass },
-  firstPageIcon: { className: pageNavIconClass },
-  prevPageButton: { className: pageNavButtonClass },
-  prevPageIcon: { className: pageNavIconClass },
-  nextPageButton: { className: pageNavButtonClass },
-  nextPageIcon: { className: pageNavIconClass },
-  lastPageButton: { className: pageNavButtonClass },
-  lastPageIcon: { className: pageNavIconClass },
-  pages: { className: 'flex items-center gap-1' },
-  pageButton: (opts) => ({
-    className:
-      'rounded-lg border px-3 py-1.5 text-theme-xs ' +
-      (opts?.context?.active
-        ? 'border-brand-500 bg-brand-500 text-white'
-        : 'border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'),
-  }),
-}
-
 export default function CallQueue() {
   const { t } = useTranslation(['callcenter', 'common', 'enums'])
   const navigate = useNavigate()
@@ -75,10 +52,16 @@ export default function CallQueue() {
   const [pools, setPools] = useState([])
   const [poolsLoading, setPoolsLoading] = useState(true)
   const [filters, setFilters] = useState({ poolId: '', municipalityId: '', finalStatus: '', lastOutcome: '' })
+  // Default sort is address, ascending — operators work address-by-address through a
+  // neighborhood; clicking a column header switches field/direction (PrimeReact's normal
+  // asc -> desc -> asc single-column-sort toggle).
+  const [sortField, setSortField] = useState('address')
+  const [sortOrder, setSortOrder] = useState(1)
   const [page, setPage] = useState(1)
   const [data, setData] = useState({ items: [], totalCount: 0, page: 1, pageSize: PAGE_SIZE, totalPages: 1 })
   const [loading, setLoading] = useState(false)
   const [claimingId, setClaimingId] = useState(null)
+  const currentUserId = auth.getUser()?.id ?? null
   // Seed the error banner with a one-time warning passed from MemberCreate.jsx
   // when the call contact was created as a member but the server-side
   // conversion link (setConverted) failed to save.
@@ -120,7 +103,7 @@ export default function CallQueue() {
   }, [])
 
   const filterKey = useMemo(() => JSON.stringify(filters), [filters])
-  const refreshKey = useMemo(() => `${page}|${filterKey}`, [page, filterKey])
+  const refreshKey = useMemo(() => `${page}|${filterKey}|${sortField}|${sortOrder}`, [page, filterKey, sortField, sortOrder])
 
   const load = () => {
     if (!filters.poolId) {
@@ -132,7 +115,14 @@ export default function CallQueue() {
     }
     let cancelled = false
     setLoading(true)
-    const params = { page, pageSize: PAGE_SIZE, unresolvedOnly: true, poolId: filters.poolId }
+    const params = {
+      page,
+      pageSize: PAGE_SIZE,
+      unresolvedOnly: true,
+      poolId: filters.poolId,
+      sortBy: sortField,
+      sortDesc: sortOrder === -1,
+    }
     if (filters.municipalityId) params.municipalityId = filters.municipalityId
     if (filters.finalStatus !== '') params.finalStatus = filters.finalStatus
     if (filters.lastOutcome !== '') params.lastOutcome = filters.lastOutcome
@@ -321,30 +311,35 @@ export default function CallQueue() {
       )}
 
       {(filters.poolId || poolsLoading) && (
-      <DataTable
-        value={data.items}
-        dataKey="id"
+      <ServerDataTable
+        items={data.items}
+        page={page}
+        pageSize={PAGE_SIZE}
+        totalCount={data.totalCount}
+        totalPages={data.totalPages}
         loading={loading}
+        onPageChange={setPage}
         emptyMessage={t('callcenter:queue.empty')}
-        lazy
-        paginator
-        paginatorPosition="both"
-        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-        paginatorLeft={
-          <span className="text-theme-xs text-gray-500 dark:text-gray-400">
-            {t('common:pagination.summary', { count: data.totalCount, page: data.page, total: data.totalPages || 1 })}
-          </span>
-        }
-        first={(page - 1) * PAGE_SIZE}
-        rows={PAGE_SIZE}
-        totalRecords={data.totalCount}
-        onPage={(e) => setPage((e.page ?? 0) + 1)}
-        pt={{ ...tableClassNames, paginator: paginatorClassNames }}
+        summaryText={t('common:pagination.summary', { count: data.totalCount, page: data.page, total: data.totalPages || 1 })}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSort={(e) => {
+          setSortField(e.sortField)
+          setSortOrder(e.sortOrder)
+          setPage(1)
+        }}
       >
         <Column
           header={t('callcenter:queue.columns.name')}
+          field="name"
+          sortable
           body={(c) => `${c.lastName} ${c.firstName}`}
-          pt={{ headerCell: { className: 'px-4 py-3' }, bodyCell: { className: 'px-4 py-3 text-theme-sm text-gray-900 dark:text-white' } }}
+          pt={{
+            headerCell: { className: 'px-4 py-3' },
+            headerTitle: { className: 'cursor-pointer select-none' },
+            sortIcon: { className: 'ml-1 text-theme-xs' },
+            bodyCell: { className: 'px-4 py-3 text-theme-sm text-gray-900 dark:text-white' },
+          }}
         />
         <Column
           header={t('callcenter:queue.columns.phone')}
@@ -358,8 +353,15 @@ export default function CallQueue() {
         />
         <Column
           header={t('callcenter:queue.columns.address')}
+          field="address"
+          sortable
           body={(c) => c.address ?? '-'}
-          pt={{ headerCell: { className: 'px-4 py-3' }, bodyCell: { className: 'px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300' } }}
+          pt={{
+            headerCell: { className: 'px-4 py-3' },
+            headerTitle: { className: 'cursor-pointer select-none' },
+            sortIcon: { className: 'ml-1 text-theme-xs' },
+            bodyCell: { className: 'px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300' },
+          }}
         />
         <Column
           header={t('callcenter:queue.columns.place')}
@@ -399,23 +401,43 @@ export default function CallQueue() {
           }}
         />
         <Column
+          header={t('callcenter:queue.columns.claimedBy')}
+          body={(c) =>
+            isActivelyClaimedByOther(c, currentUserId) ? (
+              <span className="inline-flex items-center rounded-full bg-warning-50 dark:bg-warning-500/10 px-2 py-0.5 text-theme-xs text-warning-600 dark:text-warning-400">
+                {c.claimedByUserName ?? t('callcenter:queue.claimedByUnknown')}
+              </span>
+            ) : (
+              '-'
+            )
+          }
+          pt={{
+            headerCell: { className: 'px-4 py-3 w-36 whitespace-nowrap' },
+            bodyCell: { className: 'px-4 py-3 w-36 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300' },
+          }}
+        />
+        <Column
           header=""
-          body={(c) => (
-            <button
-              type="button"
-              disabled={claimingId === c.id}
-              onClick={() => callContact(c.id)}
-              className="rounded-lg bg-brand-500 hover:bg-brand-600 px-3 py-1.5 text-theme-xs font-medium text-white disabled:opacity-50"
-            >
-              {claimingId === c.id ? t('callcenter:queue.claiming') : t('callcenter:queue.call')}
-            </button>
-          )}
+          body={(c) => {
+            const takenByOther = isActivelyClaimedByOther(c, currentUserId)
+            return (
+              <button
+                type="button"
+                disabled={claimingId === c.id || takenByOther}
+                onClick={() => callContact(c.id)}
+                title={takenByOther ? t('callcenter:queue.claimedByTooltip', { name: c.claimedByUserName ?? t('callcenter:queue.claimedByUnknown') }) : undefined}
+                className="rounded-lg bg-brand-500 hover:bg-brand-600 px-3 py-1.5 text-theme-xs font-medium text-white disabled:opacity-50"
+              >
+                {claimingId === c.id ? t('callcenter:queue.claiming') : t('callcenter:queue.call')}
+              </button>
+            )
+          }}
           pt={{
             headerCell: { className: 'px-4 py-3 w-28 whitespace-nowrap' },
             bodyCell: { className: 'px-4 py-3 w-28 whitespace-nowrap text-theme-sm text-right' },
           }}
         />
-      </DataTable>
+      </ServerDataTable>
       )}
     </div>
   )

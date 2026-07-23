@@ -18,6 +18,11 @@ import {
   ENGAGEMENT_AREA,
   toEnumKey,
 } from '../../services/callScript'
+import { formatDate } from '../../services/dateUtils'
+
+// Enum values mirror the backend Enums.cs ordinals (ContactFinalStatus) — same mapping as
+// pages/callcenter/ContactList.jsx / CallQueue.jsx.
+const FINAL_STATUS = { ActiveMember: 0, InactiveMember: 1, Sympathizer: 2, NoCooperation: 3 }
 
 const sectionClass = 'rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-theme-sm mb-6'
 const labelClass = 'block text-[11px] font-medium text-gray-700 dark:text-gray-300 mb-1'
@@ -98,6 +103,18 @@ export default function CallScript() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
+  // The API serializes enums as their string member name (JsonStringEnumConverter in
+  // Program.cs), so lastOutcome/finalStatus arrive as e.g. "NoAnswer", not a numeric ordinal.
+  const outcomeLabel = (value) => {
+    if (value === null || value === undefined || value === '') return '-'
+    return value in CALL_OUTCOME ? t(`enums:callOutcome.${toEnumKey(value)}`, value) : String(value)
+  }
+
+  const finalStatusLabel = (value) => {
+    if (value === null || value === undefined || value === '') return '-'
+    return value in FINAL_STATUS ? t(`enums:contactFinalStatus.${toEnumKey(value)}`, value) : String(value)
+  }
+
   const visibleSections = useMemo(() => computeVisibleSections(answers), [answers])
   const isVisible = (key) => visibleSections.includes(key)
 
@@ -175,27 +192,6 @@ export default function CallScript() {
     }
   }
 
-  const enroll = async () => {
-    if (!contact) return
-    // Save the outcome (same logic as the "Save" completion path) before
-    // navigating away, so FinalStatus/CallAttempt/claim-release happen for the enroll
-    // path exactly as they do for the normal completion.
-    const ok = await saveOutcome()
-    if (!ok) return
-    navigate('/members/new', {
-      state: {
-        extracted: {
-          firstName: contact.firstName,
-          lastName: contact.lastName,
-          city: contact.city ?? null,
-          email: answers.updatedEmail || contact.email || null,
-          phones: [{ number: answers.updatedPhone || contact.phoneNumber }],
-        },
-        callContactId: Number(id),
-      },
-    })
-  }
-
   const cancel = () => {
     // Fire-and-forget: release this operator's claim so the contact returns to the
     // shared pool immediately. Don't block navigation on it — the stale-claim cutoff
@@ -219,7 +215,7 @@ export default function CallScript() {
   const canSave = answers.outcome !== undefined
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-6xl mx-auto">
       <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400 mb-1">
         {contact.firstName} {contact.lastName}
       </h1>
@@ -227,11 +223,25 @@ export default function CallScript() {
         {contact.phoneNumber} {contact.city ? `· ${contact.city}` : ''}
       </p>
 
-      {saveError && (
-        <div className="mb-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
-          {saveError}
-        </div>
-      )}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div>
+      <section className={sectionClass}>
+        <h2 className="text-theme-sm font-medium text-gray-900 dark:text-white mb-3">
+          {t('callcenter:script.details.title')}
+        </h2>
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-3">
+          <DetailField label={t('callcenter:script.details.address')} value={contact.address} />
+          <DetailField label={t('callcenter:script.details.municipality')} value={contact.municipalityName ?? contact.city} />
+          <DetailField label={t('callcenter:script.details.secondaryPhone')} value={contact.secondaryPhone} />
+          <DetailField label={t('callcenter:script.details.jmbg')} value={contact.jmbg} />
+          <DetailField label={t('callcenter:script.details.memberSince')} value={contact.memberSince ? formatDate(contact.memberSince) : null} />
+          <DetailField label={t('callcenter:script.details.attempts')} value={contact.attemptCount} />
+          <DetailField label={t('callcenter:script.details.lastOutcome')} value={outcomeLabel(contact.lastOutcome)} />
+          <DetailField label={t('callcenter:script.details.status')} value={finalStatusLabel(contact.finalStatus)} />
+          <DetailField label={t('callcenter:script.details.importedOutcome')} value={contact.importedOutcome} />
+          <DetailField label={t('callcenter:script.details.importNote')} value={contact.importNote} full />
+        </dl>
+      </section>
 
       {matches.length > 0 && (
         <div className="mb-6 rounded-lg border border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-500/10 px-4 py-3">
@@ -261,6 +271,14 @@ export default function CallScript() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+      </div>
+
+      <div>
+      {saveError && (
+        <div className="mb-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
+          {saveError}
         </div>
       )}
 
@@ -339,16 +357,6 @@ export default function CallScript() {
             <Field label={t('callcenter:script.fields.phone')} value={answers.updatedPhone} onChange={(v) => setAnswer('updatedPhone', v)} />
             <Field label={t('callcenter:script.fields.email')} value={answers.updatedEmail} onChange={(v) => setAnswer('updatedEmail', v)} />
             <Field label={t('callcenter:script.fields.address')} value={answers.updatedAddress} onChange={(v) => setAnswer('updatedAddress', v)} />
-            {!linkedMemberId && !contact.convertedMemberId && (
-              <button
-                type="button"
-                disabled={saving}
-                onClick={enroll}
-                className="mt-3 rounded-lg border border-brand-300 dark:border-brand-700 px-4 py-2 text-theme-xs font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 disabled:opacity-50"
-              >
-                {t('callcenter:script.enrollButton')}
-              </button>
-            )}
           </Step>
         </section>
       )}
@@ -407,6 +415,8 @@ export default function CallScript() {
           {t('common:button.cancel')}
         </button>
       </div>
+      </div>
+      </div>
     </div>
   )
 }
@@ -426,6 +436,17 @@ function Radio({ name, label, checked, onChange }) {
       <input type="radio" name={name} checked={checked} onChange={onChange} />
       {label}
     </label>
+  )
+}
+
+function DetailField({ label, value, full }) {
+  return (
+    <div className={full ? 'col-span-2' : undefined}>
+      <dt className="text-[11px] font-medium text-gray-500 dark:text-gray-400">{label}</dt>
+      <dd className="text-theme-xs text-gray-900 dark:text-white">
+        {value === null || value === undefined || value === '' ? '-' : value}
+      </dd>
+    </div>
   )
 }
 

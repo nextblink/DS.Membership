@@ -31,6 +31,7 @@
     "columns": {
       "name": "Назив",
       "campaign": "Кампања",
+      "municipalities": "Општине",
       "contacts": "Контаката",
       "operators": "Оператера",
       "active": "Активна"
@@ -72,23 +73,21 @@
     "title": "Контакти",
     "columns": {
       "name": "Име",
+      "address": "Адреса",
       "phone": "Телефон",
+      "secondaryPhone": "Секундарни телефон",
       "municipality": "Општина",
       "tries": "Покушаја",
       "outcome": "Исход",
-      "status": "Статус",
-      "previousResult": "Претходни резултат",
-      "link": "Веза"
+      "status": "Статус"
     },
-    "linked": "Повезан",
-    "enrolled": "Учлањен",
     "empty": "Нема контаката.",
     "loadFailed": "Учитавање није успело.",
     "filters": {
       "campaign": "Кампања",
       "allCampaigns": "Све кампање",
-      "city": "Место",
-      "cityPlaceholder": "Место",
+      "municipality": "Општина",
+      "allMunicipalities": "Све општине",
       "status": "Статус",
       "allStatuses": "Сви статуси",
       "outcome": "Исход",
@@ -130,7 +129,8 @@
       "memberSince": "Члан од",
       "tries": "Покушаја",
       "outcome": "Исход",
-      "status": "Статус"
+      "status": "Статус",
+      "claimedBy": "Преузео"
     },
     "empty": "Нема контаката за позивање.",
     "call": "Позови",
@@ -139,6 +139,8 @@
     "claimFailed": "Преузимање контакта није успело.",
     "alreadyClaimed": "Контакт је већ преузет од стране другог оператера.",
     "alreadyResolved": "Контакт је већ решен.",
+    "claimedByUnknown": "други оператер",
+    "claimedByTooltip": "Тренутно преузео {{name}}",
     "conversionWarning": "Члан је сачуван, али повезивање са контактом није успело — молимо ажурирајте ручно.",
     "choosePoolPrompt": "Изаберите групу изнад да бисте видели њене контакте.",
     "noPoolsAssigned": "Нисте додељени ниједној групи — обратите се администратору."
@@ -151,6 +153,19 @@
     "possibleMatch": "Могуће подударање са постојећим чланом:",
     "linked": "Повезано",
     "link": "Повежи",
+    "details": {
+      "title": "Детаљи контакта",
+      "address": "Адреса",
+      "municipality": "Општина",
+      "secondaryPhone": "Секундарни телефон",
+      "jmbg": "ЈМБГ",
+      "memberSince": "Члан од",
+      "attempts": "Досадашњи покушаји",
+      "lastOutcome": "Последњи исход",
+      "status": "Статус",
+      "importedOutcome": "Увезени исход",
+      "importNote": "Напомена из увоза"
+    },
     "questions": {
       "outcome": "Да ли је успостављен контакт са правом особом?",
       "relation": "Да ли желите да и даље будете део странке?",
@@ -168,7 +183,6 @@
       "email": "Email",
       "address": "Адреса"
     },
-    "enrollButton": "Учлани као новог члана",
     "saving": "Чување..."
   },
   "reports": {

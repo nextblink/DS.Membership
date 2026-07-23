@@ -1,11 +1,13 @@
 ﻿// Forms list page — filters (URL-driven), paged table.
 // Operator scope is enforced server-side; UI is identical for all roles.
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { QRCodeSVG } from 'qrcode.react'
+import { Column } from 'primereact/column'
 import api from '../../framework/api'
 import auth from '../../framework/auth'
+import ServerDataTable, { columnHeaderPt, columnBodyPt } from '../../components/ServerDataTable'
 
 const STATUSES = ['Pending', 'Verified', 'Rejected']
 const PAGE_SIZE = 20
@@ -146,15 +148,6 @@ export default function FormsList() {
     setSearchParams(next)
   }
 
-  const pageNumbers = useMemo(() => {
-    const total = totalPages || 1
-    const out = []
-    const start = Math.max(1, page - 2)
-    const end = Math.min(total, start + 4)
-    for (let i = start; i <= end; i++) out.push(i)
-    return out
-  }, [page, totalPages])
-
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
       {/* Card header */}
@@ -269,124 +262,58 @@ export default function FormsList() {
         </div>
       </form>
 
-      {/* Pagination header */}
-      <div className="border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="text-theme-xs text-gray-500 dark:text-gray-400">
-            {t('forms:pagination.showing', { page, total: totalPages, count: totalCount })}
-          </div>
-          <div className="flex gap-1">
-            <button type="button" disabled={page <= 1} onClick={() => goToPage(page - 1)} className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800">{t('common:button.prev')}</button>
-            {pageNumbers.map((p) => (
-              <button key={p} type="button" onClick={() => goToPage(p)} className={`rounded-lg border px-3 py-1.5 text-theme-xs ${p === page ? 'border-brand-500 bg-brand-500 text-white' : 'border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>{p}</button>
-            ))}
-            <button type="button" disabled={page >= totalPages} onClick={() => goToPage(page + 1)} className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800">{t('common:button.next')}</button>
-          </div>
+      {error && (
+        <div className="mx-6 mt-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
+          {error}
         </div>
-      </div>
+      )}
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
-            <tr>
-              <th className="px-4 py-3">{t('forms:table.formNumber')}</th>
-              <th className="px-4 py-3">{t('forms:table.memberName')}</th>
-              <th className="px-4 py-3">{t('forms:table.committee')}</th>
-              <th className="px-4 py-3">{t('forms:table.status')}</th>
-              <th className="px-4 py-3">{t('forms:table.uploadedBy')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  {t('common:state.loading')}
-                </td>
-              </tr>
-            )}
-            {!loading && error && (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-error-500">
-                  {error}
-                </td>
-              </tr>
-            )}
-            {!loading && !error && items.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  {t('forms:state.noForms')}
-                </td>
-              </tr>
-            )}
-            {!loading &&
-              !error &&
-              items.map((f) => {
-                const memberName =
-                  f.memberFullName ||
-                  f.memberName ||
-                  (f.member ? `${f.member.firstName ?? ''} ${f.member.lastName ?? ''}`.trim() : '') ||
-                  '—'
-                const committeeName = f.committeeName || f.member?.committee?.name || f.member?.committeeName || '—'
-                const uploadedBy = f.createdByEmail || f.uploadedBy || f.createdBy?.email || '—'
-                return (
-                  <tr key={f.id} data-testid="forms-row" className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30 cursor-pointer">
-                    <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">
-                      <Link to={`/forms/${f.id}`} className="text-brand-500 hover:underline font-medium">
-                        {f.formNumber || `#${f.id}`}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{memberName}</td>
-                    <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{committeeName}</td>
-                    <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">
-                      <StatusBadge status={f.status} />
-                    </td>
-                    <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{uploadedBy}</td>
-                  </tr>
-                )
-              })}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-6 py-4">
-        <div className="text-theme-xs text-gray-500 dark:text-gray-400">
-          {t('forms:pagination.showing', { page, total: totalPages, count: totalCount })}
-        </div>
-        <div className="flex gap-1">
-          <button
-            type="button"
-            disabled={page <= 1}
-            onClick={() => goToPage(page - 1)}
-            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
-            {t('common:button.prev')}
-          </button>
-          {pageNumbers.map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => goToPage(p)}
-              className={`rounded-lg border px-3 py-1.5 text-theme-xs ${
-                p === page
-                  ? 'border-brand-500 bg-brand-500 text-white'
-                  : 'border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-              }`}
-            >
-              {p}
-            </button>
-          ))}
-          <button
-            type="button"
-            disabled={page >= totalPages}
-            onClick={() => goToPage(page + 1)}
-            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
-            {t('common:button.next')}
-          </button>
-        </div>
-      </div>
+      <ServerDataTable
+        items={items}
+        page={page}
+        pageSize={pageSize}
+        totalCount={totalCount}
+        totalPages={totalPages}
+        loading={loading}
+        onPageChange={goToPage}
+        emptyMessage={t('forms:state.noForms')}
+        summaryText={t('forms:pagination.showing', { page, total: totalPages, count: totalCount })}
+      >
+        <Column
+          header={t('forms:table.formNumber')}
+          body={(f) => (
+            <Link to={`/forms/${f.id}`} className="text-brand-500 hover:underline font-medium">
+              {f.formNumber || `#${f.id}`}
+            </Link>
+          )}
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt() }}
+        />
+        <Column
+          header={t('forms:table.memberName')}
+          body={(f) =>
+            f.memberFullName ||
+            f.memberName ||
+            (f.member ? `${f.member.lastName ?? ''} ${f.member.firstName ?? ''}`.trim() : '') ||
+            '—'
+          }
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt() }}
+        />
+        <Column
+          header={t('forms:table.committee')}
+          body={(f) => f.committeeName || f.member?.committee?.name || f.member?.committeeName || '—'}
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt() }}
+        />
+        <Column
+          header={t('forms:table.status')}
+          body={(f) => <StatusBadge status={f.status} />}
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt() }}
+        />
+        <Column
+          header={t('forms:table.uploadedBy')}
+          body={(f) => f.createdByEmail || f.uploadedBy || f.createdBy?.email || '—'}
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt() }}
+        />
+      </ServerDataTable>
 
       {qrOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4">

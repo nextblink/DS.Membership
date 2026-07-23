@@ -3,8 +3,11 @@
 // pages/members/MembersList.jsx (pagination pattern).
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Column } from 'primereact/column'
 import callCenterApi from '../../services/callCenterApi'
 import { CALL_OUTCOME, toEnumKey } from '../../services/callScript'
+import ServerDataTable, { columnHeaderPt, columnBodyPt } from '../../components/ServerDataTable'
+import MunicipalityAutoComplete from '../../components/MunicipalityAutoComplete'
 
 // Enum values mirror the backend Enums.cs ordinals (ContactFinalStatus).
 const FINAL_STATUS = { ActiveMember: 0, InactiveMember: 1, Sympathizer: 2, NoCooperation: 3 }
@@ -18,7 +21,11 @@ const PAGE_SIZE = 20
 export default function ContactList() {
   const { t } = useTranslation(['callcenter', 'common', 'enums'])
   const [campaigns, setCampaigns] = useState([])
-  const [filters, setFilters] = useState({ campaignId: '', city: '', finalStatus: '', lastOutcome: '', search: '' })
+  const [filters, setFilters] = useState({ campaignId: '', municipalityId: '', finalStatus: '', lastOutcome: '', search: '' })
+  // Default sort is address, ascending; clicking Name/Address toggles field/direction
+  // (PrimeReact's normal asc -> desc -> asc single-column-sort cycle).
+  const [sortField, setSortField] = useState('address')
+  const [sortOrder, setSortOrder] = useState(1)
   const [page, setPage] = useState(1)
   const [data, setData] = useState({ items: [], totalCount: 0, page: 1, pageSize: PAGE_SIZE, totalPages: 1 })
   const [loading, setLoading] = useState(false)
@@ -50,9 +57,9 @@ export default function ContactList() {
     let cancelled = false
     setLoading(true)
     setError(null)
-    const params = { page, pageSize: PAGE_SIZE }
+    const params = { page, pageSize: PAGE_SIZE, sortBy: sortField, sortDesc: sortOrder === -1 }
     if (filters.campaignId) params.campaignId = filters.campaignId
-    if (filters.city) params.city = filters.city
+    if (filters.municipalityId) params.municipalityId = filters.municipalityId
     if (filters.finalStatus !== '') params.finalStatus = filters.finalStatus
     if (filters.lastOutcome !== '') params.lastOutcome = filters.lastOutcome
     if (filters.search) params.search = filters.search
@@ -80,7 +87,7 @@ export default function ContactList() {
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, filterKey])
+  }, [page, filterKey, sortField, sortOrder])
 
   const set = (k) => (e) => {
     setPage(1)
@@ -111,12 +118,14 @@ export default function ContactList() {
             </select>
           </div>
           <div>
-            <label className={labelClass}>{t('callcenter:contacts.filters.city')}</label>
-            <input
-              className={inputClass}
-              value={filters.city}
-              onChange={set('city')}
-              placeholder={t('callcenter:contacts.filters.cityPlaceholder')}
+            <label className={labelClass}>{t('callcenter:contacts.filters.municipality')}</label>
+            <MunicipalityAutoComplete
+              value={filters.municipalityId}
+              onChange={(id) => {
+                setPage(1)
+                setFilters((f) => ({ ...f, municipalityId: id }))
+              }}
+              placeholder={t('callcenter:contacts.filters.allMunicipalities')}
             />
           </div>
           <div>
@@ -153,110 +162,85 @@ export default function ContactList() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
-            <tr>
-              <th className="px-4 py-3">{t('callcenter:contacts.columns.name')}</th>
-              <th className="px-4 py-3">{t('callcenter:contacts.columns.phone')}</th>
-              <th className="px-4 py-3">{t('callcenter:contacts.columns.municipality')}</th>
-              <th className="px-4 py-3 w-24 whitespace-nowrap">{t('callcenter:contacts.columns.tries')}</th>
-              <th className="px-4 py-3 w-32 whitespace-nowrap">{t('callcenter:contacts.columns.outcome')}</th>
-              <th className="px-4 py-3 w-32 whitespace-nowrap">{t('callcenter:contacts.columns.status')}</th>
-              <th className="px-4 py-3 w-32 whitespace-nowrap">{t('callcenter:contacts.columns.previousResult')}</th>
-              <th className="px-4 py-3 w-28 whitespace-nowrap">{t('callcenter:contacts.columns.link')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
-              <tr>
-                <td colSpan={8} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  {t('common:state.loading')}
-                </td>
-              </tr>
-            )}
-            {!loading && error && (
-              <tr>
-                <td colSpan={8} className="px-4 py-6 text-center text-theme-sm text-error-500">
-                  {error}
-                </td>
-              </tr>
-            )}
-            {!loading && !error && data.items.length === 0 && (
-              <tr>
-                <td colSpan={8} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
-                  {t('callcenter:contacts.empty')}
-                </td>
-              </tr>
-            )}
-            {!loading &&
-              !error &&
-              data.items.map((c) => (
-                <tr
-                  key={c.id}
-                  className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30"
-                >
-                  <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">
-                    {c.firstName} {c.lastName}
-                  </td>
-                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{c.phoneNumber}</td>
-                  <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{c.municipalityName ?? c.city ?? '-'}</td>
-                  <td className="px-4 py-3 w-24 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
-                    {c.attemptCount}
-                  </td>
-                  <td className="px-4 py-3 w-32 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
-                    {outcomeLabel(c.lastOutcome)}
-                  </td>
-                  <td className="px-4 py-3 w-32 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
-                    {finalStatusLabel(c.finalStatus)}
-                  </td>
-                  <td className="px-4 py-3 w-32 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
-                    {c.importedOutcome ?? '-'}
-                  </td>
-                  <td className="px-4 py-3 w-28 whitespace-nowrap text-theme-sm">
-                    {c.convertedMemberId ? (
-                      <span className="rounded-full bg-success-50 dark:bg-success-500/10 px-2 py-0.5 text-theme-xs font-medium text-success-600 dark:text-success-400">
-                        {t('callcenter:contacts.enrolled')}
-                      </span>
-                    ) : c.matchedMemberId ? (
-                      <span className="rounded-full bg-brand-50 dark:bg-brand-500/10 px-2 py-0.5 text-theme-xs font-medium text-brand-600 dark:text-brand-400">
-                        {t('callcenter:contacts.linked')}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400 dark:text-gray-500">-</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+      {error && (
+        <div className="mx-6 mt-4 rounded-lg border border-error-200 dark:border-error-700 bg-error-50 dark:bg-error-500/10 px-4 py-3 text-theme-sm text-error-600 dark:text-error-400">
+          {error}
+        </div>
+      )}
 
-      {/* Pagination footer */}
-      <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-6 py-4">
-        <div className="text-theme-xs text-gray-500 dark:text-gray-400">
-          {t('common:pagination.summary', { count: data.totalCount, page: data.page, total: totalPages })}
-        </div>
-        <div className="flex gap-1">
-          <button
-            type="button"
-            disabled={data.page <= 1}
-            onClick={() => setPage(data.page - 1)}
-            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
-            {t('common:button.prev')}
-          </button>
-          <button
-            type="button"
-            disabled={data.page >= totalPages}
-            onClick={() => setPage(data.page + 1)}
-            className="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-theme-xs text-gray-600 dark:text-gray-400 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
-            {t('common:button.next')}
-          </button>
-        </div>
-      </div>
+      <ServerDataTable
+        items={data.items}
+        page={page}
+        pageSize={PAGE_SIZE}
+        totalCount={data.totalCount}
+        totalPages={totalPages}
+        loading={loading}
+        onPageChange={setPage}
+        emptyMessage={t('callcenter:contacts.empty')}
+        summaryText={t('common:pagination.summary', { count: data.totalCount, page: data.page, total: totalPages })}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSort={(e) => {
+          setSortField(e.sortField)
+          setSortOrder(e.sortOrder)
+          setPage(1)
+        }}
+      >
+        <Column
+          header={t('callcenter:contacts.columns.name')}
+          field="name"
+          sortable
+          body={(c) => `${c.lastName} ${c.firstName}`}
+          pt={{
+            headerCell: columnHeaderPt(),
+            headerTitle: { className: 'cursor-pointer select-none' },
+            sortIcon: { className: 'ml-1 text-theme-xs' },
+            bodyCell: columnBodyPt('text-gray-900 dark:text-white'),
+          }}
+        />
+        <Column
+          header={t('callcenter:contacts.columns.address')}
+          field="address"
+          sortable
+          body={(c) => c.address ?? '-'}
+          pt={{
+            headerCell: columnHeaderPt(),
+            headerTitle: { className: 'cursor-pointer select-none' },
+            sortIcon: { className: 'ml-1 text-theme-xs' },
+            bodyCell: columnBodyPt(),
+          }}
+        />
+        <Column
+          header={t('callcenter:contacts.columns.phone')}
+          field="phoneNumber"
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt() }}
+        />
+        <Column
+          header={t('callcenter:contacts.columns.secondaryPhone')}
+          body={(c) => c.secondaryPhone ?? '-'}
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt() }}
+        />
+        <Column
+          header={t('callcenter:contacts.columns.municipality')}
+          body={(c) => c.municipalityName ?? c.city ?? '-'}
+          pt={{ headerCell: columnHeaderPt(), bodyCell: columnBodyPt() }}
+        />
+        <Column
+          header={t('callcenter:contacts.columns.tries')}
+          field="attemptCount"
+          pt={{ headerCell: columnHeaderPt('w-24 whitespace-nowrap'), bodyCell: columnBodyPt('w-24 whitespace-nowrap') }}
+        />
+        <Column
+          header={t('callcenter:contacts.columns.outcome')}
+          body={(c) => outcomeLabel(c.lastOutcome)}
+          pt={{ headerCell: columnHeaderPt('w-32 whitespace-nowrap'), bodyCell: columnBodyPt('w-32 whitespace-nowrap') }}
+        />
+        <Column
+          header={t('callcenter:contacts.columns.status')}
+          body={(c) => finalStatusLabel(c.finalStatus)}
+          pt={{ headerCell: columnHeaderPt('w-32 whitespace-nowrap'), bodyCell: columnBodyPt('w-32 whitespace-nowrap') }}
+        />
+      </ServerDataTable>
     </div>
   )
 }

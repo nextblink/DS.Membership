@@ -6,6 +6,15 @@ import { useTranslation } from 'react-i18next'
 import callCenterApi from '../../services/callCenterApi'
 import { useToast, ToastContainer } from '../../components/Toast'
 
+// Flattens the Municipality tree (city -> children) into a single id->name lookup.
+const flattenMunicipalities = (nodes, out = {}) => {
+  for (const n of nodes ?? []) {
+    out[n.id] = n.name
+    flattenMunicipalities(n.children, out)
+  }
+  return out
+}
+
 export default function PoolList() {
   const { t } = useTranslation(['callcenter', 'common'])
   const navigate = useNavigate()
@@ -18,13 +27,24 @@ export default function PoolList() {
   const [refreshMsg, setRefreshMsg] = useState(null)
   const [refreshingId, setRefreshingId] = useState(null)
   const [bulkCreating, setBulkCreating] = useState(false)
+  const [municipalityNames, setMunicipalityNames] = useState({})
 
   useEffect(() => {
     callCenterApi
       .listCampaigns(1, 100)
       .then((d) => setCampaigns(d.items ?? []))
       .catch(() => setCampaigns([]))
+
+    callCenterApi
+      .listMunicipalities()
+      .then((tree) => setMunicipalityNames(flattenMunicipalities(tree)))
+      .catch(() => setMunicipalityNames({}))
   }, [])
+
+  const municipalityLabel = (ids) => {
+    if (!ids?.length) return '-'
+    return ids.map((id) => municipalityNames[id] ?? `#${id}`).join(', ')
+  }
 
   const load = () => {
     setLoading(true)
@@ -152,6 +172,7 @@ export default function PoolList() {
             <tr>
               <th className="px-4 py-3">{t('callcenter:pools.columns.name')}</th>
               <th className="px-4 py-3 w-48">{t('callcenter:pools.columns.campaign')}</th>
+              <th className="px-4 py-3 w-56">{t('callcenter:pools.columns.municipalities')}</th>
               <th className="px-4 py-3 w-28 whitespace-nowrap">{t('callcenter:pools.columns.contacts')}</th>
               <th className="px-4 py-3 w-28 whitespace-nowrap">{t('callcenter:pools.columns.operators')}</th>
               <th className="px-4 py-3 w-24 whitespace-nowrap">{t('callcenter:pools.columns.active')}</th>
@@ -161,21 +182,21 @@ export default function PoolList() {
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
+                <td colSpan={7} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
                   {t('common:state.loading')}
                 </td>
               </tr>
             )}
             {!loading && error && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-theme-sm text-error-500">
+                <td colSpan={7} className="px-4 py-6 text-center text-theme-sm text-error-500">
                   {error}
                 </td>
               </tr>
             )}
             {!loading && !error && pools.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
+                <td colSpan={7} className="px-4 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400">
                   {t('callcenter:pools.empty')}
                 </td>
               </tr>
@@ -190,6 +211,9 @@ export default function PoolList() {
                   <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">{p.name}</td>
                   <td className="px-4 py-3 w-48 text-theme-sm text-gray-700 dark:text-gray-300">
                     {campaignName(p.campaignId)}
+                  </td>
+                  <td className="px-4 py-3 w-56 text-theme-sm text-gray-700 dark:text-gray-300">
+                    {municipalityLabel(p.filterMunicipalityIds)}
                   </td>
                   <td className="px-4 py-3 w-28 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300">
                     {p.contactCount ?? 0}
