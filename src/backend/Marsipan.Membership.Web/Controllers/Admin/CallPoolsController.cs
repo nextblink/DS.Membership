@@ -1,4 +1,5 @@
 using Marsipan.Membership.Middleware.DTOs;
+using Marsipan.Membership.Middleware.Enums;
 using Marsipan.Membership.Middleware.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -54,6 +55,14 @@ public class CallPoolsController : ControllerBase
         try { return Ok(await _pools.RefreshAsync(id, ct)); }
         catch (KeyNotFoundException) { return NotFound(); }
     }
+
+    [HttpGet("preview-count")]
+    public async Task<ActionResult<int>> PreviewCount(
+        [FromQuery] int campaignId,
+        [FromQuery] List<int> municipalityIds,
+        [FromQuery] CallOutcome? filterOutcome,
+        CancellationToken ct)
+        => Ok(await _pools.PreviewMatchCountAsync(campaignId, municipalityIds ?? [], filterOutcome, ct));
 
     [HttpPost("bulk-by-municipality")]
     public async Task<ActionResult<BulkCreateByMunicipalityResultDto>> BulkCreateByMunicipality([FromQuery] int campaignId, CancellationToken ct)

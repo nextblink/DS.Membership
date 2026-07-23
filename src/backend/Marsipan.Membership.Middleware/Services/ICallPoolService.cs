@@ -1,4 +1,5 @@
 using Marsipan.Membership.Middleware.DTOs;
+using Marsipan.Membership.Middleware.Enums;
 
 namespace Marsipan.Membership.Middleware.Services;
 
@@ -11,6 +12,7 @@ public interface ICallPoolService
     Task DeleteAsync(int id, CancellationToken ct = default);
     Task<RefreshResultDto> RefreshAsync(int id, CancellationToken ct = default);
     Task<BulkCreateByMunicipalityResultDto> BulkCreateByMunicipalityAsync(int campaignId, CancellationToken ct = default);
+    Task<int> PreviewMatchCountAsync(int campaignId, List<int> municipalityIds, CallOutcome? filterOutcome, CancellationToken ct = default);
     Task SetOperatorsAsync(int id, List<string> userIds, CancellationToken ct = default);
     Task RemoveOperatorAsync(int id, string userId, CancellationToken ct = default);
 }

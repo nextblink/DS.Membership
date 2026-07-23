@@ -58,10 +58,10 @@ public class CallContactService : ICallContactService
         var items = await q.OrderBy(c => c.Id)
             .Skip((page - 1) * pageSize).Take(pageSize)
             .Select(c => new CallContactListItemDto(
-                c.Id, c.FirstName, c.LastName, c.PhoneNumber, c.City,
+                c.Id, c.FirstName, c.LastName, c.PhoneNumber, c.SecondaryPhone, c.Address, c.City,
                 c.MunicipalityId, c.Municipality != null ? c.Municipality.Name : null,
-                c.CampaignId, c.PoolId, c.AttemptCount, c.LastOutcome, c.FinalStatus,
-                c.MatchedMemberId, c.ConvertedMemberId, c.ImportedOutcome))
+                c.CampaignId, c.PoolId, c.Pool != null ? c.Pool.Name : null, c.AttemptCount, c.LastOutcome, c.FinalStatus,
+                c.MatchedMemberId, c.ConvertedMemberId, c.ImportedOutcome, c.MemberSince))
             .ToListAsync(ct);
 
         return new PagedResultDto<CallContactListItemDto>
@@ -375,5 +375,21 @@ public class CallContactService : ICallContactService
         c.KnowsPotentialMembers, c.WillingToEnroll, c.FinalStatus,
         c.MatchedMemberId, c.ConvertedMemberId,
         c.EngagementAreas.Select(e => e.Area).ToList(),
-        c.SecondaryPhone, c.Jmbg, c.ImportedOutcome, c.ImportNote);
+        c.SecondaryPhone, c.Jmbg, c.ImportedOutcome, c.ImportNote, c.MemberSince);
+
+    // Pools the current user can drive the calling queue through: Operators see only pools
+    // they're assigned to (matching ApplyCallContactScope's Operator branch); SuperAdmin/Admin
+    // see all active pools (matching that same filter's unrestricted branch for those roles).
+    public async Task<List<PoolOptionDto>> ListMyPoolsAsync(CancellationToken ct = default)
+    {
+        var q = _db.CallPools.Where(p => p.IsActive);
+        if (string.Equals(_user.Role, ScopeFilters.RoleOperator, StringComparison.Ordinal))
+        {
+            var uid = _user.Id;
+            q = q.Where(p => p.Operators.Any(o => o.UserId == uid));
+        }
+        return await q.OrderBy(p => p.Name)
+            .Select(p => new PoolOptionDto(p.Id, p.Name, p.CampaignId))
+            .ToListAsync(ct);
+    }
 }

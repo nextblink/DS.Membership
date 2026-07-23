@@ -12,6 +12,7 @@ import { AutoComplete } from 'primereact/autocomplete'
 import callCenterApi from '../../services/callCenterApi'
 import { makeScriptMatcher } from '../../services/transliteration'
 import { CALL_OUTCOME, toEnumKey } from '../../services/callScript'
+import { formatDate } from '../../services/dateUtils'
 
 // Enum values mirror the backend Enums.cs ordinals (ContactFinalStatus).
 const FINAL_STATUS = { ActiveMember: 0, InactiveMember: 1, Sympathizer: 2, NoCooperation: 3 }
@@ -71,7 +72,9 @@ export default function CallQueue() {
   const [municipalities, setMunicipalities] = useState([])
   const [municipalitySuggestions, setMunicipalitySuggestions] = useState([])
   const [selectedMunicipality, setSelectedMunicipality] = useState(null)
-  const [filters, setFilters] = useState({ municipalityId: '', finalStatus: '', lastOutcome: '' })
+  const [pools, setPools] = useState([])
+  const [poolsLoading, setPoolsLoading] = useState(true)
+  const [filters, setFilters] = useState({ poolId: '', municipalityId: '', finalStatus: '', lastOutcome: '' })
   const [page, setPage] = useState(1)
   const [data, setData] = useState({ items: [], totalCount: 0, page: 1, pageSize: PAGE_SIZE, totalPages: 1 })
   const [loading, setLoading] = useState(false)
@@ -101,15 +104,35 @@ export default function CallQueue() {
       .listMunicipalities()
       .then((tree) => setMunicipalities(flattenMunicipalities(tree)))
       .catch(() => setMunicipalities([]))
+
+    callCenterApi
+      .myPools()
+      .then((list) => {
+        setPools(list ?? [])
+        // Auto-select when there's exactly one pool so an operator who only ever works one
+        // pool doesn't have to pick it every time — anyone with more than one still must choose.
+        if (list?.length === 1) {
+          setFilters((f) => ({ ...f, poolId: String(list[0].id) }))
+        }
+      })
+      .catch(() => setPools([]))
+      .finally(() => setPoolsLoading(false))
   }, [])
 
   const filterKey = useMemo(() => JSON.stringify(filters), [filters])
   const refreshKey = useMemo(() => `${page}|${filterKey}`, [page, filterKey])
 
   const load = () => {
+    if (!filters.poolId) {
+      // No pool chosen yet (and it's not a single-pool auto-select situation) — the queue is
+      // driven by pool now, not an "all my pools blended" view, so there's nothing to fetch.
+      setData({ items: [], totalCount: 0, page: 1, pageSize: PAGE_SIZE, totalPages: 1 })
+      setLoading(false)
+      return () => {}
+    }
     let cancelled = false
     setLoading(true)
-    const params = { page, pageSize: PAGE_SIZE, unresolvedOnly: true }
+    const params = { page, pageSize: PAGE_SIZE, unresolvedOnly: true, poolId: filters.poolId }
     if (filters.municipalityId) params.municipalityId = filters.municipalityId
     if (filters.finalStatus !== '') params.finalStatus = filters.finalStatus
     if (filters.lastOutcome !== '') params.lastOutcome = filters.lastOutcome
@@ -200,7 +223,27 @@ export default function CallQueue() {
 
       {/* Filter bar */}
       <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-4">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div>
+            <label className={labelClass}>
+              {t('callcenter:queue.filters.pool')}<span className="text-error-500 ml-0.5">*</span>
+            </label>
+            <select
+              className={inputClass}
+              value={filters.poolId}
+              onChange={(e) => {
+                setPage(1)
+                setFilters((f) => ({ ...f, poolId: e.target.value }))
+              }}
+            >
+              <option value="">{poolsLoading ? t('common:state.loading') : t('callcenter:queue.filters.choosePool')}</option>
+              {pools.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div>
             <label className={labelClass}>{t('callcenter:queue.filters.municipality')}</label>
             <AutoComplete
@@ -271,6 +314,13 @@ export default function CallQueue() {
         </div>
       )}
 
+      {!filters.poolId && !poolsLoading && (
+        <div className="px-6 py-12 text-center text-theme-sm text-gray-500 dark:text-gray-400">
+          {pools.length === 0 ? t('callcenter:queue.noPoolsAssigned') : t('callcenter:queue.choosePoolPrompt')}
+        </div>
+      )}
+
+      {(filters.poolId || poolsLoading) && (
       <DataTable
         value={data.items}
         dataKey="id"
@@ -302,9 +352,27 @@ export default function CallQueue() {
           pt={{ headerCell: { className: 'px-4 py-3' }, bodyCell: { className: 'px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300' } }}
         />
         <Column
+          header={t('callcenter:queue.columns.secondaryPhone')}
+          body={(c) => c.secondaryPhone ?? '-'}
+          pt={{ headerCell: { className: 'px-4 py-3' }, bodyCell: { className: 'px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300' } }}
+        />
+        <Column
+          header={t('callcenter:queue.columns.address')}
+          body={(c) => c.address ?? '-'}
+          pt={{ headerCell: { className: 'px-4 py-3' }, bodyCell: { className: 'px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300' } }}
+        />
+        <Column
           header={t('callcenter:queue.columns.place')}
           body={(c) => c.municipalityName ?? c.city ?? '-'}
           pt={{ headerCell: { className: 'px-4 py-3' }, bodyCell: { className: 'px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300' } }}
+        />
+        <Column
+          header={t('callcenter:queue.columns.memberSince')}
+          body={(c) => (c.memberSince ? formatDate(c.memberSince) : '-')}
+          pt={{
+            headerCell: { className: 'px-4 py-3 w-28 whitespace-nowrap' },
+            bodyCell: { className: 'px-4 py-3 w-28 whitespace-nowrap text-theme-sm text-gray-700 dark:text-gray-300' },
+          }}
         />
         <Column
           header={t('callcenter:queue.columns.tries')}
@@ -348,6 +416,7 @@ export default function CallQueue() {
           }}
         />
       </DataTable>
+      )}
     </div>
   )
 }

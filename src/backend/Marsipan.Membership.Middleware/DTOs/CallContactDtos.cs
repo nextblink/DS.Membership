@@ -19,17 +19,21 @@ public record CallContactListItemDto(
     string FirstName,
     string LastName,
     string? PhoneNumber,
+    string? SecondaryPhone,
+    string? Address,
     string? City,
     int? MunicipalityId,
     string? MunicipalityName,
     int CampaignId,
     int? PoolId,
+    string? PoolName,
     int AttemptCount,
     CallOutcome? LastOutcome,
     ContactFinalStatus? FinalStatus,
     int? MatchedMemberId,
     int? ConvertedMemberId,
-    string? ImportedOutcome);
+    string? ImportedOutcome,
+    DateOnly? MemberSince);
 
 public record CallContactDetailDto(
     int Id,
@@ -58,12 +62,18 @@ public record CallContactDetailDto(
     string? SecondaryPhone,
     string? Jmbg,
     string? ImportedOutcome,
-    string? ImportNote);
+    string? ImportNote,
+    DateOnly? MemberSince);
 
 public record ImportResultDto(
     int Imported,
     int Skipped,
     List<string> Errors);
+
+// Lightweight pool listing for the "which pool am I calling through" selector — Operators only
+// see pools they're assigned to (CallPoolOperator), SuperAdmin/Admin see all active pools,
+// mirroring ApplyCallContactScope's Operator/unrestricted split.
+public record PoolOptionDto(int Id, string Name, int CampaignId);
 
 // Full call-script payload posted from the operator wizard.
 public record SaveCallOutcomeRequest(

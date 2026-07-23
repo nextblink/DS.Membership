@@ -52,6 +52,10 @@
     "nameRequired": "Name is required.",
     "filterCity": "City (filter)",
     "filterMunicipality": "Municipality (filter)",
+    "chooseCampaignFirst": "Choose a campaign first",
+    "matchCount": "{{count}} matching contact",
+    "matchCount_other": "{{count}} matching contacts",
+    "matchCountLoading": "Counting matching contacts…",
     "filterOutcome": "Outcome (filter)",
     "operatorsSection": "Operators",
     "noUsers": "No users available.",
@@ -109,6 +113,8 @@
   "queue": {
     "title": "Calling",
     "filters": {
+      "pool": "Pool",
+      "choosePool": "Choose a pool",
       "municipality": "Municipality",
       "allMunicipalities": "All municipalities",
       "status": "Status",
@@ -119,7 +125,10 @@
     "columns": {
       "name": "Name",
       "phone": "Phone",
+      "secondaryPhone": "Secondary phone",
+      "address": "Address",
       "place": "Place",
+      "memberSince": "Member since",
       "tries": "Tries",
       "outcome": "Outcome",
       "status": "Status"
@@ -131,7 +140,9 @@
     "claimFailed": "Claiming the contact failed.",
     "alreadyClaimed": "This contact was already claimed by another operator.",
     "alreadyResolved": "This contact is already resolved.",
-    "conversionWarning": "The member was saved, but linking it to the contact failed — please update it manually."
+    "conversionWarning": "The member was saved, but linking it to the contact failed — please update it manually.",
+    "choosePoolPrompt": "Choose a pool above to see its contacts.",
+    "noPoolsAssigned": "You're not assigned to any pool yet — ask an admin to add you to one."
   },
   "script": {
     "loadFailed": "Loading the contact failed.",

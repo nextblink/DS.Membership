@@ -52,6 +52,9 @@
     "nameRequired": "Назив је обавезан.",
     "filterCity": "Место (филтер)",
     "filterMunicipality": "Општина (филтер)",
+    "chooseCampaignFirst": "Прво изаберите кампању",
+    "matchCount": "{{count}} контаката се поклапа",
+    "matchCountLoading": "Бројање контаката…",
     "filterOutcome": "Исход (филтер)",
     "operatorsSection": "Оператери",
     "noUsers": "Нема доступних корисника.",
@@ -109,6 +112,8 @@
   "queue": {
     "title": "Позивање",
     "filters": {
+      "pool": "Група",
+      "choosePool": "Изаберите групу",
       "municipality": "Општина",
       "allMunicipalities": "Све општине",
       "status": "Статус",
@@ -119,7 +124,10 @@
     "columns": {
       "name": "Име",
       "phone": "Телефон",
+      "secondaryPhone": "Други телефон",
+      "address": "Адреса",
       "place": "Место",
+      "memberSince": "Члан од",
       "tries": "Покушаја",
       "outcome": "Исход",
       "status": "Статус"
@@ -131,7 +139,9 @@
     "claimFailed": "Преузимање контакта није успело.",
     "alreadyClaimed": "Контакт је већ преузет од стране другог оператера.",
     "alreadyResolved": "Контакт је већ решен.",
-    "conversionWarning": "Члан је сачуван, али повезивање са контактом није успело — молимо ажурирајте ручно."
+    "conversionWarning": "Члан је сачуван, али повезивање са контактом није успело — молимо ажурирајте ручно.",
+    "choosePoolPrompt": "Изаберите групу изнад да бисте видели њене контакте.",
+    "noPoolsAssigned": "Нисте додељени ниједној групи — обратите се администратору."
   },
   "script": {
     "loadFailed": "Учитавање контакта није успело.",

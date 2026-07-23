@@ -40,6 +40,9 @@ public class CallContact : BaseEntity
     [MaxLength(2000)]
     public string? ImportNote { get; set; }
 
+    /// <summary>Date this contact previously became a member, per the source campaign (e.g. imported "MemberSince" column). Contacts are former members being re-contacted to check current status — this is historical, not set by this app's own enrollment flow.</summary>
+    public DateOnly? MemberSince { get; set; }
+
     public int? MunicipalityId { get; set; }
 
     [ForeignKey(nameof(MunicipalityId))]

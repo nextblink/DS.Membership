@@ -11,6 +11,7 @@ const callCenterApi = {
 
   // Contacts
   listContacts: (params) => api.get('/api/call-contacts', { params }).then(r => r.data),
+  myPools: () => api.get('/api/call-contacts/my-pools').then(r => r.data),
   getContact: (id) => api.get(`/api/call-contacts/${id}`).then(r => r.data),
   getNext: () => api.get('/api/call-contacts/next').then(r => r.status === 204 ? null : r.data),
   claim: (id) => api.post(`/api/call-contacts/${id}/claim`).then(r => r.data),
@@ -39,6 +40,18 @@ const callCenterApi = {
   refreshPool: (id) => api.post(`/api/call-pools/${id}/refresh`).then(r => r.data),
   bulkCreatePoolsByMunicipality: (campaignId) =>
     api.post('/api/call-pools/bulk-by-municipality', null, { params: { campaignId } }).then(r => r.data),
+  previewPoolContactCount: (campaignId, municipalityIds, filterOutcome) => {
+    // Built manually with URLSearchParams instead of axios's `params` object: axios serializes
+    // array values as `municipalityIds[]=1&municipalityIds[]=2` by default, but ASP.NET Core's
+    // [FromQuery] List<int> model binder only recognizes repeated bare keys
+    // (`municipalityIds=1&municipalityIds=2`) — the bracketed form silently binds to an empty
+    // list, which is why this looked "stuck" at the unfiltered count no matter what was selected.
+    const params = new URLSearchParams()
+    params.set('campaignId', campaignId)
+    ;(municipalityIds ?? []).forEach((id) => params.append('municipalityIds', id))
+    if (filterOutcome !== undefined && filterOutcome !== null) params.set('filterOutcome', filterOutcome)
+    return api.get(`/api/call-pools/preview-count?${params.toString()}`).then(r => r.data)
+  },
   setOperators: (id, userIds) => api.post(`/api/call-pools/${id}/operators`, { userIds }),
   removeOperator: (id, userId) => api.delete(`/api/call-pools/${id}/operators/${userId}`),
 

@@ -37,6 +37,7 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
     public DbSet<ContactEngagementArea> ContactEngagementAreas => Set<ContactEngagementArea>();
     public DbSet<CallPool> CallPools => Set<CallPool>();
     public DbSet<CallPoolOperator> CallPoolOperators => Set<CallPoolOperator>();
+    public DbSet<CallPoolMunicipality> CallPoolMunicipalities => Set<CallPoolMunicipality>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -307,6 +308,21 @@ public class ApplicationContext : IdentityDbContext<ApplicationUser>
             .OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<CallPoolOperator>()
             .HasIndex(o => new { o.CallPoolId, o.UserId })
+            .IsUnique();
+
+        // CallPoolMunicipality → CallPool (cascade) and → Municipality (restrict).
+        modelBuilder.Entity<CallPoolMunicipality>()
+            .HasOne(m => m.CallPool)
+            .WithMany(p => p.FilterMunicipalities)
+            .HasForeignKey(m => m.CallPoolId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CallPoolMunicipality>()
+            .HasOne(m => m.Municipality)
+            .WithMany()
+            .HasForeignKey(m => m.MunicipalityId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CallPoolMunicipality>()
+            .HasIndex(m => new { m.CallPoolId, m.MunicipalityId })
             .IsUnique();
 
         // ----------------------------------------------------------------------

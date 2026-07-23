@@ -22,12 +22,12 @@ public class CallPool : BaseEntity
     [MaxLength(200)]
     public string? FilterCity { get; set; }
 
-    public int? FilterMunicipalityId { get; set; }
-
     public CallOutcome? FilterOutcome { get; set; }
 
     [MaxLength(2000)]
     public string? FilterJson { get; set; }
+
+    public ICollection<CallPoolMunicipality> FilterMunicipalities { get; set; } = [];
 
     public ICollection<CallPoolOperator> Operators { get; set; } = [];
 

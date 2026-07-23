@@ -4,6 +4,7 @@ using Marsipan.Membership.Middleware.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Marsipan.Membership.Middleware.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260723162324_AddCallContactMemberSince")]
+    partial class AddCallContactMemberSince
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -493,6 +496,9 @@ namespace Marsipan.Membership.Middleware.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<int?>("FilterMunicipalityId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("FilterOutcome")
                         .HasColumnType("int");
 
@@ -520,49 +526,6 @@ namespace Marsipan.Membership.Middleware.Migrations
                     b.HasIndex("CampaignId");
 
                     b.ToTable("CallPools");
-                });
-
-            modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.CallPoolMunicipality", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CallPoolId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CreatedByUserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastModifiedByUserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("LastModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MunicipalityId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MunicipalityId");
-
-                    b.HasIndex("CallPoolId", "MunicipalityId")
-                        .IsUnique();
-
-                    b.ToTable("CallPoolMunicipalities");
                 });
 
             modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.CallPoolOperator", b =>
@@ -1690,25 +1653,6 @@ namespace Marsipan.Membership.Middleware.Migrations
                     b.Navigation("Campaign");
                 });
 
-            modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.CallPoolMunicipality", b =>
-                {
-                    b.HasOne("Marsipan.Membership.Middleware.Entities.CallPool", "CallPool")
-                        .WithMany("FilterMunicipalities")
-                        .HasForeignKey("CallPoolId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Marsipan.Membership.Middleware.Entities.Municipality", "Municipality")
-                        .WithMany()
-                        .HasForeignKey("MunicipalityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CallPool");
-
-                    b.Navigation("Municipality");
-                });
-
             modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.CallPoolOperator", b =>
                 {
                     b.HasOne("Marsipan.Membership.Middleware.Entities.CallPool", "CallPool")
@@ -1989,8 +1933,6 @@ namespace Marsipan.Membership.Middleware.Migrations
             modelBuilder.Entity("Marsipan.Membership.Middleware.Entities.CallPool", b =>
                 {
                     b.Navigation("Contacts");
-
-                    b.Navigation("FilterMunicipalities");
 
                     b.Navigation("Operators");
                 });

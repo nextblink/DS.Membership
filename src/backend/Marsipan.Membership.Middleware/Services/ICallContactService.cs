@@ -16,4 +16,5 @@ public interface ICallContactService
     Task<EnrollmentPrefillDto?> GetEnrollmentPrefillAsync(int id, CancellationToken ct = default);
     Task SetConvertedMemberAsync(int id, int memberId, CancellationToken ct = default);
     Task<ImportResultDto> ImportAsync(int campaignId, Stream file, string fileName, CancellationToken ct = default);
+    Task<List<PoolOptionDto>> ListMyPoolsAsync(CancellationToken ct = default);
 }

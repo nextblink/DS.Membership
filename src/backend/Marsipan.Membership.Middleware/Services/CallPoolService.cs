@@ -1,6 +1,7 @@
 using Marsipan.Membership.Middleware.Data;
 using Marsipan.Membership.Middleware.DTOs;
 using Marsipan.Membership.Middleware.Entities;
+using Marsipan.Membership.Middleware.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Marsipan.Membership.Middleware.Services;
@@ -36,13 +37,23 @@ public class CallPoolService : ICallPoolService
             CampaignId = request.CampaignId,
             IsActive = true,
             FilterCity = request.FilterCity,
-            FilterMunicipalityId = request.FilterMunicipalityId,
             FilterOutcome = request.FilterOutcome,
             CreatedDate = now,
             LastModifiedDate = now,
             CreatedByUserId = uid,
             LastModifiedByUserId = uid
         };
+        foreach (var municipalityId in (request.FilterMunicipalityIds ?? []).Distinct())
+        {
+            pool.FilterMunicipalities.Add(new CallPoolMunicipality
+            {
+                MunicipalityId = municipalityId,
+                CreatedDate = now,
+                LastModifiedDate = now,
+                CreatedByUserId = uid,
+                LastModifiedByUserId = uid
+            });
+        }
         _db.CallPools.Add(pool);
         await _db.SaveChangesAsync(ct);
 
@@ -53,15 +64,38 @@ public class CallPoolService : ICallPoolService
 
     public async Task UpdateAsync(int id, UpdateCallPoolRequest request, CancellationToken ct = default)
     {
-        var pool = await _db.CallPools.FindAsync([id], ct)
+        var pool = await _db.CallPools.Include(p => p.FilterMunicipalities)
+            .FirstOrDefaultAsync(p => p.Id == id, ct)
             ?? throw new KeyNotFoundException($"Pool {id} not found.");
+
+        var now = DateTime.UtcNow;
+        var uid = _user.Id ?? "system";
+
         pool.Name = request.Name;
         pool.IsActive = request.IsActive;
         pool.FilterCity = request.FilterCity;
-        pool.FilterMunicipalityId = request.FilterMunicipalityId;
         pool.FilterOutcome = request.FilterOutcome;
-        pool.LastModifiedDate = DateTime.UtcNow;
-        pool.LastModifiedByUserId = _user.Id ?? "system";
+        pool.LastModifiedDate = now;
+        pool.LastModifiedByUserId = uid;
+
+        var requestedIds = (request.FilterMunicipalityIds ?? []).Distinct().ToHashSet();
+        var existingIds = pool.FilterMunicipalities.Select(m => m.MunicipalityId).ToHashSet();
+
+        foreach (var m in pool.FilterMunicipalities.Where(m => !requestedIds.Contains(m.MunicipalityId)).ToList())
+            pool.FilterMunicipalities.Remove(m);
+
+        foreach (var municipalityId in requestedIds.Where(id => !existingIds.Contains(id)))
+        {
+            pool.FilterMunicipalities.Add(new CallPoolMunicipality
+            {
+                MunicipalityId = municipalityId,
+                CreatedDate = now,
+                LastModifiedDate = now,
+                CreatedByUserId = uid,
+                LastModifiedByUserId = uid
+            });
+        }
+
         await _db.SaveChangesAsync(ct);
     }
 
@@ -111,10 +145,9 @@ public class CallPoolService : ICallPoolService
             .GroupBy(c => c.MunicipalityId)
             .ToDictionary(g => g.Key, g => g.Select(c => c.Id).ToList());
 
-        var existingPools = await _db.CallPools
-            .Where(p => p.CampaignId == campaignId && p.FilterMunicipalityId != null
-                && contactsByMunicipality.Keys.Contains(p.FilterMunicipalityId!.Value))
-            .Select(p => new { p.Id, MunicipalityId = p.FilterMunicipalityId!.Value })
+        var existingPools = await _db.CallPoolMunicipalities
+            .Where(m => m.CallPool.CampaignId == campaignId && contactsByMunicipality.Keys.Contains(m.MunicipalityId))
+            .Select(m => new { Id = m.CallPoolId, m.MunicipalityId })
             .ToListAsync(ct);
         // If a municipality somehow has more than one pool, stamp its leftover contacts onto the first.
         var existingPoolIdByMunicipality = existingPools
@@ -156,12 +189,19 @@ public class CallPoolService : ICallPoolService
                     Name = municipality.Name,
                     CampaignId = campaignId,
                     IsActive = true,
-                    FilterMunicipalityId = municipalityId,
                     CreatedDate = now,
                     LastModifiedDate = now,
                     CreatedByUserId = uid,
                     LastModifiedByUserId = uid
                 };
+                pool.FilterMunicipalities.Add(new CallPoolMunicipality
+                {
+                    MunicipalityId = municipalityId,
+                    CreatedDate = now,
+                    LastModifiedDate = now,
+                    CreatedByUserId = uid,
+                    LastModifiedByUserId = uid
+                });
                 _db.CallPools.Add(pool);
                 newPools.Add((pool, municipalityId));
             }
@@ -236,14 +276,33 @@ public class CallPoolService : ICallPoolService
         await _db.SaveChangesAsync(ct);
     }
 
+    // Dry-run count for the pool form: how many currently-unassigned contacts in this campaign
+    // would match the given municipality/outcome filter, without creating a pool or stamping
+    // anything. Mirrors StampMatchingContactsAsync's query (minus FilterCity, which the form no
+    // longer lets the user set).
+    public async Task<int> PreviewMatchCountAsync(int campaignId, List<int> municipalityIds, CallOutcome? filterOutcome, CancellationToken ct = default)
+    {
+        var q = _db.CallContacts.Where(c => c.CampaignId == campaignId && c.PoolId == null);
+        if (municipalityIds.Count > 0)
+            q = q.Where(c => c.MunicipalityId != null && municipalityIds.Contains(c.MunicipalityId.Value));
+        if (filterOutcome is not null)
+            q = q.Where(c => c.LastOutcome == filterOutcome);
+        return await q.CountAsync(ct);
+    }
+
     // Stamps PoolId on matching contacts of the campaign that are not already in a pool.
     private async Task<int> StampMatchingContactsAsync(CallPool pool, CancellationToken ct)
     {
+        var municipalityIds = await _db.CallPoolMunicipalities
+            .Where(m => m.CallPoolId == pool.Id)
+            .Select(m => m.MunicipalityId)
+            .ToListAsync(ct);
+
         var q = _db.CallContacts.Where(c => c.CampaignId == pool.CampaignId && c.PoolId == null);
         if (!string.IsNullOrWhiteSpace(pool.FilterCity))
             q = q.Where(c => c.City == pool.FilterCity);
-        if (pool.FilterMunicipalityId is not null)
-            q = q.Where(c => c.MunicipalityId == pool.FilterMunicipalityId);
+        if (municipalityIds.Count > 0)
+            q = q.Where(c => c.MunicipalityId != null && municipalityIds.Contains(c.MunicipalityId.Value));
         if (pool.FilterOutcome is not null)
             q = q.Where(c => c.LastOutcome == pool.FilterOutcome);
 
@@ -256,7 +315,7 @@ public class CallPoolService : ICallPoolService
     private static System.Linq.Expressions.Expression<Func<CallPool, CallPoolDto>> ToDto() =>
         p => new CallPoolDto(
             p.Id, p.Name, p.CampaignId, p.IsActive,
-            p.FilterCity, p.FilterMunicipalityId, p.FilterOutcome,
+            p.FilterCity, p.FilterMunicipalities.Select(m => m.MunicipalityId).ToList(), p.FilterOutcome,
             p.Contacts.Count,
             p.Operators.Select(o => new PoolOperatorDto(o.UserId, o.User.UserName!)).ToList());
 }

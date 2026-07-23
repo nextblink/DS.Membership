@@ -83,7 +83,9 @@ public class CallContactImportService : ICallContactImportService
                 municipalityId = mid;
             }
 
-            // Comment + MemberSince fold into a single free-text ImportNote.
+            // Comment + MemberSince fold into a single free-text ImportNote (kept for audit/
+            // display of the original source row), while MemberSince is also parsed into a
+            // structured date below so it can be queried/displayed without re-parsing text.
             string? importNote = null;
             if (!string.IsNullOrWhiteSpace(r.Comment) && !string.IsNullOrWhiteSpace(r.MemberSince))
                 importNote = $"{r.Comment.Trim()} (MemberSince: {r.MemberSince.Trim()})";
@@ -91,6 +93,13 @@ public class CallContactImportService : ICallContactImportService
                 importNote = r.Comment.Trim();
             else if (!string.IsNullOrWhiteSpace(r.MemberSince))
                 importNote = $"MemberSince: {r.MemberSince.Trim()}";
+
+            DateOnly? memberSince = null;
+            if (!string.IsNullOrWhiteSpace(r.MemberSince) &&
+                DateOnly.TryParseExact(r.MemberSince.Trim(), "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedMemberSince))
+            {
+                memberSince = parsedMemberSince;
+            }
 
             var previousOutcome = string.IsNullOrWhiteSpace(r.PreviousOutcome) ? null : r.PreviousOutcome!.Trim();
             var mapped = previousOutcome is not null && PreviousOutcomeMap.TryGetValue(previousOutcome, out var m) ? m : ((CallOutcome, ContactFinalStatus?)?)null;
@@ -108,6 +117,7 @@ public class CallContactImportService : ICallContactImportService
                 MunicipalityId = municipalityId,
                 ImportedOutcome = previousOutcome,
                 ImportNote = importNote,
+                MemberSince = memberSince,
                 AttemptCount = mapped is not null ? 1 : 0,
                 LastCalledAt = mapped is not null ? now : null,
                 LastOutcome = mapped?.Item1,

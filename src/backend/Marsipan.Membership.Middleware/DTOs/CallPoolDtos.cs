@@ -8,7 +8,7 @@ public record CallPoolDto(
     int CampaignId,
     bool IsActive,
     string? FilterCity,
-    int? FilterMunicipalityId,
+    List<int> FilterMunicipalityIds,
     CallOutcome? FilterOutcome,
     int ContactCount,
     List<PoolOperatorDto> Operators);
@@ -19,14 +19,14 @@ public record CreateCallPoolRequest(
     string Name,
     int CampaignId,
     string? FilterCity,
-    int? FilterMunicipalityId,
+    List<int>? FilterMunicipalityIds,
     CallOutcome? FilterOutcome);
 
 public record UpdateCallPoolRequest(
     string Name,
     bool IsActive,
     string? FilterCity,
-    int? FilterMunicipalityId,
+    List<int>? FilterMunicipalityIds,
     CallOutcome? FilterOutcome);
 
 public record AssignOperatorsRequest(List<string> UserIds);

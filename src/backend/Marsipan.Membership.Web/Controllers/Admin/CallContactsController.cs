@@ -19,6 +19,10 @@ public class CallContactsController : ControllerBase
         [FromQuery] CallContactQuery query, CancellationToken ct)
         => Ok(await _contacts.SearchAsync(query, ct));
 
+    [HttpGet("my-pools")]
+    public async Task<ActionResult<List<PoolOptionDto>>> MyPools(CancellationToken ct)
+        => Ok(await _contacts.ListMyPoolsAsync(ct));
+
     [HttpGet("next")]
     [Authorize(Roles = "SuperAdmin,Admin,Operator")]
     public async Task<ActionResult<CallContactDetailDto>> Next(CancellationToken ct)
