@@ -7,7 +7,7 @@ namespace Marsipan.Membership.Web.Controllers.Admin;
 
 [ApiController]
 [Route("api/call-contacts")]
-[Authorize(Policy = "ApiPolicy")]
+[Authorize(Policy = "ApiPolicy", Roles = "SuperAdmin,Admin,Operator")]
 public class CallContactsController : ControllerBase
 {
     private readonly ICallContactService _contacts;
