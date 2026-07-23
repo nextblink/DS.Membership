@@ -32,6 +32,7 @@ import Users from '../pages/users/Users'
 import Profile from '../pages/profile/Profile'
 import CampaignList from '../pages/callcenter/CampaignList'
 import CampaignForm from '../pages/callcenter/CampaignForm'
+// ContactImport import kept for future re-enablement; route intentionally disabled below (#79)
 import ContactImport from '../pages/callcenter/ContactImport'
 import ContactList from '../pages/callcenter/ContactList'
 import PoolList from '../pages/callcenter/PoolList'
@@ -75,7 +76,8 @@ export default function AppRouter() {
         <Route path="/callcenter/campaigns" element={guarded(<CampaignList />, CALLCENTER_ADMIN_ROLES)} />
         <Route path="/callcenter/campaigns/new" element={guarded(<CampaignForm />, CALLCENTER_ADMIN_ROLES)} />
         <Route path="/callcenter/campaigns/:id/edit" element={guarded(<CampaignForm />, CALLCENTER_ADMIN_ROLES)} />
-        <Route path="/callcenter/import" element={guarded(<ContactImport />, CALLCENTER_ADMIN_ROLES)} />
+        {/* Contact import route intentionally hidden pending dedup/validation fixes (#79) */}
+        {/* <Route path="/callcenter/import" element={guarded(<ContactImport />, CALLCENTER_ADMIN_ROLES)} /> */}
         <Route path="/callcenter/contacts" element={guarded(<ContactList />, CALLCENTER_ADMIN_ROLES)} />
         <Route path="/callcenter/pools" element={guarded(<PoolList />, CALLCENTER_ADMIN_ROLES)} />
         <Route path="/callcenter/pools/new" element={guarded(<PoolForm />, CALLCENTER_ADMIN_ROLES)} />

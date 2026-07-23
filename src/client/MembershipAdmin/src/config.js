@@ -39,7 +39,7 @@ export const NAV_ITEMS = [
   { to: '/functions', label: 'Functions', roles: FUNCTIONS_ROLES, iconName: 'clipboard', section: 'main' },
   { to: '/users', label: 'Users', roles: USERS_ROLES, iconName: 'user-group', section: 'main' },
   { to: '/callcenter/campaigns', label: 'Кампање', roles: CALLCENTER_ADMIN_ROLES, iconName: 'phone', section: 'callcenter' },
-  { to: '/callcenter/import', label: 'Увоз', roles: CALLCENTER_ADMIN_ROLES, iconName: 'upload', section: 'callcenter' },
+  // Import Contacts nav item intentionally hidden pending dedup/validation fixes (#79)
   { to: '/callcenter/contacts', label: 'Контакти', roles: CALLCENTER_ADMIN_ROLES, iconName: 'contacts', section: 'callcenter' },
   { to: '/callcenter/pools', label: 'Групе', roles: CALLCENTER_ADMIN_ROLES, iconName: 'group', section: 'callcenter' },
   { to: '/callcenter/queue', label: 'Позивање', roles: CALLCENTER_OPERATOR_ROLES, iconName: 'phone-queue', section: 'callcenter' },
