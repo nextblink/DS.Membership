@@ -114,20 +114,28 @@ export default function CallScript() {
   // Builds the SaveCallOutcomeRequest payload from the current answers and
   // persists it. Returns true on success. Shared by the "Save" completion
   // path and the enroll shortcut so both save the outcome identically.
+  //
+  // Only answers belonging to sections `computeVisibleSections` currently considers
+  // visible are included — if the operator backtracks (e.g. changes Relation from
+  // StayMember to Sympathizer after already answering Activity/Engagement), the
+  // now-abandoned answers must not be submitted even though they're still sitting
+  // in local state.
   const saveOutcome = async () => {
+    const visible = computeVisibleSections(answers)
+    const has = (section) => visible.includes(section)
     const payload = {
       outcome: answers.outcome,
       attemptNote: answers.attemptNote ?? null,
-      partyRelation: answers.relation ?? null,
-      activityLevel: answers.activity ?? null,
-      wantsToBeActive: answers.wantsToBeActive ?? null,
-      engagementAreas: answers.engagementAreas ?? [],
-      updatedPhone: answers.updatedPhone || null,
-      updatedEmail: answers.updatedEmail || null,
-      updatedAddress: answers.updatedAddress || null,
-      suggestionNote: answers.suggestionNote ?? null,
-      knowsPotentialMembers: answers.knowsPotentialMembers ?? null,
-      willingToEnroll: answers.willingToEnroll ?? null,
+      partyRelation: has('relation') ? answers.relation ?? null : null,
+      activityLevel: has('activity') ? answers.activity ?? null : null,
+      wantsToBeActive: has('activity') ? answers.wantsToBeActive ?? null : null,
+      engagementAreas: has('engagement') ? answers.engagementAreas ?? [] : [],
+      updatedPhone: has('contactData') ? answers.updatedPhone || null : null,
+      updatedEmail: has('contactData') ? answers.updatedEmail || null : null,
+      updatedAddress: has('contactData') ? answers.updatedAddress || null : null,
+      suggestionNote: has('suggestion') ? answers.suggestionNote ?? null : null,
+      knowsPotentialMembers: has('recommendations') ? answers.knowsPotentialMembers ?? null : null,
+      willingToEnroll: has('recommendations') ? answers.willingToEnroll ?? null : null,
     }
     setSaving(true)
     setSaveError(null)

@@ -5,12 +5,14 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import callCenterApi from '../../services/callCenterApi'
 import { formatDate } from '../../services/dateUtils'
+import { useToast, ToastContainer } from '../../components/Toast'
 
 const PAGE_SIZE_DEFAULT = 20
 
 export default function CampaignList() {
   const { t } = useTranslation(['callcenter', 'common'])
   const navigate = useNavigate()
+  const toast = useToast()
   const [page, setPage] = useState(1)
   const [data, setData] = useState({ items: [], totalCount: 0, page: 1, pageSize: PAGE_SIZE_DEFAULT, totalPages: 0 })
   const [loading, setLoading] = useState(false)
@@ -43,8 +45,12 @@ export default function CampaignList() {
 
   const remove = async (id) => {
     if (!window.confirm(t('callcenter:campaigns.confirmDelete'))) return
-    await callCenterApi.deleteCampaign(id)
-    load()
+    try {
+      await callCenterApi.deleteCampaign(id)
+      load()
+    } catch (err) {
+      toast.error(err?.response?.data?.message || t('callcenter:campaigns.deleteFailed'))
+    }
   }
 
   const totalPages = data.totalPages || Math.max(1, Math.ceil(data.totalCount / data.pageSize))
@@ -77,6 +83,7 @@ export default function CampaignList() {
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
+      <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
       {/* Card header */}
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
         <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('callcenter:campaigns.title')}</h1>

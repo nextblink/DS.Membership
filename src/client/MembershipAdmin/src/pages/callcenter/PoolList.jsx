@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import callCenterApi from '../../services/callCenterApi'
+import { useToast, ToastContainer } from '../../components/Toast'
 
 export default function PoolList() {
   const { t } = useTranslation(['callcenter', 'common'])
   const navigate = useNavigate()
+  const toast = useToast()
   const [campaigns, setCampaigns] = useState([])
   const [campaignId, setCampaignId] = useState('')
   const [pools, setPools] = useState([])
@@ -59,8 +61,12 @@ export default function PoolList() {
 
   const remove = async (id) => {
     if (!window.confirm(t('callcenter:pools.confirmDelete'))) return
-    await callCenterApi.deletePool(id)
-    load()
+    try {
+      await callCenterApi.deletePool(id)
+      load()
+    } catch (err) {
+      toast.error(err?.response?.data?.message || t('callcenter:pools.deleteFailed'))
+    }
   }
 
   const bulkCreateByMunicipality = async () => {
@@ -84,6 +90,7 @@ export default function PoolList() {
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
+      <ToastContainer toasts={toast.toasts} dismiss={toast.dismiss} />
       {/* Card header */}
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
         <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('callcenter:pools.title')}</h1>
