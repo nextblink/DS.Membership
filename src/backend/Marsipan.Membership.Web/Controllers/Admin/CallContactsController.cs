@@ -66,6 +66,7 @@ public class CallContactsController : ControllerBase
         try { await _contacts.SaveOutcomeAsync(id, dto, ct); return NoContent(); }
         catch (KeyNotFoundException) { return NotFound(); }
         catch (ArgumentException ex) { return BadRequest(new { error = ex.Message }); }
+        catch (InvalidOperationException ex) { return Conflict(new { error = ex.Message }); }
     }
 
     [HttpPost("{id:int}/release")]
