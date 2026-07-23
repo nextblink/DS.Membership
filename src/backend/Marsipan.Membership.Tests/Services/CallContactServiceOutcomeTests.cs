@@ -162,4 +162,77 @@ public class CallContactServiceOutcomeTests
         Assert.Single(attempts);
         Assert.Equal(CallOutcome.WrongNumber, attempts[0].Outcome);
     }
+
+    [Fact]
+    public async Task AlreadyResolvedContact_ThrowsAlreadyResolved()
+    {
+        var (db, contact) = await SeedAsync(nameof(AlreadyResolvedContact_ThrowsAlreadyResolved));
+        contact.FinalStatus = ContactFinalStatus.NoCooperation;
+        await db.SaveChangesAsync();
+        var service = BuildService(db);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => service.SaveOutcomeAsync(contact.Id, ValidContactRequest(PartyRelation.StayMember, ActivityLevel.Active)));
+        Assert.Equal("already_resolved", ex.Message);
+    }
+
+    [Fact]
+    public async Task ActivelyClaimedByAnotherUser_ThrowsAlreadyClaimed()
+    {
+        var (db, contact) = await SeedAsync(nameof(ActivelyClaimedByAnotherUser_ThrowsAlreadyClaimed));
+        // SeedAsync claims the contact as "admin-1"; call as a different operator.
+        var service = BuildService(db, userId: "operator-2");
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => service.SaveOutcomeAsync(contact.Id, ValidContactRequest(PartyRelation.StayMember, ActivityLevel.Active)));
+        Assert.Equal("already_claimed", ex.Message);
+
+        var updated = await db.CallContacts.FindAsync(contact.Id);
+        Assert.Equal("admin-1", updated!.ClaimedByUserId);
+        Assert.Equal(0, updated.AttemptCount);
+    }
+
+    [Fact]
+    public async Task StaleClaimByAnotherUser_Succeeds()
+    {
+        var (db, contact) = await SeedAsync(nameof(StaleClaimByAnotherUser_Succeeds));
+        contact.ClaimedByUserId = "admin-1";
+        contact.ClaimedAt = DateTime.UtcNow.AddMinutes(-30);
+        await db.SaveChangesAsync();
+        var service = BuildService(db, userId: "operator-2");
+
+        await service.SaveOutcomeAsync(contact.Id, ValidContactRequest(PartyRelation.NoCooperation));
+
+        var updated = await db.CallContacts.FindAsync(contact.Id);
+        Assert.Equal(ContactFinalStatus.NoCooperation, updated!.FinalStatus);
+        Assert.Null(updated.ClaimedByUserId);
+    }
+
+    [Fact]
+    public async Task NullClaim_Succeeds()
+    {
+        var (db, contact) = await SeedAsync(nameof(NullClaim_Succeeds));
+        contact.ClaimedByUserId = null;
+        contact.ClaimedAt = null;
+        await db.SaveChangesAsync();
+        var service = BuildService(db, userId: "operator-2");
+
+        await service.SaveOutcomeAsync(contact.Id, ValidContactRequest(PartyRelation.NoCooperation));
+
+        var updated = await db.CallContacts.FindAsync(contact.Id);
+        Assert.Equal(ContactFinalStatus.NoCooperation, updated!.FinalStatus);
+    }
+
+    [Fact]
+    public async Task ClaimHolder_Succeeds()
+    {
+        var (db, contact) = await SeedAsync(nameof(ClaimHolder_Succeeds));
+        var service = BuildService(db, userId: "admin-1");
+
+        await service.SaveOutcomeAsync(contact.Id, ValidContactRequest(PartyRelation.NoCooperation));
+
+        var updated = await db.CallContacts.FindAsync(contact.Id);
+        Assert.Equal(ContactFinalStatus.NoCooperation, updated!.FinalStatus);
+        Assert.Null(updated.ClaimedByUserId);
+    }
 }

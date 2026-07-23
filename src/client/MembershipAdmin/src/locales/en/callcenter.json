@@ -134,6 +134,8 @@
   "script": {
     "loadFailed": "Loading the contact failed.",
     "saveOutcomeFailed": "Saving the outcome failed.",
+    "alreadyClaimed": "This contact was claimed by another operator — your changes were not saved.",
+    "alreadyResolved": "This contact is already resolved — your changes were not saved.",
     "possibleMatch": "Possible match with an existing member:",
     "linked": "Linked",
     "link": "Link",

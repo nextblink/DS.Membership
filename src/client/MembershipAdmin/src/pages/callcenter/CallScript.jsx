@@ -135,7 +135,15 @@ export default function CallScript() {
       await callCenterApi.saveOutcome(id, payload)
       return true
     } catch (err) {
-      setSaveError(err?.response?.data?.message || t('callcenter:script.saveOutcomeFailed'))
+      const status = err?.response?.status
+      const code = err?.response?.data?.error
+      if (status === 409 && code === 'already_claimed') {
+        setSaveError(t('callcenter:script.alreadyClaimed'))
+      } else if (status === 409 && code === 'already_resolved') {
+        setSaveError(t('callcenter:script.alreadyResolved'))
+      } else {
+        setSaveError(err?.response?.data?.message || t('callcenter:script.saveOutcomeFailed'))
+      }
       return false
     } finally {
       setSaving(false)

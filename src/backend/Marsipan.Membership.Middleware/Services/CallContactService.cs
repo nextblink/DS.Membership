@@ -145,6 +145,19 @@ public class CallContactService : ICallContactService
         var now = DateTime.UtcNow;
         var uid = _user.Id ?? "system";
 
+        // Same ownership/resolved-state guard ClaimAsync enforces (#81) — without it, any
+        // in-scope operator could post an outcome on a contact actively claimed by someone
+        // else (double-incrementing AttemptCount, overwriting the claimant's script answers,
+        // and clearing a claim that isn't theirs) or silently re-outcome an already-resolved
+        // contact, corrupting CallCenterReportService's data.
+        if (IsResolved(c)) throw new InvalidOperationException("already_resolved");
+
+        var staleCutoff = now.AddMinutes(-StaleClaimMinutes);
+        var activelyClaimedByOther = c.ClaimedByUserId is not null
+            && c.ClaimedByUserId != uid
+            && c.ClaimedAt >= staleCutoff;
+        if (activelyClaimedByOther) throw new InvalidOperationException("already_claimed");
+
         // 1. Log the dial attempt.
         _db.CallAttempts.Add(new CallAttempt
         {
