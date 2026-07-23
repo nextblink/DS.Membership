@@ -17,4 +17,13 @@ public interface ICallContactService
     Task SetConvertedMemberAsync(int id, int memberId, CancellationToken ct = default);
     Task<ImportResultDto> ImportAsync(int campaignId, Stream file, string fileName, CancellationToken ct = default);
     Task<List<PoolOptionDto>> ListMyPoolsAsync(CancellationToken ct = default);
+
+    // One-time cleanup: within each campaign, hard-deletes contacts that share the same
+    // (FirstName, LastName) plus either the same PhoneNumber or the same Address as another
+    // contact still in that campaign. See method body for the exact matching/keep rules.
+    Task<DedupeResultDto> RemoveDuplicatesAsync(CancellationToken ct = default);
+
+    // One-time reset: wipes every contact's call history/claim/script-answers/member-links back
+    // to a pristine "never called" state and deletes all CallAttempt/ContactEngagementArea rows.
+    Task<ResetContactsResultDto> ResetAllToNeverCalledAsync(CancellationToken ct = default);
 }

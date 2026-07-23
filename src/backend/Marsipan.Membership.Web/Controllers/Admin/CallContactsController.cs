@@ -115,4 +115,14 @@ public class CallContactsController : ControllerBase
         try { await _contacts.SetConvertedMemberAsync(id, memberId, ct); return NoContent(); }
         catch (KeyNotFoundException) { return NotFound(); }
     }
+
+    [HttpPost("dedupe")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
+    public async Task<ActionResult<DedupeResultDto>> Dedupe(CancellationToken ct)
+        => Ok(await _contacts.RemoveDuplicatesAsync(ct));
+
+    [HttpPost("reset-to-never-called")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
+    public async Task<ActionResult<ResetContactsResultDto>> ResetToNeverCalled(CancellationToken ct)
+        => Ok(await _contacts.ResetAllToNeverCalledAsync(ct));
 }

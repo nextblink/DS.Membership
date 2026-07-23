@@ -88,7 +88,7 @@ public class FormsService : IFormsService
                 Id = f.Id,
                 FormNumber = f.FormNumber,
                 MemberFullName = f.Member != null
-                    ? (f.Member.FirstName + " " + f.Member.LastName)
+                    ? (f.Member.LastName + " " + f.Member.FirstName)
                     : null,
                 CommitteeId = f.Member != null ? (int?)f.Member.CommitteeId : null,
                 CommitteeName = f.Member != null && f.Member.Committee != null

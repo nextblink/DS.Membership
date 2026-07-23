@@ -55,13 +55,26 @@ public class CallContactService : ICallContactService
         }
 
         var total = await q.CountAsync(ct);
-        var items = await q.OrderBy(c => c.Id)
+        IOrderedQueryable<CallContact> ordered = (query.SortBy == "name", query.SortDesc) switch
+        {
+            (true, false) => q.OrderBy(c => c.LastName).ThenBy(c => c.FirstName),
+            (true, true) => q.OrderByDescending(c => c.LastName).ThenByDescending(c => c.FirstName),
+            (false, false) => q.OrderBy(c => c.Address),
+            (false, true) => q.OrderByDescending(c => c.Address),
+        };
+        var items = await ordered.ThenBy(c => c.Id)
             .Skip((page - 1) * pageSize).Take(pageSize)
             .Select(c => new CallContactListItemDto(
                 c.Id, c.FirstName, c.LastName, c.PhoneNumber, c.SecondaryPhone, c.Address, c.City,
                 c.MunicipalityId, c.Municipality != null ? c.Municipality.Name : null,
                 c.CampaignId, c.PoolId, c.Pool != null ? c.Pool.Name : null, c.AttemptCount, c.LastOutcome, c.FinalStatus,
-                c.MatchedMemberId, c.ConvertedMemberId, c.ImportedOutcome, c.MemberSince))
+                c.MatchedMemberId, c.ConvertedMemberId, c.ImportedOutcome, c.MemberSince,
+                c.ClaimedByUserId,
+                c.ClaimedByUserId == null ? null : _db.Users
+                    .Where(u => u.Id == c.ClaimedByUserId)
+                    .Select(u => u.FirstName != null && u.LastName != null ? u.FirstName + " " + u.LastName : u.Email)
+                    .FirstOrDefault(),
+                c.ClaimedAt))
             .ToListAsync(ct);
 
         return new PagedResultDto<CallContactListItemDto>
@@ -98,6 +111,15 @@ public class CallContactService : ICallContactService
     {
         var uid = _user.Id;
         if (string.IsNullOrEmpty(uid)) return null;
+
+        // One active claim per operator (same rule ClaimAsync enforces): if they already have
+        // an active claim, hand that back instead of picking up a second one.
+        var staleCutoffForExisting = DateTime.UtcNow.AddMinutes(-StaleClaimMinutes);
+        var existingClaim = await _db.CallContacts.ApplyCallContactScope(_user)
+            .Include(x => x.EngagementAreas)
+            .Include(x => x.Municipality)
+            .FirstOrDefaultAsync(c => c.ClaimedByUserId == uid && c.ClaimedAt >= staleCutoffForExisting, ct);
+        if (existingClaim is not null) return ToDetail(existingClaim);
 
         for (var attempt = 0; attempt < MaxClaimAttempts; attempt++)
         {
@@ -146,6 +168,30 @@ public class CallContactService : ICallContactService
     {
         var uid = _user.Id;
         var staleCutoff = DateTime.UtcNow.AddMinutes(-StaleClaimMinutes);
+
+        // One active claim per operator: claiming a new contact while already mid-call on a
+        // different one auto-releases that other claim (its script answers only ever lived in
+        // the operator's browser state, never persisted, so there's nothing to lose) instead of
+        // blocking the operator until they explicitly Save/Cancel it. Re-claiming the SAME
+        // contact id (x.Id != id below) is exempt — that's just resuming your own in-progress
+        // call, not switching to a second one.
+        var myOtherActiveClaim = await _db.CallContacts.ApplyCallContactScope(_user)
+            .FirstOrDefaultAsync(x => x.Id != id && x.ClaimedByUserId == uid && x.ClaimedAt >= staleCutoff, ct);
+        if (myOtherActiveClaim is not null)
+        {
+            myOtherActiveClaim.ClaimedByUserId = null;
+            myOtherActiveClaim.ClaimedAt = null;
+            try
+            {
+                await _db.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Already changed by someone/something else (e.g. its own stale-claim cutoff
+                // elapsed, or it got resolved) — nothing to release, safe to ignore and proceed.
+                _db.Entry(myOtherActiveClaim).State = EntityState.Detached;
+            }
+        }
 
         for (var attempt = 0; attempt < MaxClaimAttempts; attempt++)
         {
@@ -391,5 +437,111 @@ public class CallContactService : ICallContactService
         return await q.OrderBy(p => p.Name)
             .Select(p => new PoolOptionDto(p.Id, p.Name, p.CampaignId))
             .ToListAsync(ct);
+    }
+
+    // One-time cleanup (no repeat-run guard needed — it's idempotent, a second run just finds
+    // no groups). Two contacts in the same campaign are duplicates if they share a normalized
+    // (FirstName, LastName) plus either the same PhoneNumber or the same Address. Matching is
+    // transitive via union-find, so A~B (same phone) and B~C (same address) group A, B, and C
+    // together even though A and C alone wouldn't match. Within a group, the contact with the
+    // most call progress (AttemptCount) survives; ties keep the lowest Id. Losers are hard-deleted,
+    // cascading to their CallAttempt/ContactEngagementArea rows — safe here because this cleanup
+    // runs before any calling has started on this data.
+    public async Task<DedupeResultDto> RemoveDuplicatesAsync(CancellationToken ct = default)
+    {
+        var contacts = await _db.CallContacts
+            .Select(c => new { c.Id, c.CampaignId, c.FirstName, c.LastName, c.PhoneNumber, c.Address, c.AttemptCount })
+            .ToListAsync(ct);
+
+        var removedIds = new List<int>();
+        var groupsAffected = 0;
+
+        foreach (var campaignItems in contacts.GroupBy(c => c.CampaignId))
+        {
+            var items = campaignItems.ToList();
+            var parent = items.ToDictionary(c => c.Id, c => c.Id);
+
+            int Find(int x) => parent[x] == x ? x : (parent[x] = Find(parent[x]));
+            void Union(int a, int b)
+            {
+                var ra = Find(a);
+                var rb = Find(b);
+                if (ra != rb) parent[ra] = rb;
+            }
+
+            var byNamePhone = new Dictionary<string, List<int>>();
+            var byNameAddress = new Dictionary<string, List<int>>();
+            foreach (var c in items)
+            {
+                var name = NormalizeText(c.FirstName) + "|" + NormalizeText(c.LastName);
+                var phone = NormalizePhone(c.PhoneNumber);
+                var address = NormalizeText(c.Address);
+
+                if (phone.Length > 0)
+                {
+                    var key = name + "|" + phone;
+                    if (!byNamePhone.TryGetValue(key, out var list)) byNamePhone[key] = list = [];
+                    list.Add(c.Id);
+                }
+                if (address.Length > 0)
+                {
+                    var key = name + "|" + address;
+                    if (!byNameAddress.TryGetValue(key, out var list)) byNameAddress[key] = list = [];
+                    list.Add(c.Id);
+                }
+            }
+
+            foreach (var bucket in byNamePhone.Values.Concat(byNameAddress.Values))
+                for (var i = 1; i < bucket.Count; i++)
+                    Union(bucket[0], bucket[i]);
+
+            var groups = items.GroupBy(c => Find(c.Id)).Where(g => g.Count() > 1);
+            foreach (var group in groups)
+            {
+                groupsAffected++;
+                var keeper = group.OrderByDescending(c => c.AttemptCount).ThenBy(c => c.Id).First();
+                removedIds.AddRange(group.Where(c => c.Id != keeper.Id).Select(c => c.Id));
+            }
+        }
+
+        if (removedIds.Count > 0)
+        {
+            var toRemove = await _db.CallContacts.Where(c => removedIds.Contains(c.Id)).ToListAsync(ct);
+            _db.CallContacts.RemoveRange(toRemove);
+            await _db.SaveChangesAsync(ct);
+        }
+
+        return new DedupeResultDto(removedIds.Count, groupsAffected);
+    }
+
+    private static string NormalizeText(string? s) => s?.Trim().ToUpperInvariant() ?? "";
+
+    private static string NormalizePhone(string? s) => s is null ? "" : new string(s.Where(char.IsDigit).ToArray());
+
+    public async Task<ResetContactsResultDto> ResetAllToNeverCalledAsync(CancellationToken ct = default)
+    {
+        // Per-attempt/per-area history has no meaning once the parent contact is reset — wipe it
+        // first so nothing orphaned lingers after the bulk update below.
+        await _db.ContactEngagementAreas.ExecuteDeleteAsync(ct);
+        await _db.CallAttempts.ExecuteDeleteAsync(ct);
+
+        var affected = await _db.CallContacts.ExecuteUpdateAsync(s => s
+            .SetProperty(c => c.AttemptCount, 0)
+            .SetProperty(c => c.LastCalledAt, (DateTime?)null)
+            .SetProperty(c => c.LastOutcome, (CallOutcome?)null)
+            .SetProperty(c => c.FinalStatus, (ContactFinalStatus?)null)
+            .SetProperty(c => c.ClaimedByUserId, (string?)null)
+            .SetProperty(c => c.ClaimedAt, (DateTime?)null)
+            .SetProperty(c => c.PartyRelation, (Enums.PartyRelation?)null)
+            .SetProperty(c => c.ActivityLevel, (Enums.ActivityLevel?)null)
+            .SetProperty(c => c.WantsToBeActive, (bool?)null)
+            .SetProperty(c => c.SuggestionNote, (string?)null)
+            .SetProperty(c => c.KnowsPotentialMembers, (bool?)null)
+            .SetProperty(c => c.WillingToEnroll, (bool?)null)
+            .SetProperty(c => c.MatchedMemberId, (int?)null)
+            .SetProperty(c => c.ConvertedMemberId, (int?)null),
+            ct);
+
+        return new ResetContactsResultDto(affected);
     }
 }

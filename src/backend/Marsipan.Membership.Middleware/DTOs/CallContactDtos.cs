@@ -12,7 +12,11 @@ public record CallContactQuery(
     string? Search,
     bool UnresolvedOnly = false,
     int Page = 1,
-    int PageSize = 20);
+    int PageSize = 20,
+    // "name" sorts by LastName/FirstName; anything else (including null/omitted) sorts by Address —
+    // the queue's default, since operators work address-by-address through a neighborhood.
+    string? SortBy = null,
+    bool SortDesc = false);
 
 public record CallContactListItemDto(
     int Id,
@@ -33,7 +37,10 @@ public record CallContactListItemDto(
     int? MatchedMemberId,
     int? ConvertedMemberId,
     string? ImportedOutcome,
-    DateOnly? MemberSince);
+    DateOnly? MemberSince,
+    string? ClaimedByUserId,
+    string? ClaimedByUserName,
+    DateTime? ClaimedAt);
 
 public record CallContactDetailDto(
     int Id,
@@ -69,6 +76,12 @@ public record ImportResultDto(
     int Imported,
     int Skipped,
     List<string> Errors);
+
+// Result of a one-time duplicate cleanup pass (see ICallContactService.RemoveDuplicatesAsync).
+public record DedupeResultDto(int DuplicatesRemoved, int GroupsAffected);
+
+// Result of a one-time "reset to never called" pass (see ICallContactService.ResetAllToNeverCalledAsync).
+public record ResetContactsResultDto(int ContactsReset);
 
 // Lightweight pool listing for the "which pool am I calling through" selector — Operators only
 // see pools they're assigned to (CallPoolOperator), SuperAdmin/Admin see all active pools,
