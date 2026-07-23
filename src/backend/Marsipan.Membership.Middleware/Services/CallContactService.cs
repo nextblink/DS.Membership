@@ -239,6 +239,7 @@ public class CallContactService : ICallContactService
         var phone = c.PhoneNumber?.Trim();
         if (string.IsNullOrEmpty(phone)) return new List<MemberMatchDto>();
         return await _db.Members
+            .ApplyMemberScope(_user)
             .Where(m => m.Phones.Any(p => p.Number == phone))
             .Select(m => new MemberMatchDto(
                 m.Id, m.FirstName + " " + m.LastName,
