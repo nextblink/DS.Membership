@@ -98,4 +98,13 @@ public class CallContact : BaseEntity
     public ICollection<CallAttempt> Attempts { get; set; } = [];
 
     public ICollection<ContactEngagementArea> EngagementAreas { get; set; } = [];
+
+    /// <summary>
+    /// Concurrency token guarding the claim race between operators (#80). SQL Server manages
+    /// this column automatically (type `rowversion`); nullable here purely so EF Core's
+    /// InMemory provider — used by the unit tests in Marsipan.Membership.Tests — doesn't
+    /// require test code to populate a value it can't itself generate.
+    /// </summary>
+    [Timestamp]
+    public byte[]? RowVersion { get; set; }
 }
