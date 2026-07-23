@@ -91,7 +91,12 @@ public class CallPoolService : ICallPoolService
     // contacts. Unlike single-pool creation (CreateAsync/StampMatchingContactsAsync), this batches the
     // contact fetch, pool inserts, and PoolId stamping into O(1) round trips instead of looping a
     // per-municipality create+stamp+reselect — important once a campaign spans dozens of municipalities.
-    // Idempotent: municipalities that already have a pool for this campaign are skipped.
+    // Municipalities that already have a pool for this campaign are not re-created (that part stays
+    // idempotent), but their unassigned contacts are still stamped onto the existing pool rather than
+    // left stranded. The whole create+stamp operation runs in one transaction (via the DbContext's
+    // execution strategy, since EnableRetryOnFailure is configured and a manual transaction otherwise
+    // can't be retried safely) so a failure partway through doesn't leave pools created without their
+    // contacts stamped, or vice versa.
     public async Task<BulkCreateByMunicipalityResultDto> BulkCreateByMunicipalityAsync(int campaignId, CancellationToken ct = default)
     {
         var unassignedContacts = await _db.CallContacts
@@ -106,60 +111,92 @@ public class CallPoolService : ICallPoolService
             .GroupBy(c => c.MunicipalityId)
             .ToDictionary(g => g.Key, g => g.Select(c => c.Id).ToList());
 
-        var existingPoolMunicipalityIds = await _db.CallPools
-            .Where(p => p.CampaignId == campaignId && p.FilterMunicipalityId != null)
-            .Select(p => p.FilterMunicipalityId!.Value)
+        var existingPools = await _db.CallPools
+            .Where(p => p.CampaignId == campaignId && p.FilterMunicipalityId != null
+                && contactsByMunicipality.Keys.Contains(p.FilterMunicipalityId!.Value))
+            .Select(p => new { p.Id, MunicipalityId = p.FilterMunicipalityId!.Value })
             .ToListAsync(ct);
+        // If a municipality somehow has more than one pool, stamp its leftover contacts onto the first.
+        var existingPoolIdByMunicipality = existingPools
+            .GroupBy(p => p.MunicipalityId)
+            .ToDictionary(g => g.Key, g => g.First().Id);
 
-        var toCreate = contactsByMunicipality.Keys.Except(existingPoolMunicipalityIds).ToList();
-        if (toCreate.Count == 0)
-            return new BulkCreateByMunicipalityResultDto(0, []);
+        var toCreate = contactsByMunicipality.Keys.Except(existingPoolIdByMunicipality.Keys).ToList();
 
-        var municipalities = await _db.Municipalities
-            .Where(m => toCreate.Contains(m.Id))
-            .ToDictionaryAsync(m => m.Id, ct);
+        // Relational providers get a real transaction (via the execution strategy, since
+        // EnableRetryOnFailure is configured and a manually-managed transaction can't be
+        // retried safely otherwise). The in-memory provider used by tests doesn't support
+        // transactions at all, so skip wrapping there rather than fail with
+        // TransactionIgnoredWarning.
+        var useTransaction = _db.Database.IsRelational();
 
-        var now = DateTime.UtcNow;
-        var uid = _user.Id ?? "system";
-        var pools = new List<(CallPool Pool, int MunicipalityId)>();
-
-        foreach (var municipalityId in toCreate)
+        var created = new List<BulkPoolCreatedDto>();
+        var strategy = _db.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
         {
-            if (!municipalities.TryGetValue(municipalityId, out var municipality)) continue;
+            created.Clear();
+            await using var tx = useTransaction
+                ? await _db.Database.BeginTransactionAsync(ct)
+                : null;
 
-            var pool = new CallPool
+            var municipalities = toCreate.Count == 0
+                ? new Dictionary<int, Municipality>()
+                : await _db.Municipalities.Where(m => toCreate.Contains(m.Id)).ToDictionaryAsync(m => m.Id, ct);
+
+            var now = DateTime.UtcNow;
+            var uid = _user.Id ?? "system";
+            var newPools = new List<(CallPool Pool, int MunicipalityId)>();
+
+            foreach (var municipalityId in toCreate)
             {
-                Name = municipality.Name,
-                CampaignId = campaignId,
-                IsActive = true,
-                FilterMunicipalityId = municipalityId,
-                CreatedDate = now,
-                LastModifiedDate = now,
-                CreatedByUserId = uid,
-                LastModifiedByUserId = uid
-            };
-            _db.CallPools.Add(pool);
-            pools.Add((pool, municipalityId));
-        }
+                if (!municipalities.TryGetValue(municipalityId, out var municipality)) continue;
 
-        await _db.SaveChangesAsync(ct);
+                var pool = new CallPool
+                {
+                    Name = municipality.Name,
+                    CampaignId = campaignId,
+                    IsActive = true,
+                    FilterMunicipalityId = municipalityId,
+                    CreatedDate = now,
+                    LastModifiedDate = now,
+                    CreatedByUserId = uid,
+                    LastModifiedByUserId = uid
+                };
+                _db.CallPools.Add(pool);
+                newPools.Add((pool, municipalityId));
+            }
 
-        var contactIdToPoolId = new Dictionary<int, int>();
-        foreach (var (pool, municipalityId) in pools)
-            foreach (var contactId in contactsByMunicipality[municipalityId])
-                contactIdToPoolId[contactId] = pool.Id;
+            if (newPools.Count > 0)
+                await _db.SaveChangesAsync(ct);
 
-        var contactIdsToStamp = contactIdToPoolId.Keys.ToList();
-        var contactsToStamp = await _db.CallContacts
-            .Where(c => contactIdsToStamp.Contains(c.Id))
-            .ToListAsync(ct);
-        foreach (var c in contactsToStamp)
-            c.PoolId = contactIdToPoolId[c.Id];
-        await _db.SaveChangesAsync(ct);
+            var contactIdToPoolId = new Dictionary<int, int>();
+            foreach (var (pool, municipalityId) in newPools)
+                foreach (var contactId in contactsByMunicipality[municipalityId])
+                    contactIdToPoolId[contactId] = pool.Id;
 
-        var created = pools
-            .Select(p => new BulkPoolCreatedDto(p.Pool.Id, municipalities[p.MunicipalityId].Name, contactsByMunicipality[p.MunicipalityId].Count))
-            .ToList();
+            // Existing pools also get their unassigned contacts stamped, not just newly-created ones.
+            foreach (var (municipalityId, poolId) in existingPoolIdByMunicipality)
+                if (contactsByMunicipality.TryGetValue(municipalityId, out var contactIds))
+                    foreach (var contactId in contactIds)
+                        contactIdToPoolId[contactId] = poolId;
+
+            if (contactIdToPoolId.Count > 0)
+            {
+                var contactIdsToStamp = contactIdToPoolId.Keys.ToList();
+                var contactsToStamp = await _db.CallContacts
+                    .Where(c => contactIdsToStamp.Contains(c.Id))
+                    .ToListAsync(ct);
+                foreach (var c in contactsToStamp)
+                    c.PoolId = contactIdToPoolId[c.Id];
+                await _db.SaveChangesAsync(ct);
+            }
+
+            if (tx is not null)
+                await tx.CommitAsync(ct);
+
+            created.AddRange(newPools.Select(p =>
+                new BulkPoolCreatedDto(p.Pool.Id, municipalities[p.MunicipalityId].Name, contactsByMunicipality[p.MunicipalityId].Count)));
+        });
 
         return new BulkCreateByMunicipalityResultDto(created.Count, created);
     }
