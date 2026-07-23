@@ -79,58 +79,105 @@ public class CallContactService : ICallContactService
         return c is null ? null : ToDetail(c);
     }
 
+    // Read-then-write claims raced (#80): two concurrent requests could both read the
+    // contact as unclaimed and both write a claim. Both methods below still read then
+    // write, but the RowVersion concurrency token on CallContact (populated by SQL Server
+    // and re-checked by EF on every SaveChangesAsync) means the second writer's UPDATE
+    // affects 0 rows and EF throws DbUpdateConcurrencyException instead of silently
+    // overwriting the first writer's claim. We catch that and retry once against a fresh
+    // read. (An ExecuteUpdateAsync-based atomic claim was considered but rejected: it is
+    // not supported by the EF Core InMemory provider this project's test suite runs
+    // against, so it would leave the fix effectively untestable.)
+    private const int MaxClaimAttempts = 2;
+
     public async Task<CallContactDetailDto?> GetNextForOperatorAsync(CancellationToken ct = default)
     {
         var uid = _user.Id;
         if (string.IsNullOrEmpty(uid)) return null;
 
-        var staleCutoff = DateTime.UtcNow.AddMinutes(-StaleClaimMinutes);
-        var next = await _db.CallContacts.ApplyCallContactScope(_user)
-            .Where(c => c.FinalStatus == null
-                && c.ConvertedMemberId == null
-                && c.PhoneNumber != null && c.PhoneNumber != ""
-                && (c.LastOutcome == null || c.LastOutcome == CallOutcome.NoAnswer)
-                && (c.ClaimedByUserId == null || c.ClaimedByUserId == uid || c.ClaimedAt < staleCutoff)
-                // Referencing c.Campaign joins the Campaigns table, so EF's global query filter
-                // (!IsDeleted) is applied automatically — this query never joins Campaign otherwise,
-                // so a soft-deleted campaign's contacts would slip through without this check.
-                && c.Campaign.IsActive
-                && (c.Pool == null || c.Pool.IsActive))
-            .OrderBy(c => c.LastCalledAt ?? DateTime.MinValue)
-            .ThenBy(c => c.Id)
-            .Include(c => c.EngagementAreas)
-            .Include(c => c.Municipality)
-            .FirstOrDefaultAsync(ct);
+        for (var attempt = 0; attempt < MaxClaimAttempts; attempt++)
+        {
+            var staleCutoff = DateTime.UtcNow.AddMinutes(-StaleClaimMinutes);
+            var next = await _db.CallContacts.ApplyCallContactScope(_user)
+                .Where(c => c.FinalStatus == null
+                    && c.ConvertedMemberId == null
+                    && c.PhoneNumber != null && c.PhoneNumber != ""
+                    && (c.LastOutcome == null || c.LastOutcome == CallOutcome.NoAnswer)
+                    && (c.ClaimedByUserId == null || c.ClaimedByUserId == uid || c.ClaimedAt < staleCutoff)
+                    // Referencing c.Campaign joins the Campaigns table, so EF's global query filter
+                    // (!IsDeleted) is applied automatically — this query never joins Campaign otherwise,
+                    // so a soft-deleted campaign's contacts would slip through without this check.
+                    && c.Campaign.IsActive
+                    && (c.Pool == null || c.Pool.IsActive))
+                .OrderBy(c => c.LastCalledAt ?? DateTime.MinValue)
+                .ThenBy(c => c.Id)
+                .Include(c => c.EngagementAreas)
+                .Include(c => c.Municipality)
+                .FirstOrDefaultAsync(ct);
 
-        if (next is null) return null;
+            if (next is null) return null;
 
-        next.ClaimedByUserId = uid;
-        next.ClaimedAt = DateTime.UtcNow;
-        await _db.SaveChangesAsync(ct);
-        return ToDetail(next);
+            next.ClaimedByUserId = uid;
+            next.ClaimedAt = DateTime.UtcNow;
+            try
+            {
+                await _db.SaveChangesAsync(ct);
+                return ToDetail(next);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Another operator (or a resolve) claimed this exact row between our read
+                // and our write — the RowVersion mismatch proves it. Detach the stale
+                // entity and retry: the next pass's WHERE clause will no longer match this
+                // row (it's now claimed by someone else and fresh), so we'll be offered a
+                // different candidate.
+                _db.Entry(next).State = EntityState.Detached;
+            }
+        }
+
+        return null;
     }
 
     public async Task<CallContactDetailDto> ClaimAsync(int id, CancellationToken ct = default)
     {
-        var c = await _db.CallContacts.ApplyCallContactScope(_user)
-            .Include(x => x.EngagementAreas)
-            .Include(x => x.Municipality)
-            .FirstOrDefaultAsync(x => x.Id == id, ct)
-            ?? throw new KeyNotFoundException($"Contact {id} not found.");
-
-        if (IsResolved(c)) throw new InvalidOperationException("already_resolved");
-
         var uid = _user.Id;
         var staleCutoff = DateTime.UtcNow.AddMinutes(-StaleClaimMinutes);
-        var activelyClaimedByOther = c.ClaimedByUserId is not null
-            && c.ClaimedByUserId != uid
-            && c.ClaimedAt >= staleCutoff;
-        if (activelyClaimedByOther) throw new InvalidOperationException("already_claimed");
 
-        c.ClaimedByUserId = uid;
-        c.ClaimedAt = DateTime.UtcNow;
-        await _db.SaveChangesAsync(ct);
-        return ToDetail(c);
+        for (var attempt = 0; attempt < MaxClaimAttempts; attempt++)
+        {
+            var c = await _db.CallContacts.ApplyCallContactScope(_user)
+                .Include(x => x.EngagementAreas)
+                .Include(x => x.Municipality)
+                .FirstOrDefaultAsync(x => x.Id == id, ct)
+                ?? throw new KeyNotFoundException($"Contact {id} not found.");
+
+            if (IsResolved(c)) throw new InvalidOperationException("already_resolved");
+
+            var activelyClaimedByOther = c.ClaimedByUserId is not null
+                && c.ClaimedByUserId != uid
+                && c.ClaimedAt >= staleCutoff;
+            if (activelyClaimedByOther) throw new InvalidOperationException("already_claimed");
+
+            c.ClaimedByUserId = uid;
+            c.ClaimedAt = DateTime.UtcNow;
+            try
+            {
+                await _db.SaveChangesAsync(ct);
+                return ToDetail(c);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Someone else (another claim, a release, or a resolve) modified this exact
+                // row between our read and our write — the race #80 was filed for. Detach
+                // the stale entity and retry once against a fresh read, which will report
+                // the up-to-date already_claimed/already_resolved state.
+                _db.Entry(c).State = EntityState.Detached;
+            }
+        }
+
+        // Both attempts hit a concurrency conflict — report it the same way an
+        // actively-claimed contact would be reported rather than looping indefinitely.
+        throw new InvalidOperationException("already_claimed");
     }
 
     // Same "resolved" condition GetNextForOperatorAsync excludes contacts on — kept as a
