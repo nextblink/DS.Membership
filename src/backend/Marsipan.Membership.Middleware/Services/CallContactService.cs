@@ -90,7 +90,12 @@ public class CallContactService : ICallContactService
                 && c.ConvertedMemberId == null
                 && c.PhoneNumber != null && c.PhoneNumber != ""
                 && (c.LastOutcome == null || c.LastOutcome == CallOutcome.NoAnswer)
-                && (c.ClaimedByUserId == null || c.ClaimedByUserId == uid || c.ClaimedAt < staleCutoff))
+                && (c.ClaimedByUserId == null || c.ClaimedByUserId == uid || c.ClaimedAt < staleCutoff)
+                // Referencing c.Campaign joins the Campaigns table, so EF's global query filter
+                // (!IsDeleted) is applied automatically — this query never joins Campaign otherwise,
+                // so a soft-deleted campaign's contacts would slip through without this check.
+                && c.Campaign.IsActive
+                && (c.Pool == null || c.Pool.IsActive))
             .OrderBy(c => c.LastCalledAt ?? DateTime.MinValue)
             .ThenBy(c => c.Id)
             .Include(c => c.EngagementAreas)
@@ -164,6 +169,9 @@ public class CallContactService : ICallContactService
 
         if (request.Outcome == CallOutcome.ValidContact)
         {
+            if (request.PartyRelation is null)
+                throw new ArgumentException("PartyRelation is required when Outcome is ValidContact.");
+
             // 2. Script answers.
             c.PartyRelation = request.PartyRelation;
             c.ActivityLevel = request.ActivityLevel;
