@@ -72,7 +72,16 @@ export default function PoolForm() {
           campaignId: p.campaignId,
           filterCity: p.filterCity ?? '',
           filterMunicipalityId: p.filterMunicipalityId ?? '',
-          filterOutcome: p.filterOutcome ?? '',
+          // Backend serializes CallOutcome as its string name (e.g. "NoAnswer") via
+          // JsonStringEnumConverter (see Program.cs), but the <select> below uses
+          // CALL_OUTCOME's numeric ordinals as option values (same convention as
+          // ContactList.jsx/CallQueue.jsx). Map name -> ordinal here so the existing
+          // filter shows as selected instead of falling through to "—", and so a
+          // later Number(form.filterOutcome) on submit doesn't come out NaN.
+          filterOutcome:
+            p.filterOutcome != null && p.filterOutcome in CALL_OUTCOME
+              ? String(CALL_OUTCOME[p.filterOutcome])
+              : '',
           isActive: !!p.isActive,
         })
         setSelectedOps((p.operators ?? []).map((o) => o.userId))
