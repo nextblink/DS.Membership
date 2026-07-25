@@ -1,13 +1,18 @@
 // Application configuration — roles, navigation, entity metadata (sketch).
 //
-// Per spec (Authorization Rules Summary):
-//   /dashboard               → SuperAdmin, Admin, LocalAdmin
-//   /members, /members/*     → SuperAdmin, Admin, LocalAdmin, Operator, Viewer
-//   /forms, /forms/*         → SuperAdmin, Admin, LocalAdmin, Operator
+// Authorization rules:
+//   /dashboard               → SuperAdmin, Admin, LocalAdmin, Operator
+//                              (Operators get their own view — see OperatorDashboard)
+//   /members, /members/*     → SuperAdmin, Admin, LocalAdmin, Viewer
+//   /forms, /forms/*         → SuperAdmin, Admin, LocalAdmin
 //   /committees              → SuperAdmin only
 //   /functions               → SuperAdmin only
 //   /users                   → SuperAdmin only
+//   /callcenter/queue        → SuperAdmin, Admin, Operator
 //   /profile                 → all roles
+//
+// Operators are limited to the dashboard, the call queue, and their profile.
+// The API enforces the same limits — hiding nav alone would be cosmetic.
 
 export const ROLES = {
   SuperAdmin: 'SuperAdmin',
@@ -20,9 +25,9 @@ export const ROLES = {
 export const ALL_ROLES = Object.values(ROLES)
 
 // Role lists for route + nav gating.
-export const DASHBOARD_ROLES = [ROLES.SuperAdmin, ROLES.Admin, ROLES.LocalAdmin]
-export const MEMBERS_ROLES = [ROLES.SuperAdmin, ROLES.Admin, ROLES.LocalAdmin, ROLES.Operator, ROLES.Viewer]
-export const FORMS_ROLES = [ROLES.SuperAdmin, ROLES.Admin, ROLES.LocalAdmin, ROLES.Operator]
+export const DASHBOARD_ROLES = [ROLES.SuperAdmin, ROLES.Admin, ROLES.LocalAdmin, ROLES.Operator]
+export const MEMBERS_ROLES = [ROLES.SuperAdmin, ROLES.Admin, ROLES.LocalAdmin, ROLES.Viewer]
+export const FORMS_ROLES = [ROLES.SuperAdmin, ROLES.Admin, ROLES.LocalAdmin]
 export const ORG_UNITS_ROLES = [ROLES.SuperAdmin]
 export const FUNCTIONS_ROLES = [ROLES.SuperAdmin]
 export const USERS_ROLES = [ROLES.SuperAdmin]
