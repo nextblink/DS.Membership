@@ -49,7 +49,7 @@
     "callsToday": "Calls today",
     "callsLast7Days": "Calls (7 days)",
     "callsTotal": "Calls total",
-    "queueTitle": "Queue progress",
+    "queueTitle": "Progress in my pools",
     "queueProgress": "{{resolved}} of {{total}} resolved",
     "queueEmpty": "No contacts assigned",
     "outcomeTitle": "Call outcomes",

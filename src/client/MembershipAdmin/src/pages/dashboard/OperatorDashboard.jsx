@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../framework/api'
 import { toEnumKey } from '../../services/callScript'
+import { formatDateTime } from '../../services/dateUtils'
 import DashboardCard from './DashboardCard'
 
 const PANEL =
@@ -12,6 +13,7 @@ export default function OperatorDashboard() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -24,7 +26,7 @@ export default function OperatorDashboard() {
       })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [])
+  }, [reloadKey])
 
   if (loading) {
     return (
@@ -35,7 +37,24 @@ export default function OperatorDashboard() {
       </div>
     )
   }
-  if (error) return <p className="text-sm text-red-500">{error}</p>
+  if (error) {
+    return (
+      <div>
+        <p className="mb-3 text-sm text-red-500">{error}</p>
+        <button
+          type="button"
+          onClick={() => {
+            setLoading(true)
+            setError(null)
+            setReloadKey((k) => k + 1)
+          }}
+          className="rounded-lg bg-brand-500 hover:bg-brand-600 px-5 py-2 text-theme-sm font-medium text-white"
+        >
+          {t('common:button.retry')}
+        </button>
+      </div>
+    )
+  }
 
   const outcomes = stats?.outcomeBreakdown ?? []
   const recent = stats?.recentCalls ?? []
@@ -144,7 +163,7 @@ export default function OperatorDashboard() {
                   <tr key={i} className="border-t border-gray-100 dark:border-gray-800">
                     <td className="py-2 pr-4">{r.contactName}</td>
                     <td className="py-2 pr-4 tabular-nums">{r.phoneNumber}</td>
-                    <td className="py-2 pr-4 tabular-nums">{new Date(r.calledAt).toLocaleString('sr-RS')}</td>
+                    <td className="py-2 pr-4 tabular-nums">{formatDateTime(r.calledAt)}</td>
                     <td className="py-2">{t(`enums:callOutcome.${toEnumKey(r.outcome)}`, r.outcome)}</td>
                   </tr>
                 ))}

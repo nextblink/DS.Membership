@@ -8,8 +8,12 @@ namespace Marsipan.Membership.Web.Controllers.Admin;
 /// <summary>
 /// Admin/API endpoints for the Forms aggregate. Authentication is required
 /// via the <c>ApiPolicy</c> (JWT bearer); status PATCH is additionally gated
-/// by role (SuperAdmin, Admin, LocalAdmin). Operator scope (own-uploads-only)
-/// is enforced inside <see cref="IFormsService"/> via <c>ApplyFormScope</c>.
+/// by role (SuperAdmin, Admin, LocalAdmin). Operators are barred outright by
+/// the class-level <see cref="AuthorizeAttribute"/> role list below and never
+/// reach the service layer or <c>ApplyFormScope</c>. For the remaining
+/// allowed roles, <see cref="IFormsService"/> applies <c>ApplyFormScope</c>:
+/// SuperAdmin/Admin are unrestricted, while LocalAdmin/Viewer are scoped to
+/// the caller's committee.
 /// </summary>
 [ApiController]
 [Route("api/forms")]
