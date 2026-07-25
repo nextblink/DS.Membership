@@ -13,7 +13,7 @@ export default function ResetPassword() {
   const token = params.get('token') || ''
   const mode = params.get('mode') === 'create' ? 'create' : 'reset'
 
-  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     defaultValues: { password: '', confirm: '' },
   })
   const [serverError, setServerError] = useState(null)
