@@ -1,8 +1,10 @@
 using Marsipan.Membership.Middleware.Data;
 using Marsipan.Membership.Middleware.DTOs;
 using Marsipan.Membership.Middleware.Entities;
+using Marsipan.Membership.Middleware.Services.Email;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Marsipan.Membership.Middleware.Services;
 
@@ -34,15 +36,21 @@ public class UsersService : IUsersService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ApplicationContext _db;
+    private readonly IAccountEmailService _accountEmail;
+    private readonly ILogger<UsersService> _logger;
 
     public UsersService(
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
-        ApplicationContext db)
+        ApplicationContext db,
+        IAccountEmailService accountEmail,
+        ILogger<UsersService> logger)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _db = db;
+        _accountEmail = accountEmail;
+        _logger = logger;
     }
 
     public async Task<List<UserDto>> ListAsync(string? name, CancellationToken ct)
@@ -140,7 +148,10 @@ public class UsersService : IUsersService
             CommitteeId = dto.CommitteeId,
         };
 
-        var createResult = await _userManager.CreateAsync(user, dto.Password);
+        // No admin-chosen password: create with a random unusable one, then
+        // invite the user to set their own via an emailed reset-token link.
+        var throwaway = Guid.NewGuid().ToString("N") + "Aa1!";
+        var createResult = await _userManager.CreateAsync(user, throwaway);
         if (!createResult.Succeeded)
         {
             // Duplicate emails / usernames surface through Identity error codes.
@@ -164,6 +175,22 @@ public class UsersService : IUsersService
                 string.Join("; ", roleResult.Errors.Select(e => e.Description)));
         }
 
+        // Generate the set-password token and email the invite. Email failure
+        // must NOT roll back the user — surface it via UserDto.EmailSent.
+        var emailSent = false;
+        try
+        {
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            await _accountEmail.SendSetPasswordAsync(user.Email!, token);
+            emailSent = true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "Failed to send set-password email to {Email}; user was still created.",
+                user.Email);
+        }
+
         // Re-load Committee name for the response if applicable.
         string? orgUnitName = null;
         if (user.CommitteeId is int ouId)
@@ -183,6 +210,7 @@ public class UsersService : IUsersService
             Role = dto.Role,
             CommitteeId = user.CommitteeId,
             CommitteeName = orgUnitName,
+            EmailSent = emailSent,
         };
     }
 

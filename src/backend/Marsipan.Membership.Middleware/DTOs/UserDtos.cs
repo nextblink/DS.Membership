@@ -14,6 +14,13 @@ public class UserDto
     public string Role { get; set; } = string.Empty;
     public int? CommitteeId { get; set; }
     public string? CommitteeName { get; set; }
+
+    /// <summary>
+    /// True when the "set your password" invite email was sent successfully.
+    /// False means the user exists but the admin should trigger a resend
+    /// (e.g. via forgot-password).
+    /// </summary>
+    public bool EmailSent { get; set; }
 }
 
 /// <summary>
@@ -23,9 +30,6 @@ public class CreateUserDto
 {
     [Required, EmailAddress]
     public string Email { get; set; } = string.Empty;
-
-    [Required]
-    public string Password { get; set; } = string.Empty;
 
     public string? FirstName { get; set; }
 
