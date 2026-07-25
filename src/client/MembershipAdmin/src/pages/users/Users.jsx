@@ -234,9 +234,13 @@ export default function Users() {
         <CreateUserModal
           committeeOptions={committeeOptions}
           onClose={() => setCreateOpen(false)}
-          onCreated={async () => {
+          onCreated={async (data) => {
             setCreateOpen(false)
-            toast.success(t('users:toast.created'))
+            if (data?.emailSent === false) {
+              toast.error(t('users:toast.inviteEmailFailed'))
+            } else {
+              toast.success(t('users:toast.created'))
+            }
             await loadUsers(nameFilter)
           }}
           onError={(msg) => toast.error(msg)}
@@ -305,7 +309,7 @@ function CreateUserModal({ committeeOptions, onClose, onCreated, onError }) {
     watch,
     formState: { errors, isSubmitting },
   } = useForm({
-    defaultValues: { firstName: '', lastName: '', email: '', password: '', role: 'Viewer', committeeId: '' },
+    defaultValues: { firstName: '', lastName: '', email: '', role: 'Viewer', committeeId: '' },
   })
   const role = watch('role')
   const committeeRequired = ROLES_REQUIRING_COMMITTEE.includes(role)
@@ -316,13 +320,12 @@ function CreateUserModal({ committeeOptions, onClose, onCreated, onError }) {
       firstName: values.firstName || null,
       lastName: values.lastName || null,
       email: values.email,
-      password: values.password,
       role: values.role,
       committeeId: values.committeeId ? Number(values.committeeId) : null,
     }
     try {
-      await api.post('/api/users', payload)
-      await onCreated()
+      const res = await api.post('/api/users', payload)
+      await onCreated(res?.data)
     } catch (err) {
       const msgs = extractErrorMessages(err)
       setServerErrors(msgs)
@@ -369,23 +372,6 @@ function CreateUserModal({ committeeOptions, onClose, onCreated, onError }) {
             className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
           />
           {errors.email && <p className="mt-1 text-theme-sm text-error-500">{errors.email.message}</p>}
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="create-password" className="mb-2 block text-theme-sm font-medium text-gray-700 dark:text-gray-300">{t('users:form.password')}</label>
-          <input
-            id="create-password"
-            type="password"
-            autoComplete="new-password"
-            {...register('password', {
-              required: t('users:validation.passwordRequired'),
-              minLength: { value: 6, message: t('users:validation.passwordMinLength') },
-            })}
-            className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 px-3 text-theme-sm text-gray-900 dark:text-white outline-none focus:border-brand-500"
-          />
-          {errors.password && (
-            <p className="mt-1 text-theme-sm text-error-500">{errors.password.message}</p>
-          )}
         </div>
 
         <div className="mb-4">

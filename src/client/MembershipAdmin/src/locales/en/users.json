@@ -57,7 +57,8 @@
   "toast": {
     "created": "User created successfully.",
     "saved": "Changes saved.",
-    "deleted": "User deleted."
+    "deleted": "User deleted.",
+    "inviteEmailFailed": "User created, but sending the invite email failed."
   },
   "modal": {
     "addTitle": "Create User",
