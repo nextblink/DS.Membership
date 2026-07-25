@@ -13,7 +13,10 @@ namespace Marsipan.Membership.Web.Controllers.Admin;
 /// </summary>
 [ApiController]
 [Route("api/members")]
-[Authorize(Policy = "ApiPolicy")]
+// Every role except Operator — Operators are limited to their dashboard, the
+// call queue, and their profile. This preserves existing access for all other
+// roles rather than tightening these endpoints generally.
+[Authorize(Policy = "ApiPolicy", Roles = "SuperAdmin,Admin,LocalAdmin,Viewer")]
 public class MembersController : ControllerBase
 {
     private readonly IMembersService _members;

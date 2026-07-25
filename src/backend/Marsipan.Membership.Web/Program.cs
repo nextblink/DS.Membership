@@ -157,6 +157,7 @@ builder.Services.AddScoped<ICallContactImportService, CallContactImportService>(
 builder.Services.AddScoped<ICallPoolService, CallPoolService>();
 builder.Services.AddScoped<ICallCenterReportService, CallCenterReportService>();
 builder.Services.AddScoped<ICallContactService, CallContactService>();
+builder.Services.AddScoped<IOperatorStatsService, OperatorStatsService>();
 // --- end Campaigns ---
 
 var app = builder.Build();
