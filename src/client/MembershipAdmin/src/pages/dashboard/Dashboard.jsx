@@ -5,6 +5,9 @@ import DashboardCard from './DashboardCard'
 import OrgUnitsTable from './OrgUnitsTable'
 import FormsStatusDonut from './FormsStatusDonut'
 import GenderPie from './GenderPie'
+import auth from '../../framework/auth'
+import { ROLES } from '../../config'
+import OperatorDashboard from './OperatorDashboard'
 
 function computePromille(row) {
   if (row.voterCount > 0) return (row.memberCount / row.voterCount) * 1000
@@ -61,7 +64,7 @@ function ErrorState({ message, onRetry }) {
   )
 }
 
-export default function Dashboard() {
+function AdminDashboard() {
   const { t } = useTranslation(['dashboard', 'common'])
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -165,4 +168,15 @@ export default function Dashboard() {
       </div>
     </div>
   )
+}
+
+/**
+ * Operators get their own view — they are not authorized for
+ * /api/dashboard/stats, so the admin dashboard must never mount for them.
+ * The branch lives in this wrapper (which calls no hooks) rather than as an
+ * early return inside AdminDashboard, which would trip the rules-of-hooks lint.
+ */
+export default function Dashboard() {
+  if (auth.getRole() === ROLES.Operator) return <OperatorDashboard />
+  return <AdminDashboard />
 }

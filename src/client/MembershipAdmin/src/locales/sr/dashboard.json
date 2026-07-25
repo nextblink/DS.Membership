@@ -43,5 +43,22 @@
   },
   "error": {
     "loadFailed": "Учитавање почетне странице није успело"
+  },
+  "operator": {
+    "title": "Мој преглед",
+    "callsToday": "Позива данас",
+    "callsLast7Days": "Позива (7 дана)",
+    "callsTotal": "Укупно позива",
+    "queueTitle": "Напредак у групама",
+    "queueProgress": "{{resolved}} од {{total}} решено",
+    "queueEmpty": "Нема додељених контаката",
+    "outcomeTitle": "Исходи позива",
+    "outcomeEmpty": "Још нема позива",
+    "recentTitle": "Последњи позиви",
+    "recentEmpty": "Још нема позива",
+    "colContact": "Контакт",
+    "colPhone": "Телефон",
+    "colWhen": "Време",
+    "colOutcome": "Исход"
   }
 }

@@ -43,5 +43,22 @@
   },
   "error": {
     "loadFailed": "Failed to load dashboard"
+  },
+  "operator": {
+    "title": "My overview",
+    "callsToday": "Calls today",
+    "callsLast7Days": "Calls (7 days)",
+    "callsTotal": "Calls total",
+    "queueTitle": "Queue progress",
+    "queueProgress": "{{resolved}} of {{total}} resolved",
+    "queueEmpty": "No contacts assigned",
+    "outcomeTitle": "Call outcomes",
+    "outcomeEmpty": "No calls yet",
+    "recentTitle": "Recent calls",
+    "recentEmpty": "No calls yet",
+    "colContact": "Contact",
+    "colPhone": "Phone",
+    "colWhen": "When",
+    "colOutcome": "Outcome"
   }
 }
