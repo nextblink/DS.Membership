@@ -16,6 +16,8 @@ import {
 } from '../config'
 
 import Login from '../pages/login/Login'
+import ForgotPassword from '../pages/auth/ForgotPassword'
+import ResetPassword from '../pages/auth/ResetPassword'
 import MobileUpload from '../pages/upload/MobileUpload'
 import Dashboard from '../pages/dashboard/Dashboard'
 import MembersList from '../pages/members/MembersList'
@@ -47,6 +49,8 @@ export default function AppRouter() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       <Route
         element={

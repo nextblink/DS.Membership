@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import auth from '../../framework/auth'
 import { version } from '../../../package.json'
@@ -533,6 +533,10 @@ export default function Login() {
                 {...register('password', { required: t('password.required') })}
               />
               {errors.password && <p className="lp-field-err">{errors.password.message}</p>}
+            </div>
+
+            <div className="lp-forgot" style={{ marginTop: 8, textAlign: 'right' }}>
+              <Link to="/forgot-password">{t('forgotLink')}</Link>
             </div>
 
             {submitError && (
