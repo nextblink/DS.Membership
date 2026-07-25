@@ -21,6 +21,11 @@ public class OperatorStatsService : IOperatorStatsService
     public async Task<OperatorStatsDto> GetMyStatsAsync(CancellationToken ct)
     {
         var userId = _user.Id;
+        // Short-circuit: with no user id every query below would filter to zero
+        // rows anyway, so this saves the round-trips rather than changing the
+        // result. Deliberately untested — guarded and unguarded paths return
+        // the same empty stats, so any behavioural test would pass with this
+        // line removed.
         if (string.IsNullOrEmpty(userId))
             return new OperatorStatsDto();
 
