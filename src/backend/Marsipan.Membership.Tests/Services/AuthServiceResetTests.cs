@@ -77,10 +77,11 @@ public class AuthServiceResetTests
         var token = await um.GeneratePasswordResetTokenAsync(user);
         var auth = BuildAuth(db, um, new RecordingReset());
 
-        var (ok, error) = await auth.ResetPasswordAsync("u@example.com", token, "NewPass1");
+        var (ok, error, failure) = await auth.ResetPasswordAsync("u@example.com", token, "NewPass1");
 
         Assert.True(ok, error);
         Assert.Null(error);
+        Assert.Equal(ResetPasswordFailure.None, failure);
         Assert.True(await um.CheckPasswordAsync(
             (await um.FindByEmailAsync("u@example.com"))!, "NewPass1"));
     }
@@ -94,10 +95,11 @@ public class AuthServiceResetTests
         await um.CreateAsync(user, "OldPass1");
         var auth = BuildAuth(db, um, new RecordingReset());
 
-        var (ok, error) = await auth.ResetPasswordAsync("b@example.com", "not-a-real-token", "NewPass1");
+        var (ok, error, failure) = await auth.ResetPasswordAsync("b@example.com", "not-a-real-token", "NewPass1");
 
         Assert.False(ok);
         Assert.NotNull(error);
+        Assert.Equal(ResetPasswordFailure.InvalidLink, failure);
     }
 
     [Fact]
@@ -114,16 +116,37 @@ public class AuthServiceResetTests
         var inviteToken = await um.GeneratePasswordResetTokenAsync(user);
         var auth = BuildAuth(db, um, new RecordingReset());
 
-        var (firstOk, firstError) = await auth.ResetPasswordAsync("invitee@example.com", inviteToken, "ChosenPass1");
-        var (secondOk, secondError) = await auth.ResetPasswordAsync("invitee@example.com", inviteToken, "Hijacked1");
+        var (firstOk, firstError, _) = await auth.ResetPasswordAsync("invitee@example.com", inviteToken, "ChosenPass1");
+        var (secondOk, secondError, secondFailure) = await auth.ResetPasswordAsync("invitee@example.com", inviteToken, "Hijacked1");
 
         Assert.True(firstOk, firstError);
         Assert.False(secondOk);
         Assert.NotNull(secondError);
+        Assert.Equal(ResetPasswordFailure.InvalidLink, secondFailure);
 
         var stored = (await um.FindByEmailAsync("invitee@example.com"))!;
         Assert.True(await um.CheckPasswordAsync(stored, "ChosenPass1"));
         Assert.False(await um.CheckPasswordAsync(stored, "Hijacked1"));
+    }
+
+    [Fact]
+    public async Task ResetPasswordAsync_WeakPassword_ReportsPasswordPolicy_NotInvalidLink()
+    {
+        // A valid link plus a bad password must NOT look like a dead link — the
+        // SPA keeps the form up for this case so the user can pick another one.
+        await using var db = NewDb(nameof(ResetPasswordAsync_WeakPassword_ReportsPasswordPolicy_NotInvalidLink));
+        var um = BuildUserManager(db);
+        var user = new ApplicationUser { UserName = "w@example.com", Email = "w@example.com" };
+        await um.CreateAsync(user, "OldPass1");
+        var token = await um.GeneratePasswordResetTokenAsync(user);
+        var auth = BuildAuth(db, um, new RecordingReset());
+
+        // Too short and no digit — violates the app's policy, token is fine.
+        var (ok, error, failure) = await auth.ResetPasswordAsync("w@example.com", token, "short");
+
+        Assert.False(ok);
+        Assert.NotNull(error);
+        Assert.Equal(ResetPasswordFailure.PasswordPolicy, failure);
     }
 
     [Fact]
@@ -135,11 +158,13 @@ public class AuthServiceResetTests
         await um.CreateAsync(user, "OldPass1");
         var auth = BuildAuth(db, um, new RecordingReset());
 
-        var (unknownOk, unknownError) = await auth.ResetPasswordAsync("nobody@example.com", "whatever-token", "NewPass1");
-        var (badTokenOk, badTokenError) = await auth.ResetPasswordAsync("c@example.com", "not-a-real-token", "NewPass1");
+        var (unknownOk, unknownError, unknownFailure) = await auth.ResetPasswordAsync("nobody@example.com", "whatever-token", "NewPass1");
+        var (badTokenOk, badTokenError, badTokenFailure) = await auth.ResetPasswordAsync("c@example.com", "not-a-real-token", "NewPass1");
 
         Assert.False(unknownOk);
         Assert.False(badTokenOk);
         Assert.Equal(unknownError, badTokenError);
+        Assert.Equal(unknownFailure, badTokenFailure);
+        Assert.Equal(ResetPasswordFailure.InvalidLink, unknownFailure);
     }
 }

@@ -78,10 +78,14 @@ public class AuthController : ControllerBase
         if (!ModelState.IsValid)
             return ValidationProblem(ModelState);
 
-        var (ok, error) = await _authService.ResetPasswordAsync(
+        var (ok, error, failure) = await _authService.ResetPasswordAsync(
             request.Email, request.Token, request.NewPassword);
         if (!ok)
-            return BadRequest(new { error });
+        {
+            // `code` lets the SPA localize the message and decide whether the
+            // form is still worth showing; `error` stays for diagnostics.
+            return BadRequest(new { error, code = failure.ToString() });
+        }
 
         return Ok();
     }

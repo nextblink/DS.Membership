@@ -18,6 +18,9 @@ export default function ResetPassword() {
   })
   const [serverError, setServerError] = useState(null)
   const [success, setSuccess] = useState(false)
+  // A link with no email/token can never work, so don't put a form in front of
+  // it — the server tells us the same thing via code === 'InvalidLink'.
+  const [linkInvalid, setLinkInvalid] = useState(!email || !token)
 
   const onSubmit = async ({ password, confirm }) => {
     setServerError(null)
@@ -30,8 +33,13 @@ export default function ResetPassword() {
       setSuccess(true)
       setTimeout(() => navigate('/login'), 1500)
     } catch (err) {
-      const msg = err?.response?.data?.error || err?.response?.data?.title || t('reset.invalidLink')
-      setServerError(msg)
+      // The API answers with a stable code so we can localize here instead of
+      // echoing its (English) message.
+      if (err?.response?.data?.code === 'InvalidLink') {
+        setLinkInvalid(true)
+        return
+      }
+      setServerError(t('reset.policy'))
     }
   }
 
@@ -41,8 +49,25 @@ export default function ResetPassword() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-900">
       <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow dark:bg-gray-800">
-        <h1 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">{title}</h1>
-        {success ? (
+        <h1 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+          {linkInvalid ? t('reset.invalidTitle') : title}
+        </h1>
+        {linkInvalid ? (
+          <>
+            <p className="mb-6 text-sm text-gray-600 dark:text-gray-300">{t('reset.invalidLink')}</p>
+            <Link
+              to="/forgot-password"
+              className="block w-full rounded-lg bg-brand-500 px-4 py-2 text-center text-sm font-medium text-white hover:bg-brand-600"
+            >
+              {t('reset.requestNewLink')}
+            </Link>
+            <div className="mt-4 text-center">
+              <Link to="/login" className="text-sm text-brand-500 hover:underline">
+                {t('forgot.backToLogin')}
+              </Link>
+            </div>
+          </>
+        ) : success ? (
           <p className="text-sm text-green-600">{t('reset.success')}</p>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -59,6 +84,9 @@ export default function ResetPassword() {
               {...register('password', {
                 required: t('reset.passwordLabel'),
                 minLength: { value: 8, message: t('reset.minLength') },
+                // Mirrors Identity's RequireDigit so the rule is enforced in
+                // Serbian here rather than coming back as an English server error.
+                pattern: { value: /\d/, message: t('reset.needsDigit') },
               })}
             />
             {errors.password && <p className="mb-2 text-xs text-red-500">{errors.password.message}</p>}

@@ -38,8 +38,31 @@ public interface IAuthService
 
     /// <summary>
     /// Applies a new password using an Identity reset token. Returns
-    /// <c>(true, null)</c> on success or <c>(false, error)</c> on an invalid /
-    /// expired token or a password-policy failure.
+    /// <c>Ok</c> on success, otherwise an <see cref="ResetPasswordFailure"/>
+    /// describing why so callers can react without parsing the message.
     /// </summary>
-    Task<(bool Ok, string? Error)> ResetPasswordAsync(string email, string token, string newPassword);
+    Task<(bool Ok, string? Error, ResetPasswordFailure Failure)> ResetPasswordAsync(
+        string email, string token, string newPassword);
+}
+
+/// <summary>
+/// Why a password reset was refused. Surfaced to the SPA as a stable code so
+/// it can localize the message itself rather than echoing the server string —
+/// and tell a dead link (stop showing the form) apart from a weak password
+/// (keep the form, let the user retry).
+/// </summary>
+public enum ResetPasswordFailure
+{
+    /// <summary>The reset succeeded.</summary>
+    None = 0,
+
+    /// <summary>
+    /// The link cannot be used: unknown address, or a token that is malformed,
+    /// expired, or already spent. Deliberately one value for all of these so
+    /// the response never reveals whether the account exists.
+    /// </summary>
+    InvalidLink,
+
+    /// <summary>The link was valid but the chosen password was rejected.</summary>
+    PasswordPolicy,
 }
