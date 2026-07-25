@@ -101,6 +101,32 @@ public class AuthServiceResetTests
     }
 
     [Fact]
+    public async Task ResetPasswordAsync_TokenIsSingleUse_SecondUseRejectedAndPasswordUnchanged()
+    {
+        // Covers the invite ("set your password") link as well as forgot-password:
+        // both hand out the same Identity password-reset token. A successful reset
+        // rotates the user's security stamp, which must invalidate the emailed link
+        // so it cannot be replayed to take over the account later.
+        await using var db = NewDb(nameof(ResetPasswordAsync_TokenIsSingleUse_SecondUseRejectedAndPasswordUnchanged));
+        var um = BuildUserManager(db);
+        var user = new ApplicationUser { UserName = "invitee@example.com", Email = "invitee@example.com" };
+        await um.CreateAsync(user, "Throwaway1");
+        var inviteToken = await um.GeneratePasswordResetTokenAsync(user);
+        var auth = BuildAuth(db, um, new RecordingReset());
+
+        var (firstOk, firstError) = await auth.ResetPasswordAsync("invitee@example.com", inviteToken, "ChosenPass1");
+        var (secondOk, secondError) = await auth.ResetPasswordAsync("invitee@example.com", inviteToken, "Hijacked1");
+
+        Assert.True(firstOk, firstError);
+        Assert.False(secondOk);
+        Assert.NotNull(secondError);
+
+        var stored = (await um.FindByEmailAsync("invitee@example.com"))!;
+        Assert.True(await um.CheckPasswordAsync(stored, "ChosenPass1"));
+        Assert.False(await um.CheckPasswordAsync(stored, "Hijacked1"));
+    }
+
+    [Fact]
     public async Task ResetPasswordAsync_UnknownEmailAndBadTokenForExistingUser_ReturnSameError()
     {
         await using var db = NewDb(nameof(ResetPasswordAsync_UnknownEmailAndBadTokenForExistingUser_ReturnSameError));
