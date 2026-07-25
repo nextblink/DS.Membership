@@ -54,7 +54,7 @@ public class OperatorStatsService : IOperatorStatsService
             {
                 CallContactId = a.CallContactId,
                 ContactName = (a.CallContact.FirstName + " " + a.CallContact.LastName).Trim(),
-                PhoneNumber = a.CallContact.PhoneNumber,
+                PhoneNumber = a.CallContact.PhoneNumber ?? string.Empty,
                 CalledAt = a.CalledAt,
                 Outcome = a.Outcome,
             })

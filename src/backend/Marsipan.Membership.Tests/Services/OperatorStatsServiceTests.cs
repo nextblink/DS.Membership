@@ -169,4 +169,26 @@ public class OperatorStatsServiceTests
         Assert.Equal("060D", stats.RecentCalls[0].PhoneNumber);
         Assert.Equal(contact.Id, stats.RecentCalls[0].CallContactId);
     }
+
+    [Fact]
+    public async Task GetMyStatsAsync_NoUserId_ReturnsEmptyStats()
+    {
+        await using var db = NewDb(nameof(GetMyStatsAsync_NoUserId_ReturnsEmptyStats));
+        var contact = await SeedPooledContactAsync(db, Me, "E");
+        AddAttempt(db, contact.Id, Me, CallOutcome.ValidContact, DateTime.UtcNow);
+        await db.SaveChangesAsync();
+
+        var service = new OperatorStatsService(
+            db, new StatsUser { Id = null, Role = ScopeFilters.RoleOperator, IsAuthenticated = false });
+
+        var stats = await service.GetMyStatsAsync(CancellationToken.None);
+
+        Assert.Equal(0, stats.CallsTotal);
+        Assert.Equal(0, stats.CallsToday);
+        Assert.Equal(0, stats.CallsLast7Days);
+        Assert.Equal(0, stats.QueueTotal);
+        Assert.Equal(0, stats.QueueResolved);
+        Assert.Empty(stats.OutcomeBreakdown);
+        Assert.Empty(stats.RecentCalls);
+    }
 }
