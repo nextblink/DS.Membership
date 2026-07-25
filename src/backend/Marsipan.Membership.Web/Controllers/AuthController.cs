@@ -51,6 +51,42 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Request a password-reset link. Always returns 200 to avoid revealing
+    /// whether an account exists.
+    /// </summary>
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto request)
+    {
+        if (ModelState.IsValid)
+            await _authService.SendPasswordResetAsync(request.Email);
+
+        // Neutral response regardless of validity/existence.
+        return Ok();
+    }
+
+    /// <summary>
+    /// Set a new password using an emailed reset token.
+    /// </summary>
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request)
+    {
+        if (!ModelState.IsValid)
+            return ValidationProblem(ModelState);
+
+        var (ok, error) = await _authService.ResetPasswordAsync(
+            request.Email, request.Token, request.NewPassword);
+        if (!ok)
+            return BadRequest(new { error });
+
+        return Ok();
+    }
+
+    /// <summary>
     /// Return the current authenticated user shape derived from the JWT.
     /// </summary>
     [HttpGet("me")]

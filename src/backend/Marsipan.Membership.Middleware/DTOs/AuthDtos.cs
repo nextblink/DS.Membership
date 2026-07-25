@@ -34,3 +34,23 @@ public class LoginResultDto
     public string Token { get; set; } = string.Empty;
     public CurrentUserDto User { get; set; } = new();
 }
+
+/// <summary>Request body for <c>POST /api/auth/forgot-password</c>.</summary>
+public class ForgotPasswordRequestDto
+{
+    [Required, EmailAddress]
+    public string Email { get; set; } = string.Empty;
+}
+
+/// <summary>Request body for <c>POST /api/auth/reset-password</c>.</summary>
+public class ResetPasswordRequestDto
+{
+    [Required, EmailAddress]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    public string Token { get; set; } = string.Empty;
+
+    [Required]
+    public string NewPassword { get; set; } = string.Empty;
+}

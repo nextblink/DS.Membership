@@ -4,6 +4,7 @@ using System.Text;
 using Marsipan.Membership.Middleware.DTOs;
 using Marsipan.Membership.Middleware.Entities;
 using Marsipan.Membership.Middleware.Options;
+using Marsipan.Membership.Middleware.Services.Email;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -21,15 +22,18 @@ public class AuthService : IAuthService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly JwtOptions _jwtOptions;
+    private readonly IAccountEmailService _accountEmail;
 
     public AuthService(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IOptions<JwtOptions> jwtOptions)
+        IOptions<JwtOptions> jwtOptions,
+        IAccountEmailService accountEmail)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _jwtOptions = jwtOptions.Value;
+        _accountEmail = accountEmail;
     }
 
     public async Task<LoginResultDto?> LoginAsync(string email, string password)
@@ -58,6 +62,29 @@ public class AuthService : IAuthService
                 CommitteeId = user.CommitteeId,
             },
         };
+    }
+
+    public async Task SendPasswordResetAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user is null)
+            return; // No enumeration: silently succeed.
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        await _accountEmail.SendResetPasswordAsync(user.Email!, token);
+    }
+
+    public async Task<(bool Ok, string? Error)> ResetPasswordAsync(string email, string token, string newPassword)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user is null)
+            return (false, "Invalid or expired reset link.");
+
+        var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+        if (result.Succeeded)
+            return (true, null);
+
+        return (false, string.Join("; ", result.Errors.Select(e => e.Description)));
     }
 
     public Task<CurrentUserDto?> GetCurrentAsync(ClaimsPrincipal user)

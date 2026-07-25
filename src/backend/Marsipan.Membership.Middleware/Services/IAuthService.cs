@@ -29,4 +29,17 @@ public interface IAuthService
     /// <c>jti</c>, <c>iat</c>, <c>exp</c>.
     /// </summary>
     string GenerateToken(ApplicationUser user, string role);
+
+    /// <summary>
+    /// Emails a password-reset link if the address matches a user. Always
+    /// completes successfully (no user enumeration) — a missing user is a no-op.
+    /// </summary>
+    Task SendPasswordResetAsync(string email);
+
+    /// <summary>
+    /// Applies a new password using an Identity reset token. Returns
+    /// <c>(true, null)</c> on success or <c>(false, error)</c> on an invalid /
+    /// expired token or a password-policy failure.
+    /// </summary>
+    Task<(bool Ok, string? Error)> ResetPasswordAsync(string email, string token, string newPassword);
 }
