@@ -99,4 +99,21 @@ public class AuthServiceResetTests
         Assert.False(ok);
         Assert.NotNull(error);
     }
+
+    [Fact]
+    public async Task ResetPasswordAsync_UnknownEmailAndBadTokenForExistingUser_ReturnSameError()
+    {
+        await using var db = NewDb(nameof(ResetPasswordAsync_UnknownEmailAndBadTokenForExistingUser_ReturnSameError));
+        var um = BuildUserManager(db);
+        var user = new ApplicationUser { UserName = "c@example.com", Email = "c@example.com" };
+        await um.CreateAsync(user, "OldPass1");
+        var auth = BuildAuth(db, um, new RecordingReset());
+
+        var (unknownOk, unknownError) = await auth.ResetPasswordAsync("nobody@example.com", "whatever-token", "NewPass1");
+        var (badTokenOk, badTokenError) = await auth.ResetPasswordAsync("c@example.com", "not-a-real-token", "NewPass1");
+
+        Assert.False(unknownOk);
+        Assert.False(badTokenOk);
+        Assert.Equal(unknownError, badTokenError);
+    }
 }

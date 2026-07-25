@@ -74,15 +74,25 @@ public class AuthService : IAuthService
         await _accountEmail.SendResetPasswordAsync(user.Email!, token);
     }
 
+    private const string GenericResetError = "Invalid or expired reset link.";
+
     public async Task<(bool Ok, string? Error)> ResetPasswordAsync(string email, string token, string newPassword)
     {
         var user = await _userManager.FindByEmailAsync(email);
         if (user is null)
-            return (false, "Invalid or expired reset link.");
+            return (false, GenericResetError);
 
         var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
         if (result.Succeeded)
             return (true, null);
+
+        // No enumeration: an invalid/expired token must look identical to an
+        // unknown email, otherwise an attacker can tell real accounts apart
+        // from non-existent ones by comparing the two error messages. Only
+        // surface Identity's detailed descriptions for genuine password-policy
+        // failures, where the user and token are already proven valid.
+        if (result.Errors.Any(e => e.Code == "InvalidToken"))
+            return (false, GenericResetError);
 
         return (false, string.Join("; ", result.Errors.Select(e => e.Description)));
     }
