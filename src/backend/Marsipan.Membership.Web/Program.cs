@@ -3,6 +3,7 @@ using Marsipan.Membership.Middleware.Data;
 using Marsipan.Membership.Middleware.Entities;
 using Marsipan.Membership.Middleware.Options;
 using Marsipan.Membership.Middleware.Services;
+using Marsipan.Membership.Middleware.Services.Email;
 using Marsipan.Membership.Web.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -72,6 +73,18 @@ builder.Services.Configure<AnthropicOptions>(
     builder.Configuration.GetSection("Anthropic"));
 builder.Services.AddHttpClient<IFormExtractionService, FormExtractionService>();
 // --- end Form AI extraction ---
+
+// --- Email ---
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+builder.Services.AddScoped<IEmailSender>(sp =>
+{
+    var opts = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<EmailOptions>>();
+    return string.Equals(opts.Value.DeliveryMethod, "Smtp", StringComparison.OrdinalIgnoreCase)
+        ? new SmtpEmailSender(opts)
+        : new DirectoryEmailSender(opts);
+});
+builder.Services.AddScoped<IAccountEmailService, AccountEmailService>();
+// --- end Email ---
 
 // --- Forms (issue #12) ---
 builder.Services.AddScoped<IFormsService, FormsService>();
