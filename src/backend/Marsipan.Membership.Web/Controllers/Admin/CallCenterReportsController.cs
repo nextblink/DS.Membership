@@ -17,4 +17,11 @@ public class CallCenterReportsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<CallCenterReportDto>> Get([FromQuery] CallCenterReportQuery query, CancellationToken ct)
         => Ok(await _reports.GetReportAsync(query, ct));
+
+    [HttpGet("export")]
+    public async Task<IActionResult> Export([FromQuery] CallCenterReportQuery query, CancellationToken ct)
+    {
+        var csv = await _reports.ExportCsvAsync(query, ct);
+        return File(CallCenterCsv.ToBytes(csv), "text/csv; charset=utf-8", "izvestaj-kol-centar.csv");
+    }
 }

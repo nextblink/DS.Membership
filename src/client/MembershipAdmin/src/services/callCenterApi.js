@@ -11,6 +11,8 @@ const callCenterApi = {
 
   // Contacts
   listContacts: (params) => api.get('/api/call-contacts', { params }).then(r => r.data),
+  // Returns a Blob (CSV of every row matching `params`, not just the current page).
+  exportContacts: (params) => api.get('/api/call-contacts/export', { params, responseType: 'blob' }).then(r => r.data),
   myPools: () => api.get('/api/call-contacts/my-pools').then(r => r.data),
   getContact: (id) => api.get(`/api/call-contacts/${id}`).then(r => r.data),
   getNext: () => api.get('/api/call-contacts/next').then(r => r.status === 204 ? null : r.data),
@@ -57,6 +59,9 @@ const callCenterApi = {
 
   // Reports
   getReport: (params) => api.get('/api/call-center/reports', { params }).then(r => r.data),
+  // Returns a Blob — the CSV is built server-side so it carries every suggestion, not just
+  // the capped list the page renders.
+  exportReport: (params) => api.get('/api/call-center/reports/export', { params, responseType: 'blob' }).then(r => r.data),
 
   // Municipalities (for filter dropdowns)
   listMunicipalities: () => api.get('/api/municipalities').then(r => r.data),

@@ -1,3 +1,4 @@
+using System.Text;
 using Marsipan.Membership.Middleware.Data;
 using Marsipan.Membership.Middleware.DTOs;
 using Marsipan.Membership.Middleware.Enums;
@@ -7,6 +8,10 @@ namespace Marsipan.Membership.Middleware.Services;
 
 public class CallCenterReportService : ICallCenterReportService
 {
+    // Upper bound on suggestion rows returned in one report payload; the total is reported
+    // separately so the UI can show how many were left out.
+    private const int SuggestionsCap = 500;
+
     private readonly ApplicationContext _db;
     private readonly ICurrentUserContext _user;
 
@@ -16,13 +21,21 @@ public class CallCenterReportService : ICallCenterReportService
         _user = user;
     }
 
-    public async Task<CallCenterReportDto> GetReportAsync(CallCenterReportQuery query, CancellationToken ct = default)
+    // Scope + filters, shared by the report itself and its CSV export so the file can never
+    // describe a different population than the screen it was launched from.
+    private IQueryable<Entities.CallContact> BuildScopedQuery(CallCenterReportQuery query)
     {
         var q = _db.CallContacts.ApplyCallContactScope(_user);
         if (query.CampaignId is not null) q = q.Where(c => c.CampaignId == query.CampaignId);
         if (query.PoolId is not null) q = q.Where(c => c.PoolId == query.PoolId);
         if (query.FromDate is not null) q = q.Where(c => c.LastCalledAt >= query.FromDate);
         if (query.ToDate is not null) q = q.Where(c => c.LastCalledAt < query.ToDate.Value.AddDays(1));
+        return q;
+    }
+
+    public async Task<CallCenterReportDto> GetReportAsync(CallCenterReportQuery query, CancellationToken ct = default)
+    {
+        var q = BuildScopedQuery(query);
 
         var contacted = await q.CountAsync(c => c.LastOutcome == CallOutcome.ValidContact, ct);
         var invalid = await q.CountAsync(c =>
@@ -36,26 +49,77 @@ public class CallCenterReportService : ICallCenterReportService
         var areaCounts = await _db.ContactEngagementAreas
             .Where(e => q.Any(c => c.Id == e.CallContactId))
             .GroupBy(e => e.Area)
-            .Select(g => new EngagementAreaCountDto(g.Key.ToString(), g.Count()))
+            .Select(g => new EngagementAreaCountDto(g.Key, g.Count()))
             .ToListAsync(ct);
 
-        // Materialize the grouped counts first, then order/take in memory: EF Core cannot
-        // translate OrderBy/Take chained directly after a GroupBy->Select into a constructed
-        // record type (positional record member access on the aggregate isn't recognized by
-        // the SQL translator on either SqlServer or InMemory providers).
-        var suggestionCounts = await q
-            .Where(c => c.SuggestionNote != null && c.SuggestionNote != "")
-            .GroupBy(c => c.SuggestionNote!)
-            .Select(g => new SuggestionCountDto(g.Key, g.Count()))
+        // Suggestions are listed, not tallied — see SuggestionItemDto.
+        var withSuggestions = q.Where(c => c.SuggestionNote != null && c.SuggestionNote != "");
+        var suggestionsTotal = await withSuggestions.CountAsync(ct);
+        var suggestions = await withSuggestions
+            .OrderByDescending(c => c.LastCalledAt)
+            .ThenByDescending(c => c.Id)
+            .Take(SuggestionsCap)
+            .Select(c => new SuggestionItemDto(
+                c.Id,
+                c.FirstName + " " + c.LastName,
+                c.Municipality != null ? c.Municipality.Name : c.City,
+                c.LastCalledAt,
+                c.SuggestionNote!))
             .ToListAsync(ct);
-
-        var suggestions = suggestionCounts
-            .OrderByDescending(s => s.Count)
-            .Take(20)
-            .ToList();
 
         return new CallCenterReportDto(
             contacted, invalid, active, inactive, symp, noCoop, interested,
-            areaCounts, suggestions);
+            areaCounts, suggestions, suggestionsTotal);
     }
+
+    public async Task<string> ExportCsvAsync(CallCenterReportQuery query, CancellationToken ct = default)
+    {
+        var report = await GetReportAsync(query, ct);
+        var sb = new StringBuilder();
+
+        CallCenterCsv.AppendRow(sb, "Метрика", "Вредност");
+        CallCenterCsv.AppendRow(sb, "Контактирано", report.Contacted.ToString());
+        CallCenterCsv.AppendRow(sb, "Неисправни контакти", report.InvalidContacts.ToString());
+        CallCenterCsv.AppendRow(sb, "Активни чланови", report.ActiveMembers.ToString());
+        CallCenterCsv.AppendRow(sb, "Неактивни чланови", report.InactiveMembers.ToString());
+        CallCenterCsv.AppendRow(sb, "Симпатизери", report.Sympathizers.ToString());
+        CallCenterCsv.AppendRow(sb, "Без сарадње", report.NoCooperation.ToString());
+        CallCenterCsv.AppendRow(sb, "Заинтересовани за активирање", report.InterestedInActivating.ToString());
+
+        sb.AppendLine();
+        CallCenterCsv.AppendRow(sb, "Област ангажовања", "Број");
+        foreach (var a in report.EngagementAreaCounts)
+        {
+            CallCenterCsv.AppendRow(sb, CallCenterCsv.AreaLabels[a.Area], a.Count.ToString());
+        }
+
+        // Free text, so it gets its own four-column block rather than the metric/value shape.
+        // Exports the full set, not the capped list the UI renders.
+        var suggestions = await GetAllSuggestionsAsync(query, ct);
+        sb.AppendLine();
+        CallCenterCsv.AppendRow(sb, "Датум", "Особа", "Општина", "Сугестија");
+        foreach (var s in suggestions)
+        {
+            CallCenterCsv.AppendRow(sb,
+                s.CalledAt?.ToString("yyyy-MM-dd HH:mm"),
+                s.ContactName,
+                s.MunicipalityName,
+                s.Suggestion);
+        }
+
+        return sb.ToString();
+    }
+
+    private async Task<List<SuggestionItemDto>> GetAllSuggestionsAsync(CallCenterReportQuery query, CancellationToken ct)
+        => await BuildScopedQuery(query)
+            .Where(c => c.SuggestionNote != null && c.SuggestionNote != "")
+            .OrderByDescending(c => c.LastCalledAt)
+            .ThenByDescending(c => c.Id)
+            .Select(c => new SuggestionItemDto(
+                c.Id,
+                c.FirstName + " " + c.LastName,
+                c.Municipality != null ? c.Municipality.Name : c.City,
+                c.LastCalledAt,
+                c.SuggestionNote!))
+            .ToListAsync(ct);
 }

@@ -20,6 +20,10 @@ public class EmailOptions
     public string FromAddress { get; set; } = "no-reply@marcipano.local";
     public string FromName { get; set; } = "Marcipano";
 
-    /// <summary>Base URL of the admin SPA; used to build email links.</summary>
-    public string FrontendBaseUrl { get; set; } = "http://localhost:5185";
+    /// <summary>
+    /// Base URL the admin SPA is reached at; used to build email links. The client is
+    /// published into this API's wwwroot, so this is the API's own public URL — override
+    /// it per environment (Email__FrontendBaseUrl) with the real host in production.
+    /// </summary>
+    public string FrontendBaseUrl { get; set; } = "https://localhost:7231";
 }

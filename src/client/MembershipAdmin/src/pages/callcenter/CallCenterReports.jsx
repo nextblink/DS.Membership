@@ -4,10 +4,22 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import callCenterApi from '../../services/callCenterApi'
+import { ENGAGEMENT_AREA, toEnumKey } from '../../services/callScript'
+import { formatDateTime } from '../../services/dateUtils'
 
 const inputClass =
   'w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-theme-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500'
 const labelClass = 'block text-[11px] font-medium text-gray-700 dark:text-gray-300 mb-1'
+
+// Shared by the report query and its export so the downloaded file always matches the screen.
+function queryParams(filters) {
+  const params = {}
+  if (filters.campaignId) params.campaignId = filters.campaignId
+  if (filters.poolId) params.poolId = filters.poolId
+  if (filters.fromDate) params.fromDate = filters.fromDate
+  if (filters.toDate) params.toDate = filters.toDate
+  return params
+}
 
 // CallCenterReportDto field names (camelCase JSON; JsonStringEnumConverter doesn't apply
 // here since these are plain ints). Label keys resolve against callcenter:reports.cards.
@@ -22,11 +34,13 @@ const CARD_KEYS = [
 ]
 
 export default function CallCenterReports() {
-  const { t } = useTranslation(['callcenter', 'common'])
+  const { t } = useTranslation(['callcenter', 'common', 'enums'])
   const [campaigns, setCampaigns] = useState([])
-  const [filters, setFilters] = useState({ campaignId: '', fromDate: '', toDate: '' })
+  const [pools, setPools] = useState([])
+  const [filters, setFilters] = useState({ campaignId: '', poolId: '', fromDate: '', toDate: '' })
   const [report, setReport] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const [error, setError] = useState(null)
 
   const CARDS = CARD_KEYS.map(([labelKey, key]) => [t(`callcenter:reports.cards.${labelKey}`), key])
@@ -38,14 +52,19 @@ export default function CallCenterReports() {
       .catch(() => setCampaigns([]))
   }, [])
 
+  // Pools belong to a campaign, so the list reloads whenever the campaign changes.
+  useEffect(() => {
+    callCenterApi
+      .listPools(filters.campaignId || undefined)
+      .then((d) => setPools(Array.isArray(d) ? d : d?.items ?? []))
+      .catch(() => setPools([]))
+  }, [filters.campaignId])
+
   useEffect(() => {
     let cancelled = false
     setLoading(true)
     setError(null)
-    const params = {}
-    if (filters.campaignId) params.campaignId = filters.campaignId
-    if (filters.fromDate) params.fromDate = filters.fromDate
-    if (filters.toDate) params.toDate = filters.toDate
+    const params = queryParams(filters)
 
     callCenterApi
       .getReport(params)
@@ -65,29 +84,41 @@ export default function CallCenterReports() {
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.campaignId, filters.fromDate, filters.toDate])
+  }, [filters.campaignId, filters.poolId, filters.fromDate, filters.toDate])
 
-  const set = (k) => (e) => setFilters((f) => ({ ...f, [k]: e.target.value }))
+  const set = (k) => (e) =>
+    setFilters((f) => ({
+      ...f,
+      [k]: e.target.value,
+      // A pool belongs to one campaign, so a stale pool id would silently zero out the report.
+      ...(k === 'campaignId' ? { poolId: '' } : null),
+    }))
 
-  const exportCsv = () => {
-    if (!report) return
-    const lines = [[t('callcenter:reports.csv.metric'), t('callcenter:reports.csv.value')]]
-    CARDS.forEach(([label, key]) => lines.push([label, report[key]]))
-    ;(report.engagementAreaCounts ?? []).forEach((a) =>
-      lines.push([`${t('callcenter:reports.csv.engagementPrefix')}: ${a.area}`, a.count])
-    )
-    ;(report.topSuggestions ?? []).forEach((s) =>
-      lines.push([`${t('callcenter:reports.csv.suggestionPrefix')}: ${s.suggestion}`, s.count])
-    )
-    const csv = lines.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n')
-    // Prefix with BOM so Excel opens Cyrillic UTF-8 content correctly.
-    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'izvestaj-kol-centar.csv'
-    a.click()
-    URL.revokeObjectURL(url)
+  // The API sends the area as its enum member name ("MunicipalBoard"), same as everywhere
+  // else in the client — translate it through enums.json rather than showing the raw name.
+  const areaLabel = (value) => {
+    if (value === null || value === undefined || value === '') return '-'
+    return value in ENGAGEMENT_AREA ? t(`enums:engagementArea.${toEnumKey(value)}`, value) : String(value)
+  }
+
+  // Built server-side: the file then carries every suggestion behind the current filters,
+  // not just the capped list this page renders.
+  const exportCsv = async () => {
+    setExporting(true)
+    setError(null)
+    try {
+      const blob = await callCenterApi.exportReport(queryParams(filters))
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'izvestaj-kol-centar.csv'
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      setError(t('callcenter:reports.exportFailed'))
+    } finally {
+      setExporting(false)
+    }
   }
 
   return (
@@ -97,17 +128,17 @@ export default function CallCenterReports() {
         <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('callcenter:reports.title')}</h1>
         <button
           type="button"
-          disabled={!report}
+          disabled={!report || exporting}
           onClick={exportCsv}
           className="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-theme-xs font-medium text-gray-700 dark:text-gray-300 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
         >
-          {t('callcenter:reports.exportCsv')}
+          {exporting ? t('callcenter:reports.exporting') : t('callcenter:reports.exportCsv')}
         </button>
       </div>
 
       {/* Filter bar */}
       <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-4">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div>
             <label className={labelClass}>{t('callcenter:reports.campaign')}</label>
             <select className={inputClass} value={filters.campaignId} onChange={set('campaignId')}>
@@ -115,6 +146,17 @@ export default function CallCenterReports() {
               {campaigns.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelClass}>{t('callcenter:reports.pool')}</label>
+            <select className={inputClass} value={filters.poolId} onChange={set('poolId')}>
+              <option value="">{t('callcenter:reports.allPools')}</option>
+              {pools.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
                 </option>
               ))}
             </select>
@@ -167,7 +209,7 @@ export default function CallCenterReports() {
                   )}
                   {(report.engagementAreaCounts ?? []).map((a, i) => (
                     <tr key={i} className="border-t border-gray-100 dark:border-gray-800">
-                      <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">{a.area}</td>
+                      <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">{areaLabel(a.area)}</td>
                       <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{a.count}</td>
                     </tr>
                   ))}
@@ -175,32 +217,46 @@ export default function CallCenterReports() {
               </table>
             </div>
 
-            <h2 className="text-theme-sm font-medium text-gray-900 dark:text-white mb-2">{t('callcenter:reports.topSuggestions')}</h2>
+            <h2 className="text-theme-sm font-medium text-gray-900 dark:text-white mb-2">{t('callcenter:reports.suggestions')}</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 dark:bg-gray-800/50 text-theme-xs uppercase text-gray-500 dark:text-gray-400">
                   <tr>
+                    <th className="px-4 py-3 whitespace-nowrap">{t('callcenter:reports.date')}</th>
+                    <th className="px-4 py-3">{t('callcenter:reports.contact')}</th>
+                    <th className="px-4 py-3">{t('callcenter:reports.municipality')}</th>
                     <th className="px-4 py-3">{t('callcenter:reports.suggestion')}</th>
-                    <th className="px-4 py-3">{t('callcenter:reports.count')}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {(report.topSuggestions ?? []).length === 0 && (
+                  {(report.suggestions ?? []).length === 0 && (
                     <tr>
-                      <td colSpan={2} className="px-4 py-4 text-center text-theme-sm text-gray-500 dark:text-gray-400">
+                      <td colSpan={4} className="px-4 py-4 text-center text-theme-sm text-gray-500 dark:text-gray-400">
                         {t('callcenter:reports.noData')}
                       </td>
                     </tr>
                   )}
-                  {(report.topSuggestions ?? []).map((s, i) => (
-                    <tr key={i} className="border-t border-gray-100 dark:border-gray-800">
-                      <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">{s.suggestion}</td>
-                      <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{s.count}</td>
+                  {(report.suggestions ?? []).map((s) => (
+                    <tr key={s.contactId} className="border-t border-gray-100 dark:border-gray-800">
+                      <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                        {s.calledAt ? formatDateTime(s.calledAt) : '-'}
+                      </td>
+                      <td className="px-4 py-3 text-theme-sm text-gray-900 dark:text-white">{s.contactName}</td>
+                      <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{s.municipalityName ?? '-'}</td>
+                      <td className="px-4 py-3 text-theme-sm text-gray-700 dark:text-gray-300">{s.suggestion}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+            {(report.suggestions ?? []).length < (report.suggestionsTotal ?? 0) && (
+              <p className="mt-2 text-theme-xs text-gray-500 dark:text-gray-400">
+                {t('callcenter:reports.suggestionsTruncated', {
+                  shown: report.suggestions.length,
+                  total: report.suggestionsTotal,
+                })}
+              </p>
+            )}
           </>
         )}
       </div>

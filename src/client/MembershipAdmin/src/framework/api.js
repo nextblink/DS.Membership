@@ -2,7 +2,9 @@
 import axios from 'axios'
 import auth from './auth'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7231'
+// `??` (not `||`) so an empty VITE_API_BASE_URL means "same origin" — that's how the
+// wwwroot build talks to the API it is served from.
+const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'https://localhost:7231'
 
 export const api = axios.create({
   baseURL,

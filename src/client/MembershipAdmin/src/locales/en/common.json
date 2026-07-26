@@ -31,9 +31,10 @@
     "next": "Next",
     "add": "Add",
     "search": "Search",
-    "delete": "Delete",
     "confirm": "Confirm",
-    "back": "Back"
+    "back": "Back",
+    "yes": "Yes",
+    "no": "No"
   },
   "state": {
     "loading": "Loading...",

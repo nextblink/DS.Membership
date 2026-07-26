@@ -26,33 +26,7 @@ public class CallContactService : ICallContactService
         var page = query.Page < 1 ? 1 : query.Page;
         var pageSize = query.PageSize < 1 ? 20 : query.PageSize;
 
-        var q = _db.CallContacts.ApplyCallContactScope(_user);
-        if (query.CampaignId is not null) q = q.Where(c => c.CampaignId == query.CampaignId);
-        if (query.PoolId is not null) q = q.Where(c => c.PoolId == query.PoolId);
-        if (!string.IsNullOrWhiteSpace(query.City)) q = q.Where(c => c.City == query.City);
-        if (query.MunicipalityId is not null) q = q.Where(c => c.MunicipalityId == query.MunicipalityId);
-        if (query.FinalStatus is not null) q = q.Where(c => c.FinalStatus == query.FinalStatus);
-        if (query.LastOutcome is not null) q = q.Where(c => c.LastOutcome == query.LastOutcome);
-        if (query.UnresolvedOnly && query.FinalStatus is null
-            && (query.LastOutcome is null || query.LastOutcome == CallOutcome.NoAnswer))
-        {
-            // Same "still callable" definition as GetNextForOperatorAsync — excludes
-            // contacts with a final status, a conversion, a non-NoAnswer outcome, or no phone.
-            // Skipped when FinalStatus is explicitly requested — the two would otherwise
-            // always AND to zero rows (FinalStatus can't be both null and a specific value).
-            // Likewise skipped when LastOutcome is explicitly requested as anything other than
-            // NoAnswer — this block's own LastOutcome clause (null-or-NoAnswer) would otherwise
-            // always AND to zero rows against a LastOutcome filter for e.g. ValidContact/WrongNumber.
-            q = q.Where(c => c.FinalStatus == null
-                && c.ConvertedMemberId == null
-                && c.PhoneNumber != null && c.PhoneNumber != ""
-                && (c.LastOutcome == null || c.LastOutcome == CallOutcome.NoAnswer));
-        }
-        if (!string.IsNullOrWhiteSpace(query.Search))
-        {
-            var s = query.Search.Trim();
-            q = q.Where(c => c.FirstName.Contains(s) || c.LastName.Contains(s) || (c.PhoneNumber != null && c.PhoneNumber.Contains(s)));
-        }
+        var q = BuildFilteredQuery(query);
 
         var total = await q.CountAsync(ct);
         IOrderedQueryable<CallContact> ordered = (query.SortBy == "name", query.SortDesc) switch
@@ -85,6 +59,116 @@ public class CallContactService : ICallContactService
             PageSize = pageSize,
             TotalPages = (int)Math.Ceiling(total / (double)pageSize)
         };
+    }
+
+    // Shared by SearchAsync (paged list) and ExportCsvAsync (every matching row) so the two
+    // can never drift — an export that filtered differently from the grid it was launched
+    // from would be worse than no export at all.
+    private IQueryable<CallContact> BuildFilteredQuery(CallContactQuery query)
+    {
+        var q = _db.CallContacts.ApplyCallContactScope(_user);
+        if (query.CampaignId is not null) q = q.Where(c => c.CampaignId == query.CampaignId);
+        if (query.PoolId is not null) q = q.Where(c => c.PoolId == query.PoolId);
+        if (!string.IsNullOrWhiteSpace(query.City)) q = q.Where(c => c.City == query.City);
+        if (query.MunicipalityId is not null) q = q.Where(c => c.MunicipalityId == query.MunicipalityId);
+        if (query.FinalStatus is not null) q = q.Where(c => c.FinalStatus == query.FinalStatus);
+        if (query.LastOutcome is not null) q = q.Where(c => c.LastOutcome == query.LastOutcome);
+        if (query.UnresolvedOnly && query.FinalStatus is null
+            && (query.LastOutcome is null || query.LastOutcome == CallOutcome.NoAnswer))
+        {
+            // Same "still callable" definition as GetNextForOperatorAsync — excludes
+            // contacts with a final status, a conversion, a non-NoAnswer outcome, or no phone.
+            // Skipped when FinalStatus is explicitly requested — the two would otherwise
+            // always AND to zero rows (FinalStatus can't be both null and a specific value).
+            // Likewise skipped when LastOutcome is explicitly requested as anything other than
+            // NoAnswer — this block's own LastOutcome clause (null-or-NoAnswer) would otherwise
+            // always AND to zero rows against a LastOutcome filter for e.g. ValidContact/WrongNumber.
+            q = q.Where(c => c.FinalStatus == null
+                && c.ConvertedMemberId == null
+                && c.PhoneNumber != null && c.PhoneNumber != ""
+                && (c.LastOutcome == null || c.LastOutcome == CallOutcome.NoAnswer));
+        }
+        if (query.EngagementArea is not null)
+        {
+            q = q.Where(c => c.EngagementAreas.Any(e => e.Area == query.EngagementArea));
+        }
+        if (query.WantsToBeActive is not null)
+        {
+            q = q.Where(c => c.WantsToBeActive == query.WantsToBeActive);
+        }
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var s = query.Search.Trim();
+            q = q.Where(c => c.FirstName.Contains(s) || c.LastName.Contains(s) || (c.PhoneNumber != null && c.PhoneNumber.Contains(s)));
+        }
+
+        return q;
+    }
+
+    public async Task<string> ExportCsvAsync(CallContactQuery query, CancellationToken ct = default)
+    {
+        var rows = await BuildFilteredQuery(query)
+            .OrderBy(c => c.LastName).ThenBy(c => c.FirstName).ThenBy(c => c.Id)
+            .Select(c => new
+            {
+                c.Id,
+                c.FirstName,
+                c.LastName,
+                c.PhoneNumber,
+                c.SecondaryPhone,
+                c.Email,
+                c.Address,
+                MunicipalityName = c.Municipality != null ? c.Municipality.Name : c.City,
+                PoolName = c.Pool != null ? c.Pool.Name : null,
+                CampaignName = c.Campaign.Name,
+                c.AttemptCount,
+                c.LastCalledAt,
+                c.LastOutcome,
+                c.FinalStatus,
+                c.PartyRelation,
+                c.ActivityLevel,
+                c.WantsToBeActive,
+                Areas = c.EngagementAreas.Select(e => e.Area).ToList(),
+                c.SuggestionNote,
+                c.KnowsPotentialMembers,
+                c.WillingToEnroll,
+            })
+            .ToListAsync(ct);
+
+        var sb = new System.Text.StringBuilder();
+        CallCenterCsv.AppendRow(sb,
+            "Име", "Презиме", "Телефон", "Други телефон", "Email", "Адреса", "Општина",
+            "Кампања", "Листа", "Број покушаја", "Последњи позив", "Исход", "Статус",
+            "Однос према странци", "Активност", "Жели да буде активан",
+            "Области ангажовања", "Сугестија", "Познаје потенцијалне чланове", "Спреман да их учланимо");
+
+        foreach (var r in rows)
+        {
+            CallCenterCsv.AppendRow(sb,
+                r.FirstName,
+                r.LastName,
+                r.PhoneNumber,
+                r.SecondaryPhone,
+                r.Email,
+                r.Address,
+                r.MunicipalityName,
+                r.CampaignName,
+                r.PoolName,
+                r.AttemptCount.ToString(),
+                r.LastCalledAt?.ToString("yyyy-MM-dd HH:mm"),
+                r.LastOutcome is null ? null : CallCenterCsv.OutcomeLabels[r.LastOutcome.Value],
+                r.FinalStatus is null ? null : CallCenterCsv.FinalStatusLabels[r.FinalStatus.Value],
+                r.PartyRelation is null ? null : CallCenterCsv.RelationLabels[r.PartyRelation.Value],
+                r.ActivityLevel is null ? null : CallCenterCsv.ActivityLabels[r.ActivityLevel.Value],
+                CallCenterCsv.Bool(r.WantsToBeActive),
+                // Areas share one cell, so join with "; " — a comma would read as a column break.
+                string.Join("; ", r.Areas.Select(a => CallCenterCsv.AreaLabels[a])),
+                r.SuggestionNote,
+                CallCenterCsv.Bool(r.KnowsPotentialMembers),
+                CallCenterCsv.Bool(r.WillingToEnroll));
+        }
+
+        return sb.ToString();
     }
 
     public async Task<CallContactDetailDto?> GetByIdAsync(int id, CancellationToken ct = default)
@@ -517,6 +601,57 @@ public class CallContactService : ICallContactService
     private static string NormalizeText(string? s) => s?.Trim().ToUpperInvariant() ?? "";
 
     private static string NormalizePhone(string? s) => s is null ? "" : new string(s.Where(char.IsDigit).ToArray());
+
+    public async Task<PhoneNormalizationResultDto> NormalizePhoneNumbersAsync(CancellationToken ct = default)
+    {
+        // Batched rather than a single bulk UPDATE: the rules (extension stripping, country-code
+        // handling, length checks) live in PhoneNormalizer so the import path and this pass can
+        // never disagree, and they don't express well in SQL.
+        const int BatchSize = 2000;
+        var primaryFixed = 0;
+        var secondaryFixed = 0;
+        var unfixable = 0;
+        var lastId = 0;
+
+        while (true)
+        {
+            var batch = await _db.CallContacts
+                .Where(c => c.Id > lastId)
+                .OrderBy(c => c.Id)
+                .Take(BatchSize)
+                .ToListAsync(ct);
+            if (batch.Count == 0) break;
+
+            foreach (var c in batch)
+            {
+                var primary = PhoneNormalizer.Normalize(c.PhoneNumber, out var primaryChanged);
+                if (primaryChanged)
+                {
+                    c.PhoneNumber = primary;
+                    primaryFixed++;
+                }
+
+                var secondary = PhoneNormalizer.Normalize(c.SecondaryPhone, out var secondaryChanged);
+                if (secondaryChanged)
+                {
+                    c.SecondaryPhone = secondary;
+                    secondaryFixed++;
+                }
+
+                if (!PhoneNormalizer.IsValid(c.PhoneNumber) || !PhoneNormalizer.IsValid(c.SecondaryPhone))
+                {
+                    unfixable++;
+                }
+            }
+
+            await _db.SaveChangesAsync(ct);
+            // Detach the batch so the change tracker doesn't grow across ~50k rows.
+            foreach (var c in batch) _db.Entry(c).State = EntityState.Detached;
+            lastId = batch[^1].Id;
+        }
+
+        return new PhoneNormalizationResultDto(primaryFixed, secondaryFixed, unfixable);
+    }
 
     public async Task<ResetContactsResultDto> ResetAllToNeverCalledAsync(CancellationToken ct = default)
     {

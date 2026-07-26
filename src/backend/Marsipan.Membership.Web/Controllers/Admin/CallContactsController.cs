@@ -19,6 +19,18 @@ public class CallContactsController : ControllerBase
         [FromQuery] CallContactQuery query, CancellationToken ct)
         => Ok(await _contacts.SearchAsync(query, ct));
 
+    // Back-office only. The scope filter would already limit an Operator to their own pool,
+    // but a one-click file of every contact's name/phones/email/address is a materially
+    // easier way for membership data to leave the system than the paged grid — so the
+    // export stays with the roles that already have unrestricted access anyway.
+    [HttpGet("export")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
+    public async Task<IActionResult> Export([FromQuery] CallContactQuery query, CancellationToken ct)
+    {
+        var csv = await _contacts.ExportCsvAsync(query, ct);
+        return File(CallCenterCsv.ToBytes(csv), "text/csv; charset=utf-8", "kontakti-kol-centar.csv");
+    }
+
     [HttpGet("my-pools")]
     public async Task<ActionResult<List<PoolOptionDto>>> MyPools(CancellationToken ct)
         => Ok(await _contacts.ListMyPoolsAsync(ct));
@@ -120,6 +132,11 @@ public class CallContactsController : ControllerBase
     [Authorize(Roles = "SuperAdmin,Admin")]
     public async Task<ActionResult<DedupeResultDto>> Dedupe(CancellationToken ct)
         => Ok(await _contacts.RemoveDuplicatesAsync(ct));
+
+    [HttpPost("normalize-phones")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
+    public async Task<ActionResult<PhoneNormalizationResultDto>> NormalizePhones(CancellationToken ct)
+        => Ok(await _contacts.NormalizePhoneNumbersAsync(ct));
 
     [HttpPost("reset-to-never-called")]
     [Authorize(Roles = "SuperAdmin,Admin")]

@@ -4,7 +4,8 @@ import axios from 'axios'
 const TOKEN_KEY = 'auth.token'
 const USER_KEY = 'auth.user'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7231'
+// `??` (not `||`) so an empty VITE_API_BASE_URL means "same origin".
+const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'https://localhost:7231'
 
 function readUser() {
   try {

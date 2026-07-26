@@ -218,6 +218,10 @@ if (app.Environment.IsDevelopment())
 
 // --- File storage (issue #8) ---
 // Serves uploaded form scans from wwwroot/uploads/forms/... at /uploads/forms/...
+// Also serves the built admin client when it has been published into wwwroot
+// (`npm run build:wwwroot` in src/client/MembershipAdmin) — UseDefaultFiles maps "/" to
+// index.html; the fallback below covers client-side routes like /login or /callcenter/queue.
+app.UseDefaultFiles();
 app.UseStaticFiles();
 // --- end file storage ---
 
@@ -234,5 +238,30 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapGet("/health", () => Results.Ok("ok"));
+
+// SPA fallback: deep links such as /callcenter/queue are React-router paths with no server
+// route, so hand them index.html and let the client route. Deliberately NOT a blanket
+// MapFallbackToFile — an unmatched /api/... must still 404 as JSON rather than silently
+// returning HTML, which turns a typo'd endpoint into a confusing client-side parse error.
+app.MapFallback(async context =>
+{
+    if (context.Request.Path.StartsWithSegments("/api"))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+
+    var indexPath = Path.Combine(app.Environment.WebRootPath ?? string.Empty, "index.html");
+    if (!File.Exists(indexPath))
+    {
+        // The client hasn't been published into wwwroot (normal when running the API alongside
+        // the Vite dev server) — nothing to fall back to.
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+
+    context.Response.ContentType = "text/html";
+    await context.Response.SendFileAsync(indexPath);
+});
 
 app.Run();

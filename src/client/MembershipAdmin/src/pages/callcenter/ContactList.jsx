@@ -5,9 +5,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Column } from 'primereact/column'
 import callCenterApi from '../../services/callCenterApi'
-import { CALL_OUTCOME, toEnumKey } from '../../services/callScript'
+import { CALL_OUTCOME, ENGAGEMENT_AREA, toEnumKey } from '../../services/callScript'
 import ServerDataTable, { columnHeaderPt, columnBodyPt } from '../../components/ServerDataTable'
 import MunicipalityAutoComplete from '../../components/MunicipalityAutoComplete'
+import auth from '../../framework/auth'
 
 // Enum values mirror the backend Enums.cs ordinals (ContactFinalStatus).
 const FINAL_STATUS = { ActiveMember: 0, InactiveMember: 1, Sympathizer: 2, NoCooperation: 3 }
@@ -18,10 +19,33 @@ const labelClass = 'block text-[11px] font-medium text-gray-700 dark:text-gray-3
 
 const PAGE_SIZE = 20
 
+// Shared by the grid query and the CSV export so the exported file always matches the
+// filters the operator is looking at.
+function queryParams(filters) {
+  const params = {}
+  if (filters.campaignId) params.campaignId = filters.campaignId
+  if (filters.municipalityId) params.municipalityId = filters.municipalityId
+  if (filters.finalStatus !== '') params.finalStatus = filters.finalStatus
+  if (filters.lastOutcome !== '') params.lastOutcome = filters.lastOutcome
+  if (filters.engagementArea !== '') params.engagementArea = filters.engagementArea
+  if (filters.wantsToBeActive !== '') params.wantsToBeActive = filters.wantsToBeActive
+  if (filters.search) params.search = filters.search
+  return params
+}
+
+const EMPTY_FILTERS = {
+  campaignId: '', municipalityId: '', finalStatus: '', lastOutcome: '', search: '',
+  engagementArea: '', wantsToBeActive: '',
+}
+
 export default function ContactList() {
   const { t } = useTranslation(['callcenter', 'common', 'enums'])
   const [campaigns, setCampaigns] = useState([])
-  const [filters, setFilters] = useState({ campaignId: '', municipalityId: '', finalStatus: '', lastOutcome: '', search: '' })
+  const [filters, setFilters] = useState(EMPTY_FILTERS)
+  const [exporting, setExporting] = useState(false)
+  // Mirrors the [Authorize(Roles = "SuperAdmin,Admin")] on GET /api/call-contacts/export —
+  // showing an Operator a button that can only 403 would be worse than hiding it.
+  const canExport = ['SuperAdmin', 'Admin'].includes(auth.getRole())
   // Default sort is address, ascending; clicking Name/Address toggles field/direction
   // (PrimeReact's normal asc -> desc -> asc single-column-sort cycle).
   const [sortField, setSortField] = useState('address')
@@ -57,12 +81,7 @@ export default function ContactList() {
     let cancelled = false
     setLoading(true)
     setError(null)
-    const params = { page, pageSize: PAGE_SIZE, sortBy: sortField, sortDesc: sortOrder === -1 }
-    if (filters.campaignId) params.campaignId = filters.campaignId
-    if (filters.municipalityId) params.municipalityId = filters.municipalityId
-    if (filters.finalStatus !== '') params.finalStatus = filters.finalStatus
-    if (filters.lastOutcome !== '') params.lastOutcome = filters.lastOutcome
-    if (filters.search) params.search = filters.search
+    const params = { ...queryParams(filters), page, pageSize: PAGE_SIZE, sortBy: sortField, sortDesc: sortOrder === -1 }
 
     callCenterApi
       .listContacts(params)
@@ -95,17 +114,53 @@ export default function ContactList() {
   }
 
   const totalPages = data.totalPages || 1
+  const hasFilters = Object.keys(EMPTY_FILTERS).some((k) => filters[k] !== EMPTY_FILTERS[k])
+
+  const resetFilters = () => {
+    setPage(1)
+    setFilters(EMPTY_FILTERS)
+  }
+
+  // Server-side export: the endpoint returns every row matching the current filters, not
+  // just the page on screen, so "give me everyone interested in campaigns" is one click.
+  const exportCsv = async () => {
+    setExporting(true)
+    setError(null)
+    try {
+      const blob = await callCenterApi.exportContacts(queryParams(filters))
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'kontakti-kol-centar.csv'
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      setError(t('callcenter:contacts.exportFailed'))
+    } finally {
+      setExporting(false)
+    }
+  }
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-sm overflow-hidden">
       {/* Card header */}
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
         <h1 className="text-xl font-semibold text-brand-500 dark:text-brand-400">{t('callcenter:contacts.title')}</h1>
+        {canExport && (
+          <button
+            type="button"
+            disabled={exporting}
+            onClick={exportCsv}
+            className="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-theme-xs font-medium text-gray-700 dark:text-gray-300 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
+          >
+            {exporting ? t('callcenter:contacts.exporting') : t('callcenter:contacts.exportCsv')}
+          </button>
+        )}
       </div>
 
       {/* Filter bar */}
       <div className="border-b border-gray-200 dark:border-gray-800 bg-brand-50 dark:bg-brand-500/[0.06] px-6 py-4">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div>
             <label className={labelClass}>{t('callcenter:contacts.filters.campaign')}</label>
             <select className={inputClass} value={filters.campaignId} onChange={set('campaignId')}>
@@ -151,6 +206,25 @@ export default function ContactList() {
             </select>
           </div>
           <div>
+            <label className={labelClass}>{t('callcenter:contacts.filters.engagementArea')}</label>
+            <select className={inputClass} value={filters.engagementArea} onChange={set('engagementArea')}>
+              <option value="">{t('callcenter:contacts.filters.allAreas')}</option>
+              {Object.entries(ENGAGEMENT_AREA).map(([k, v]) => (
+                <option key={v} value={v}>
+                  {t(`enums:engagementArea.${toEnumKey(k)}`, k)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelClass}>{t('callcenter:contacts.filters.wantsActive')}</label>
+            <select className={inputClass} value={filters.wantsToBeActive} onChange={set('wantsToBeActive')}>
+              <option value="">{t('callcenter:contacts.filters.wantsActiveAny')}</option>
+              <option value="true">{t('callcenter:contacts.filters.wantsActiveYes')}</option>
+              <option value="false">{t('callcenter:contacts.filters.wantsActiveNo')}</option>
+            </select>
+          </div>
+          <div>
             <label className={labelClass}>{t('callcenter:contacts.filters.search')}</label>
             <input
               className={inputClass}
@@ -158,6 +232,17 @@ export default function ContactList() {
               onChange={set('search')}
               placeholder={t('callcenter:contacts.filters.searchPlaceholder')}
             />
+          </div>
+          {/* Sits in the grid as its own cell so it lines up with the inputs above it. */}
+          <div className="flex items-end">
+            <button
+              type="button"
+              onClick={resetFilters}
+              disabled={!hasFilters}
+              className="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-theme-xs font-medium text-gray-700 dark:text-gray-300 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              {t('common:button.clear')}
+            </button>
           </div>
         </div>
       </div>

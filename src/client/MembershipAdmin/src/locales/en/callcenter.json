@@ -94,8 +94,17 @@
       "outcome": "Outcome",
       "allOutcomes": "All outcomes",
       "search": "Search",
-      "searchPlaceholder": "Name, phone..."
-    }
+      "searchPlaceholder": "Name, phone...",
+      "engagementArea": "Engagement area",
+      "allAreas": "All areas",
+      "wantsActive": "Interested in activating",
+      "wantsActiveAny": "All",
+      "wantsActiveYes": "Yes",
+      "wantsActiveNo": "No"
+    },
+    "exportCsv": "Export CSV",
+    "exporting": "Exporting...",
+    "exportFailed": "Export failed."
   },
   "import": {
     "title": "Import contacts",
@@ -169,15 +178,15 @@
     },
     "questions": {
       "outcome": "Was contact established with the right person?",
-      "relation": "Do you want to remain part of the party?",
+      "relation": "Our records list you as a party member. Do you want to remain part of the party?",
       "activity": "Are you currently active in the party?",
       "wantsActive": "Would you like to become active?",
       "engagement": "In what form would you like to be engaged?",
       "contactData": "Update contact data",
-      "suggestion": "Do you have any suggestion or proposal?",
+      "suggestion": "Do you have a suggestion, proposal or topic the party should pay more attention to?",
       "recommendationsTitle": "Potential member recommendations",
-      "recommendKnows": "Do you know someone who shares the party's values?",
-      "recommendWilling": "Would they be willing to join?"
+      "recommendKnows": "Do you know people around you who share the values of the Democratic Party, support the students, and might be interested in joining the party?",
+      "recommendWilling": "Would you be willing for us to enrol such people in the period ahead?"
     },
     "fields": {
       "phone": "Phone",
@@ -204,16 +213,18 @@
       "interestedInActivating": "Interested in activating"
     },
     "engagementAreas": "Engagement areas",
-    "topSuggestions": "Top suggestions",
     "area": "Area",
     "count": "Count",
     "suggestion": "Suggestion",
     "noData": "No data.",
-    "csv": {
-      "metric": "Metric",
-      "value": "Value",
-      "engagementPrefix": "Engagement",
-      "suggestionPrefix": "Suggestion"
-    }
+    "suggestions": "Suggestions",
+    "contact": "Person",
+    "date": "Date",
+    "municipality": "Municipality",
+    "suggestionsTruncated": "Showing {{shown}} of {{total}} suggestions.",
+    "pool": "Call pool",
+    "allPools": "All pools",
+    "exporting": "Exporting...",
+    "exportFailed": "Export failed."
   }
 }

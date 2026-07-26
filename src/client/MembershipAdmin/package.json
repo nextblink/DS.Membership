@@ -1,11 +1,12 @@
 {
   "name": "membershipadmin",
   "private": true,
-  "version": "0.28.80",
+  "version": "0.28.88",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:wwwroot": "node scripts/clean-wwwroot.mjs && vite build --outDir ../../backend/Marsipan.Membership.Web/wwwroot --emptyOutDir false",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run"

@@ -10,6 +10,10 @@ public record CallContactQuery(
     ContactFinalStatus? FinalStatus,
     CallOutcome? LastOutcome,
     string? Search,
+    // Drill-down filters behind the report cards (#89): "who wants to be activated" and
+    // "who volunteered for area X" — the counts alone can't be turned into a call list.
+    EngagementArea? EngagementArea = null,
+    bool? WantsToBeActive = null,
     bool UnresolvedOnly = false,
     int Page = 1,
     int PageSize = 20,
@@ -82,6 +86,13 @@ public record DedupeResultDto(int DuplicatesRemoved, int GroupsAffected);
 
 // Result of a one-time "reset to never called" pass (see ICallContactService.ResetAllToNeverCalledAsync).
 public record ResetContactsResultDto(int ContactsReset);
+
+// Result of a phone-normalization pass. `Unfixable` counts numbers that still violate the
+// rule afterwards — local numbers imported without an area code, which no prefix can repair.
+public record PhoneNormalizationResultDto(
+    int PrimaryFixed,
+    int SecondaryFixed,
+    int Unfixable);
 
 // Lightweight pool listing for the "which pool am I calling through" selector — Operators only
 // see pools they're assigned to (CallPoolOperator), SuperAdmin/Admin see all active pools,

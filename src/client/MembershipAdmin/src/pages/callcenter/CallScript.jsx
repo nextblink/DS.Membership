@@ -145,14 +145,23 @@ export default function CallScript() {
       attemptNote: answers.attemptNote ?? null,
       partyRelation: has('relation') ? answers.relation ?? null : null,
       activityLevel: has('activity') ? answers.activity ?? null : null,
-      wantsToBeActive: has('activity') ? answers.wantsToBeActive ?? null : null,
+      // Only sent when the follow-up was actually on screen (Inactive members) — otherwise
+      // it stays null, i.e. "not asked", rather than being recorded as a No.
+      wantsToBeActive:
+        has('activity') && answers.activity === ACTIVITY_LEVEL.Inactive
+          ? answers.wantsToBeActive ?? null
+          : null,
       engagementAreas: has('engagement') ? answers.engagementAreas ?? [] : [],
       updatedPhone: has('contactData') ? answers.updatedPhone || null : null,
       updatedEmail: has('contactData') ? answers.updatedEmail || null : null,
       updatedAddress: has('contactData') ? answers.updatedAddress || null : null,
       suggestionNote: has('suggestion') ? answers.suggestionNote ?? null : null,
       knowsPotentialMembers: has('recommendations') ? answers.knowsPotentialMembers ?? null : null,
-      willingToEnroll: has('recommendations') ? answers.willingToEnroll ?? null : null,
+      // Same rule: the follow-up only exists for people who said they know someone.
+      willingToEnroll:
+        has('recommendations') && answers.knowsPotentialMembers === true
+          ? answers.willingToEnroll ?? null
+          : null,
     }
     setSaving(true)
     setSaveError(null)
@@ -325,14 +334,18 @@ export default function CallScript() {
               />
             ))}
             {answers.activity === ACTIVITY_LEVEL.Inactive && (
-              <label className="flex items-center gap-2 mt-2 text-theme-xs text-gray-700 dark:text-gray-300">
-                <input
-                  type="checkbox"
-                  checked={answers.wantsToBeActive === true}
-                  onChange={(e) => setAnswer('wantsToBeActive', e.target.checked)}
+              <div className="mt-3">
+                <p className="text-theme-xs text-gray-700 dark:text-gray-300 mb-1.5">
+                  {t('callcenter:script.questions.wantsActive')}
+                </p>
+                <YesNo
+                  name="wantsToBeActive"
+                  value={answers.wantsToBeActive}
+                  onChange={(v) => setAnswer('wantsToBeActive', v)}
+                  yes={t('common:button.yes')}
+                  no={t('common:button.no')}
                 />
-                {t('callcenter:script.questions.wantsActive')}
-              </label>
+              </div>
             )}
           </Step>
         </section>
@@ -376,22 +389,31 @@ export default function CallScript() {
       {isVisible('recommendations') && (
         <section className={sectionClass}>
           <Step title={t('callcenter:script.questions.recommendationsTitle')}>
-            <label className="flex items-center gap-2 text-theme-xs text-gray-700 dark:text-gray-300">
-              <input
-                type="checkbox"
-                checked={answers.knowsPotentialMembers === true}
-                onChange={(e) => setAnswer('knowsPotentialMembers', e.target.checked)}
-              />
+            <p className="text-theme-xs text-gray-700 dark:text-gray-300 mb-1.5">
               {t('callcenter:script.questions.recommendKnows')}
-            </label>
-            <label className="flex items-center gap-2 text-theme-xs text-gray-700 dark:text-gray-300">
-              <input
-                type="checkbox"
-                checked={answers.willingToEnroll === true}
-                onChange={(e) => setAnswer('willingToEnroll', e.target.checked)}
-              />
-              {t('callcenter:script.questions.recommendWilling')}
-            </label>
+            </p>
+            <YesNo
+              name="knowsPotentialMembers"
+              value={answers.knowsPotentialMembers}
+              onChange={(v) => setAnswer('knowsPotentialMembers', v)}
+              yes={t('common:button.yes')}
+              no={t('common:button.no')}
+            />
+            {/* Per the spec the follow-up is only asked of people who said yes. */}
+            {answers.knowsPotentialMembers === true && (
+              <div className="mt-3">
+                <p className="text-theme-xs text-gray-700 dark:text-gray-300 mb-1.5">
+                  {t('callcenter:script.questions.recommendWilling')}
+                </p>
+                <YesNo
+                  name="willingToEnroll"
+                  value={answers.willingToEnroll}
+                  onChange={(v) => setAnswer('willingToEnroll', v)}
+                  yes={t('common:button.yes')}
+                  no={t('common:button.no')}
+                />
+              </div>
+            )}
           </Step>
         </section>
       )}
@@ -426,6 +448,17 @@ function Step({ title, children }) {
     <div>
       <h2 className="text-theme-sm font-medium text-gray-900 dark:text-white mb-3">{title}</h2>
       <div className="space-y-1.5">{children}</div>
+    </div>
+  )
+}
+
+// Explicit Да/Не pair. A checkbox couldn't distinguish "answered No" from "never asked",
+// which is exactly what the reports need to tell apart (#90).
+function YesNo({ name, value, onChange, yes, no }) {
+  return (
+    <div className="flex gap-4">
+      <Radio name={name} label={yes} checked={value === true} onChange={() => onChange(true)} />
+      <Radio name={name} label={no} checked={value === false} onChange={() => onChange(false)} />
     </div>
   )
 }

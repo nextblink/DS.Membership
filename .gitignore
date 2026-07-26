@@ -493,3 +493,4 @@ dist/
 
 # Local dev email pickup (directory-delivery fallback)
 src/backend/Marsipan.Membership.Web/wwwroot/mail-pickup/
+src/backend/Marsipan.Membership.Web/wwwroot/

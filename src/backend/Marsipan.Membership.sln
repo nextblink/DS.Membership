@@ -1,15 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.8.12021.73 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marsipan.Membership.Middleware", "Marsipan.Membership.Middleware\Marsipan.Membership.Middleware.csproj", "{E7DA278D-EA14-4B6A-A55C-6481BFCA8952}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marsipan.Membership.Web", "Marsipan.Membership.Web\Marsipan.Membership.Web.csproj", "{CF72AAD4-CF34-4A2B-A6B8-68429121C664}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marsipan.Membership.Telegram.Tests", "Marsipan.Membership.Telegram.Tests\Marsipan.Membership.Telegram.Tests.csproj", "{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marsipan.Membership.Telegram.API", "Marsipan.Membership.Telegram.API\Marsipan.Membership.Telegram.API.csproj", "{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marsipan.Membership.Tests", "Marsipan.Membership.Tests\Marsipan.Membership.Tests.csproj", "{D9237A12-7768-4CF2-9F25-C58E18001CF0}"
 EndProject
@@ -47,30 +43,6 @@ Global
 		{CF72AAD4-CF34-4A2B-A6B8-68429121C664}.Release|x64.Build.0 = Release|Any CPU
 		{CF72AAD4-CF34-4A2B-A6B8-68429121C664}.Release|x86.ActiveCfg = Release|Any CPU
 		{CF72AAD4-CF34-4A2B-A6B8-68429121C664}.Release|x86.Build.0 = Release|Any CPU
-		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Debug|x64.Build.0 = Debug|Any CPU
-		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Debug|x86.Build.0 = Debug|Any CPU
-		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Release|x64.ActiveCfg = Release|Any CPU
-		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Release|x64.Build.0 = Release|Any CPU
-		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Release|x86.ActiveCfg = Release|Any CPU
-		{C9FB908B-8B92-472D-9687-F8A5BCEE75B9}.Release|x86.Build.0 = Release|Any CPU
-		{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}.Debug|x64.Build.0 = Debug|Any CPU
-		{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}.Debug|x86.Build.0 = Debug|Any CPU
-		{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}.Release|x64.ActiveCfg = Release|Any CPU
-		{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}.Release|x64.Build.0 = Release|Any CPU
-		{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}.Release|x86.ActiveCfg = Release|Any CPU
-		{B0E5EE41-1408-4B13-B7A6-E7B0EAEFEA4D}.Release|x86.Build.0 = Release|Any CPU
 		{D9237A12-7768-4CF2-9F25-C58E18001CF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D9237A12-7768-4CF2-9F25-C58E18001CF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9237A12-7768-4CF2-9F25-C58E18001CF0}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -86,5 +58,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {46DD09C5-35F5-4F5A-876E-6F63A38EEBD7}
 	EndGlobalSection
 EndGlobal

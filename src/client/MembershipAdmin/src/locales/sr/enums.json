@@ -56,9 +56,9 @@
     "municipalBoard": "Општински одбор",
     "departmentalBoards": "Ресорни одбори",
     "centralOffice": "Централа",
-    "organizationalExecutive": "Организациони секретар",
+    "organizationalExecutive": "Организациони / извршни послови",
     "electionCampaign": "Изборна кампања",
-    "electionMonitor": "Праћење избора"
+    "electionMonitor": "Контролор на изборима"
   },
   "contactFinalStatus": {
     "activeMember": "Активан члан",
